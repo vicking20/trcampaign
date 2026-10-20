@@ -11,7 +11,7 @@ ENVS=(-E "DISPLAY=${DISPLAY:-:0}" -E "XAUTHORITY=${XAUTHORITY:-}")
 
 start_blaze() { systemctl --user restart $U_BLAZE 2>/dev/null || systemd-run --user --collect --property=NoNewPrivileges=yes --unit=$U_BLAZE python3 -u "$ROOT/server/trserver.py" 42127 "${NFSTR_ADV_HOST:-127.0.0.1}" >/dev/null; }
 start_server() { systemctl --user stop $U_SRV 2>/dev/null; sleep 1; mkdir -p "$WORK/slog"; rm -f "$WORK"/slog/*
-  systemd-run --user --collect --property=Restart=always --property=RestartSec=3 --unit=$U_SRV "${ENVS[@]}" -E PROTON_LOG=1 -E "PROTON_LOG_DIR=$WORK/slog" -E "NFSTR_SERVER_EXTRA=${NFSTR_SERVER_EXTRA:-}" "$ROOT/tools/launch/start_server_blaze.sh" >/dev/null; }
+  systemd-run --user --collect --property=Restart=on-failure --property=RestartSec=3 --unit=$U_SRV "${ENVS[@]}" -E PROTON_LOG=1 -E "PROTON_LOG_DIR=$WORK/slog" -E "NFSTR_SERVER_EXTRA=${NFSTR_SERVER_EXTRA:-}" "$ROOT/tools/launch/start_server_blaze.sh" >/dev/null; }
 start_game() { systemctl --user stop $U_GAME 2>/dev/null; sleep 2; rm -f "$WORK"/plog/*; : > "$ROOT/online_test/Scripts/NFSTR_Online.log"
   systemd-run --user --collect --unit=$U_GAME "${ENVS[@]}" -E PROTON_LOG=1 -E "PROTON_LOG_DIR=$WORK/plog" "$ROOT/tools/launch/start.sh" >/dev/null; }
 

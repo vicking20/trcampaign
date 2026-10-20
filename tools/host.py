@@ -66,14 +66,19 @@ def start_windows(game, addr, modes, every, elim, foreground=False):
     if foreground:                                         # the Blaze server runs in THIS window so the host sees what happens
         import threading
         stopping = []
-        def keep_running():                                # the engine exits after each session: start it again until we stop
+        def keep_running():                                # exit code 241 = session ended, other non-zero = crash: start again; 0 = closed on purpose: stop
+            recent = []
             while not stopping:
-                p = subprocess.Popen([exe] + SERVER_ARGS, cwd=game); d["server"] = p.pid; save(d); p.wait()
-                if not stopping: print("game server exited, restarting...", flush=True); time.sleep(3)
+                p = subprocess.Popen([exe] + SERVER_ARGS, cwd=game); d["server"] = p.pid; save(d); rc = p.wait()
+                if stopping: break
+                if rc == 0: print("game server closed on purpose: stopping", flush=True); stopping.append(1); stop(); os._exit(0)
+                recent[:] = [t for t in recent if time.time() - t < 60] + [time.time()]
+                if len(recent) > 5: print("game server keeps crashing (exit code %s): giving up" % rc, flush=True); stopping.append(1); stop(); os._exit(1)
+                print("game server exited (code %s), restarting..." % rc, flush=True); time.sleep(3)
         threading.Thread(target=keep_running, daemon=True).start(); time.sleep(1)
         if modes == "vanilla": subprocess.call([sys.executable, os.path.join(ROOT, "tools", "gen_news.py"), "--vanilla"])
         else: start_score(modes, every, elim)
-        print("server up: advertising %s, modes %s. Close THIS window or press Ctrl+C to stop (closing only the game server window just restarts it).\n" % (addr, modes), flush=True)
+        print("server up: advertising %s, modes %s. Close this window or press Ctrl+C to stop; closing the game server window also stops everything.\n" % (addr, modes), flush=True)
         try: subprocess.call(cmd, env=env, cwd=ROOT)
         except KeyboardInterrupt: pass
         stopping.append(1); stop(); print("stopped"); return

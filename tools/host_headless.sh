@@ -21,11 +21,12 @@ esac
 ADDR="${1:-auto}"; MODES="${2:-plague}"; EVERY="${3:-3}"; ELIM="${4:-hold}"
 [ -f "$GAME/NFSTR_Server.exe" ] || python3 "$ROOT/tools/make_server_exe.py" "$GAME" >/dev/null 2>&1
 [ -f "$GAME/NFSTR_Server.exe" ] || { echo "no NFSTR_Server.exe in $GAME (prepare it with tools/prepare_host.sh <game-folder>, or set NFSTR_GAME_DIR)"; exit 1; }
-command -v wine >/dev/null && command -v Xvfb >/dev/null || { echo "install wine and xvfb first"; exit 1; }
+command -v wine >/dev/null || { echo "wine is required (Debian/Ubuntu: sudo apt install wine wine32; Arch: sudo pacman -S wine)"; exit 1; }
+if [ -z "$NFSTR_DISPLAY" ] && { [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; }; then USE_REAL_DISPLAY=1; elif ! command -v Xvfb >/dev/null; then echo "no screen found: install xvfb (Debian/Ubuntu: sudo apt install xvfb)"; exit 1; fi
 export WINEPREFIX="${WINEPREFIX:-$ROOT/runtime/wine_server}" WINEDLLOVERRIDES="dinput8=n,b;mscoree,mshtml=" WINEDEBUG=-all
 mkdir -p "$WINEPREFIX"
 stop >/dev/null 2>&1; : > "$PIDS"
-Xvfb "$DISP" -screen 0 800x600x24 >/dev/null 2>&1 & echo $! >> "$PIDS"; sleep 1
+if [ -z "$USE_REAL_DISPLAY" ]; then Xvfb "$DISP" -screen 0 800x600x24 >/dev/null 2>&1 & echo $! >> "$PIDS"; sleep 1; else DISP="${DISPLAY:-:0}"; fi          # a desktop session: use its screen; a container/ssh: virtual one
 export TR_AUTOLOG_PORT="${TR_AUTOLOG_PORT:-443}"
 python3 -u "$ROOT/server/trserver.py" 42127 "$ADDR" >> "$RUN/blaze.log" 2>&1 & echo $! >> "$PIDS"; sleep 2
 SERVER_CMD=(wine NFSTR_Server.exe -Server.ServerName NFSTR_BlazeServer -GamePort 25200
@@ -36,8 +37,8 @@ SERVER_CMD=(wine NFSTR_Server.exe -Server.ServerName NFSTR_BlazeServer -GamePort
 export DISPLAY="$DISP"; cd "$GAME" || exit 1
 if [ "$MODES" = vanilla ]; then
   python3 "$ROOT/tools/gen_news.py" --vanilla >/dev/null
-  ( while true; do "${SERVER_CMD[@]}" >> "$RUN/dedicated.log" 2>&1; sleep 3; done ) & echo $! >> "$PIDS"      # the engine exits after each session: start it again
+  ( while true; do "${SERVER_CMD[@]}" >> "$RUN/dedicated.log" 2>&1; rc=$?; [ $rc -eq 0 ] && { "$0" stop; break; }; sleep 3; done ) & echo $! >> "$PIDS"      # restart after a session end/crash (non-zero exit), stop if it was closed on purpose
 else      # the scoring daemon starts the dedicated server as its child: only a parent may read its memory when kernel.yama.ptrace_scope=1
-  python3 -u "$ROOT/tools/online_scoring.py" "$MODES" --every "$EVERY" --elim "$ELIM" --run "${SERVER_CMD[@]}" >> "$RUN/scoring.log" 2>&1 & echo $! >> "$PIDS"
+  python3 -u "$ROOT/tools/online_scoring.py" "$MODES" --every "$EVERY" --elim "$ELIM" --on-user-close "'$0' stop" --run "${SERVER_CMD[@]}" >> "$RUN/scoring.log" 2>&1 & echo $! >> "$PIDS"
 fi
 echo "server started: advertising $ADDR, modes $MODES. Logs: $RUN/*.log. Ports: TCP 42127, TCP $TR_AUTOLOG_PORT, TCP+UDP 17502, UDP 25200"

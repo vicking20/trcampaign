@@ -18,6 +18,7 @@ ap.add_argument("modes"); ap.add_argument("--every", type=int, default=3)
 ap.add_argument("--elim", choices=["hold", "soft"], default="hold",
                 help="hold: eliminated players are removed and cannot match until the season changes; soft: they may rejoin, their results simply do not score")
 ap.add_argument("--run", nargs=argparse.REMAINDER, help="start this command (the dedicated server) as a child process; under ptrace_scope=1 only a parent may read its memory")
+ap.add_argument("--on-user-close", default="", help="shell command to run when the engine is closed on purpose (exit code 0), e.g. to stop the whole server")
 ap.add_argument("--scheme", default="field"); ap.add_argument("--teams", default="")
 args = ap.parse_args()
 ROTATION = [m for m in args.modes.split(",") if m]
@@ -104,11 +105,21 @@ def dump_raw(pid, path):
 
 import subprocess
 child = None
+restarts = []
 def keep_server_running():
-    """The engine exits when a session ends; start it again (as our child, so its memory stays readable). Called from the main loop."""
+    """The engine exits with code 241 when a session ends and with other non-zero codes when it crashes: start it again (as our child, so its memory stays
+    readable). Exit code 0 = closed on purpose: stop everything. Gives up after 5 restarts within a minute (crash loop). Called from the main loop."""
     global child
     if args.run and (child is None or child.poll() is not None):
-        if child is not None: print("dedicated server exited (%s): restarting" % child.returncode, flush=True); time.sleep(3)
+        if child is not None:
+            rc = child.returncode
+            if rc == 0:
+                print("game server closed on purpose: stopping", flush=True)
+                if args.on_user_close: subprocess.call(args.on_user_close, shell=True)
+                sys.exit(0)
+            restarts[:] = [t for t in restarts if time.time() - t < 60] + [time.time()]
+            if len(restarts) > 5: sys.exit("game server keeps crashing (exit code %s): giving up" % rc)
+            print("game server exited (code %s): restarting" % rc, flush=True); time.sleep(3)
         child = subprocess.Popen(args.run); print("started dedicated server as child pid", child.pid, flush=True)
 keep_server_running()
 print("scoring %s (%s); rotation every %d races; races so far %d" % (mode, ", ".join(ROTATION), args.every, st["races"]), flush=True)

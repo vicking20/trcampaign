@@ -33,7 +33,8 @@ You already have everything: the same zip, extracted in your game folder, includ
 - **Windows (experimental):** double-click **`StartServer.bat`**. It opens a window that shows what the server is doing, asks one thing (the address friends will use),
   and starts everything. Close the window or press Ctrl+C to stop. `AdminConsole.bat` opens the control panel (players, kick/ban, announcements, game mode).
 - **Linux:** `./StartServer.sh <address> [modes]` in the game folder (uses `umu-run` if you have it, otherwise `wine` + `xvfb`). Stop: `./StartServer.sh stop`.
-- **Stopping:** Windows: close the console window (or Ctrl+C). Linux: `./StartServer.sh stop`. The game's own server restarts itself after every session, so closing just its window won't stop it.
+- **Stopping:** close the game's server window, or the console window (Ctrl+C), or run `./StartServer.sh stop` on Linux. The server restarts itself after each session or if it crashes, but not when you close it on purpose.
+- **Only Wine, no `umu-run`?** `./StartServer.sh` uses plain `wine` (and your screen, or `xvfb` when there is none).
 - **Different folder?** Run `StartServer.bat "D:\Games\NFS The Run"`, or put a `server.ini` in `NFSTR_Server` with `[Server]` and `GameDir=`, `Address=`, `Modes=`.
 
 Containers and machines without a screen: see `NFSTR_Server/docs/NOTES.md`.
