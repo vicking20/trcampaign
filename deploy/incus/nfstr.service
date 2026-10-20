@@ -1,0 +1,16 @@
+[Unit]
+Description=NFSTR Online server (Blaze + dedicated server + scoring)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/nfstr.env
+WorkingDirectory=/srv/nfstr/trcampaign
+ExecStart=/srv/nfstr/trcampaign/tools/host_headless.sh start $NFSTR_ADDRESS $NFSTR_MODES $NFSTR_EVERY $NFSTR_ELIM
+ExecStop=/srv/nfstr/trcampaign/tools/host_headless.sh stop
+TimeoutStartSec=60
+
+[Install]
+WantedBy=multi-user.target

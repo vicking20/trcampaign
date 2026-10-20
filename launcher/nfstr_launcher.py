@@ -1,0 +1,765 @@
+#!/usr/bin/env python3
+"""NFS The Run LAN launcher (stdlib only).
+
+  nfstr_launcher.py host   [--playlist 4] [--session 8] [--name NAME] [--relay H:P --room R --secret S] [--preload 80]
+  nfstr_launcher.py join   CODE | host:port   [--nick NAME]
+  nfstr_launcher.py code   [same options as host]         print the join code only
+  nfstr_launcher.py playlists                              list playlists / sessions
+  nfstr_launcher.py server status | start | resync | hold on|off   control a running host (start the race now)
+  nfstr_launcher.py stop
+  nfstr_launcher.py gui                                    (tkinter front end)
+
+The host picks everything once. Players only paste the join code: the launcher writes the game
+config (Scripts/NFSTR_LAN.ini) from the code, so nothing needs to be edited (or broken) by hand.
+"""
+import threading, argparse, base64, json, os, platform, re, shutil, signal, subprocess, sys, time, zlib
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    import modes as _modes
+    MODE_NAMES = tuple(_modes.MODES)
+except ImportError:                                   # bundle without modes.py: plain playlists only
+    MODE_NAMES = ()
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+IS_WIN = platform.system() == "Windows"
+CODE_PREFIX = "NFSTR1-"
+DEFAULT_PORT = 25200
+CONTROL_PORT = 25299
+CLIENT_EXE = "Need For Speed The Run.exe"
+SERVER_EXE = "NFSTR_Server.exe"
+
+
+# ------------------------------------------------------------------ paths / settings
+def find_game_dir(explicit=None):
+    for d in [explicit, os.environ.get("NFSTR_GAME_DIR"), HERE, os.path.dirname(HERE), os.getcwd()]:
+        if d and os.path.isfile(os.path.join(d, CLIENT_EXE)):
+            return os.path.abspath(d)
+    sys.exit("Game folder not found (no '%s'). Put the launcher in the game folder or use --game-dir." % CLIENT_EXE)
+
+
+def user_cfg_path():
+    base = os.environ.get("APPDATA") if IS_WIN else os.path.join(os.path.expanduser("~"), ".config")
+    d = os.path.join(base or HERE, "nfstr_launcher")
+    os.makedirs(d, exist_ok=True)
+    return os.path.join(d, "settings.json")
+
+
+def load_user():
+    try:
+        return json.load(open(user_cfg_path()))
+    except Exception:
+        return {}
+
+
+def save_user(u):
+    json.dump(u, open(user_cfg_path(), "w"), indent=1)
+
+
+def load_catalog():
+    return json.load(open(os.path.join(HERE, "playlists.json")))
+
+
+# ------------------------------------------------------------------ profile + join code
+DEFAULT_PROFILE = {
+    "v": 1, "name": "NFSTR LAN", "address": "", "mode": "playlist",
+    "playlist_array": 0, "playlist_id": 4, "first_session": -1,
+    "timers": {"preload": 80.0, "rewards": 25.0, "intermission": 15.0, "voting": 15.0,
+               "wait_for_votes": 2.0, "post_voting": 11.0, "activity": 600.0,
+               "career_state_timeout": 86400.0},
+    "traffic": None,
+}
+
+
+def _diff(p, d):
+    out = {}
+    for k, v in p.items():
+        if isinstance(v, dict) and isinstance(d.get(k), dict):
+            sub = _diff(v, d[k])
+            if sub: out[k] = sub
+        elif d.get(k) != v:
+            out[k] = v
+    return out
+
+
+def _merge(d, p):
+    out = json.loads(json.dumps(d))
+    for k, v in p.items():
+        out[k] = _merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+
+def make_code(profile):
+    slim = _diff(profile, DEFAULT_PROFILE)
+    slim["a"] = profile["address"]; slim.pop("address", None)
+    raw = zlib.compress(json.dumps(slim, separators=(",", ":"), sort_keys=True).encode(), 9)
+    return CODE_PREFIX + base64.urlsafe_b64encode(raw).decode().rstrip("=")
+
+
+def parse_code(text):
+    text = text.strip()
+    if text.startswith(CODE_PREFIX):
+        b = text[len(CODE_PREFIX):]
+        try:
+            slim = json.loads(zlib.decompress(base64.urlsafe_b64decode(b + "=" * (-len(b) % 4))))
+            slim["address"] = slim.pop("a", "")
+            p = _merge(DEFAULT_PROFILE, slim)
+        except Exception:
+            raise ValueError("That join code is damaged. Ask the host to send it again.")
+        if p.get("v") != 1:
+            raise ValueError("This code is from a newer launcher. Please update.")
+        if not re.fullmatch(r"[\w.\-]+:\d{2,5}", p.get("address", "")):
+            raise ValueError("The join code has no valid address.")
+        return p
+    if re.fullmatch(r"[\w.\-]+(:\d{2,5})?", text):   # plain host[:port] -> default profile
+        p = json.loads(json.dumps(DEFAULT_PROFILE))
+        p["address"] = text if ":" in text else "%s:%d" % (text, DEFAULT_PORT)
+        return p
+    raise ValueError("Not a join code or host:port.")
+
+
+# ------------------------------------------------------------------ game config
+def write_ini(game_dir, profile, nick, hold=0):
+    """The whole plugin config is generated: the player never edits it."""
+    first = int(profile.get("first_session", -1))
+    tr = profile.get("traffic")
+    ini = f"""; Generated by nfstr_launcher.py - do not edit, it is rewritten on every start.
+[OnlineSettings]
+EnableLANOnlineTweaks = 1
+DisableAutologConnectAttempts = 1
+EnableWndTitleStatus = 1
+DisableUserComputerName = 1
+ClientName = {nick[:16]}
+
+[PlaylistSettings]
+ForceClientPlaylistPtrInMemory = 1
+ForcePlaylistSetArrayID = {int(profile['playlist_array'])}
+ForcePlaylistID = {int(profile['playlist_id'])}
+
+[GameSettings]
+EnableDebugModeMenus = 1
+GameFastBoot = 0
+ForceInitFlow = MainMenu
+
+[ServerSettings]
+ForceCustomPlaylistSessionFirstID = {1 if first >= 0 else 0}
+PlaylistSessionID = {max(first, 0)}
+ForcePlaylistLoading = 1
+OverrideTrafficSettings = {1 if tr else 0}
+ForceCareerStatePreLoad = 1
+HoldStart = {hold}
+PreloadSeconds = {int(profile["timers"]["preload"])}
+ControlPort = {CONTROL_PORT}
+"""
+    scripts = os.path.join(game_dir, "Scripts")
+    os.makedirs(scripts, exist_ok=True)
+    open(os.path.join(scripts, "NFSTR_LAN.ini"), "w").write(ini)
+
+
+def ensure_server_exe(game_dir):
+    """NFSTR_Server.exe is the client exe with 3 bytes changed (VA 0x4180CA). Built from the player's own exe."""
+    dst, src = os.path.join(game_dir, SERVER_EXE), os.path.join(game_dir, CLIENT_EXE)
+    if os.path.isfile(dst):
+        return
+    data = bytearray(open(src, "rb").read())
+    if data[0x180CA:0x180CD] != b"\x6a\x00\x52":
+        sys.exit("Unexpected game exe (patch site differs). This build is not supported yet.")
+    data[0x180CA:0x180CD] = b"\x52\x6a\x01"
+    open(dst, "wb").write(data)
+    print("created", SERVER_EXE)
+
+
+# ------------------------------------------------------------------ process control
+def proton_env(game_dir):
+    env = dict(os.environ)
+    home = os.path.expanduser("~")
+    env.setdefault("WINEPREFIX", os.path.join(home, ".nfstr_prefix"))
+    gep = os.path.join(home, ".local/share/Steam/compatibilitytools.d/GE-Proton11-7-x86_64")
+    if "PROTONPATH" not in env and os.path.isdir(gep):
+        env["PROTONPATH"] = gep          # otherwise umu downloads its own Proton on first run
+    env["GAMEID"] = "0"
+    env["WINEDLLOVERRIDES"] = "dinput8=n,b" + (";" + os.environ["NFSTR_DLLOVERRIDES"] if os.environ.get("NFSTR_DLLOVERRIDES") else "")
+    env.setdefault("DISPLAY", ":0")
+    if "XAUTHORITY" not in env:                       # e.g. started over ssh on a Deck
+        import glob
+        xa = glob.glob("/run/user/%d/xauth_*" % os.getuid())
+        if xa: env["XAUTHORITY"] = xa[0]
+    for k in ("WINEDEBUG", "PROTON_LOG", "PROTON_LOG_DIR", "STEAM_COMPAT_DATA_PATH"):
+        env.pop(k, None)
+    if os.environ.get("NFSTR_DEBUG"):                 # keep a Proton log: NFSTR_DEBUG=1
+        env["PROTON_LOG"] = "1"; env["PROTON_LOG_DIR"] = os.path.expanduser("~")
+    return env
+
+
+def prefix_busy(env):
+    want = "WINEPREFIX=" + env["WINEPREFIX"]
+    for pid in filter(str.isdigit, os.listdir("/proc")):
+        try:
+            if want in open("/proc/%s/environ" % pid, "rb").read().decode(errors="ignore").split("\0"):
+                return True
+        except OSError:
+            pass
+    return False
+
+
+def ensure_prefixes():
+    """First run: create both Wine prefixes (client and server) before anything connects. The server gets its
+    own prefix so two game processes never have to share one (runinprefix is unreliable)."""
+    if IS_WIN or os.environ.get("NFSTR_RUNNER") == "wine":
+        return
+    env = proton_env(None)
+    for suffix in ("", "_server"):
+        pfx = env["WINEPREFIX"] + suffix
+        if not os.path.isfile(os.path.join(pfx, "system.reg")):
+            print("first run: preparing", pfx, "(this can take a minute)...")
+            e = dict(env, WINEPREFIX=pfx); e.pop("PROTON_VERB", None)
+            subprocess.call(["umu-run", "wineboot", "-u"], env=e, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def spawn(game_dir, exe, args, extra_env=None):
+    if IS_WIN:
+        return subprocess.Popen([os.path.join(game_dir, exe)] + args, cwd=game_dir, env={**os.environ, **(extra_env or {})})
+    env = proton_env(game_dir)
+    env.update(extra_env or {})
+    if os.environ.get("NFSTR_RUNNER") == "wine":      # plain system Wine instead of Proton/umu
+        env.pop("PROTON_VERB", None)
+        return subprocess.Popen(["wine", exe] + args, cwd=game_dir, env=env, start_new_session=True)
+    if exe == SERVER_EXE:
+        env["WINEPREFIX"] = env["WINEPREFIX"] + "_server"
+    if env.get("PROTON_LOG"):                           # one log folder per process kind (they would overwrite each other)
+        env["PROTON_LOG_DIR"] = os.path.expanduser("~/nfstr_logs/" + ("server" if exe == SERVER_EXE else "client"))
+        os.makedirs(env["PROTON_LOG_DIR"], exist_ok=True)
+    if prefix_busy(env):
+        env["PROTON_VERB"] = "runinprefix"
+    else:
+        env.pop("PROTON_VERB", None)
+    return subprocess.Popen(["umu-run", "./" + exe] + args, cwd=game_dir, env=env, start_new_session=True)
+
+
+def stop_all(clients_only=False, servers_only=False):
+    narrow = clients_only or servers_only
+    keys = (CLIENT_EXE,) if clients_only else ("NFSTR_Server.exe",) if servers_only else ("NFSTR_Server.exe", CLIENT_EXE)
+    if IS_WIN:
+        for k in keys:
+            subprocess.call(["taskkill", "/F", "/IM", k], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return
+    # only our own game processes and helpers of OUR wine prefix; other wine apps are left alone
+    me = {os.getpid(), os.getppid()}
+    want = "WINEPREFIX=" + proton_env(None)["WINEPREFIX"]
+    for pid in filter(str.isdigit, os.listdir("/proc")):
+        pid = int(pid)
+        if pid in me:
+            continue
+        try:
+            cmd = open("/proc/%d/cmdline" % pid, "rb").read().replace(b"\0", b" ").decode(errors="ignore")
+            env = open("/proc/%d/environ" % pid, "rb").read().decode(errors="ignore").split("\0")
+        except OSError:
+            continue
+        if "nfstr_launcher" in cmd or "nfstr_gui" in cmd:
+            continue
+        if any(k in cmd for k in keys) or (not narrow and any(e.startswith(want) for e in env) and any(h in cmd.lower() for h in ("wine", "proton", "umu", "pv-", "exe"))):
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except OSError:
+                pass
+
+
+def game_running(exe):
+    if IS_WIN:
+        return exe.lower() in subprocess.run(["tasklist"], capture_output=True, text=True).stdout.lower()
+    for pid in filter(str.isdigit, os.listdir("/proc")):
+        try:
+            if exe in open("/proc/%s/cmdline" % pid, "rb").read().decode(errors="ignore") and "umu-run" not in open("/proc/%s/cmdline" % pid, "rb").read().decode(errors="ignore")[:20] and pid != str(os.getpid()) and "nfstr_launcher" not in open("/proc/%s/cmdline" % pid, "rb").read().decode(errors="ignore"):
+                return True
+        except OSError:
+            pass
+    return False
+
+
+def server_args(profile, port=DEFAULT_PORT):
+    t = profile["timers"]
+    return ["-Server.ServerName", profile.get("name", "NFSTR LAN")[:30].replace(" ", "_"), "-GamePort", str(port),
+            "-Game.DefaultLayerInclusion", "StartupMode=Game;GameMode=CareerMode",
+            "-Game.DynamicSubLevels", "_c4/Levels/FE/FrontEnd/NfsGarage",
+            "-NfsOnline.Backend", "Backend_Lan",
+            "-NfsGame.CarSelectTimer", "0.0", "-NfsGame.PreLoadTimer", str(t["preload"]),
+            "-NfsGame.ActivityTimer", str(t["activity"]), "-NfsGame.RewardsTimer", str(t["rewards"]),
+            "-NfsGame.IntermissionTimer", str(t["intermission"]), "-NfsGame.VotingTimer", str(t["voting"]),
+            "-NfsGame.WaitForVotesTimer", str(t["wait_for_votes"]), "-NfsGame.PostVotingTimer", str(t["post_voting"]),
+            ] + ([] if os.environ.get("NFSTR_NO_TIMEOUTS") else [
+            "-NfsGame.CareerStateTimeOutTimer", str(t["career_state_timeout"])]) \
+              + os.environ.get("NFSTR_SERVER_EXTRA", "").split()   # fixes the ~125 s idle shutdown; EXTRA = experiments, e.g. "-Server.IngameTimeout 86400"
+
+
+def client_args(address, client_port=None):
+    a = ["-Client.ServerIp", address, "-Client.QuitGameOnServerDisconnect", "False"]
+    if client_port:
+        a += ["-Client.ClientPort", str(client_port)]
+    return a
+
+
+# ------------------------------------------------------------------ commands
+def build_profile(a):
+    p = json.loads(json.dumps(DEFAULT_PROFILE))
+    p["name"] = a.name or p["name"]
+    cat = load_catalog()
+    pl = next((x for x in cat if x["array"] == a.array and x["id"] == a.playlist), None)
+    if not pl:
+        sys.exit("Unknown playlist %d/%d (see: playlists)" % (a.array, a.playlist))
+    if a.session is not None and not (0 <= a.session < len(pl["sessions"])):
+        sys.exit("Session must be 0..%d for playlist '%s'" % (len(pl["sessions"]) - 1, pl["name"]))
+    p["playlist_array"], p["playlist_id"] = a.array, a.playlist
+    p["first_session"] = -1 if a.session is None else a.session
+    p["timers"]["preload"] = float(a.preload)
+    if getattr(a, "activity", None):
+        p["timers"]["activity"] = float(a.activity)       # race length limit: short values end races without a driver (testing)
+    p["address"] = a.address or "%s:%d" % (a.public_host or lan_ip(), a.port)
+    return p
+
+
+def lan_ip():
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("10.255.255.255", 1))
+        return s.getsockname()[0]
+    except OSError:
+        return "127.0.0.1"
+    finally:
+        s.close()
+
+
+def cmd_host(a):
+    game = find_game_dir(a.game_dir)
+    u = load_user(); nick = a.nick or u.get("nick") or "Host"
+    profile = build_profile(a)
+    agent = None
+    if a.relay:
+        agent = subprocess.Popen([sys.executable, os.path.join(HERE, "..", "relay", "agent.py") if not os.path.isfile(os.path.join(HERE, "agent.py")) else os.path.join(HERE, "agent.py"),
+                                  "--relay", a.relay, "--room", a.room, "--secret", a.secret, "--server", "127.0.0.1:%d" % a.port,
+                                  "--lock-file", relay_lock_path()],
+                                 stdout=subprocess.PIPE, text=True)
+        for _ in range(40):
+            line = agent.stdout.readline()
+            m = re.search(r"players connect to (\S+)", line)
+            if m:
+                profile["address"] = m.group(1); break
+        else:
+            sys.exit("Relay did not accept the room (wrong secret / relay down).")
+    signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
+    if a.relay:
+        try:
+            os.remove(relay_lock_path())                    # a new game starts with an open room
+        except OSError:
+            pass
+    ensure_server_exe(game)
+    ensure_prefixes()
+    write_ini(game, profile, nick, hold=1 if a.start == "manual" else 0)
+    code = make_code(profile)
+    lobby = None
+    if a.lobby:
+        pl = next((x["name"] for x in load_catalog() if x["array"] == a.array and x["id"] == a.playlist), "")
+        r = lobby_call(a.lobby, "POST", "/api/games", {"name": profile["name"], "code": code, "playlist": pl, "host": nick, "max": a.max_players,
+                                                      "mode": a.mode or "", "scheme": a.points if a.mode not in ("", None, "timeattack", "elimination", "stagerace") else ""})
+        if "error" in r:
+            sys.exit("lobby: " + r["error"])
+        lobby = {"url": a.lobby, "id": r["id"], "token": r["token"]}
+        json.dump(lobby, open(lobby_state_path(), "w"))
+        print("\nLOBBY game %s registered at %s. Players sign up with:\n  nfstr_launcher.py lobby join %s %s --nick NAME\nLaunch with:  nfstr_launcher.py lobby launch\n" % (r["id"], a.lobby, a.lobby, r["id"]))
+        try:
+            while True:                                   # wait for the host's launch signal (heartbeat keeps the game listed)
+                g = lobby_call(a.lobby, "GET", "/api/games/%s" % r["id"])
+                lobby_call(a.lobby, "POST", "/api/games/%s/heartbeat" % r["id"], dict({"token": r["token"]}, **standings_summary()))
+                if g.get("state") == "launching":
+                    wait = g["launch_at"] - g["now"]
+                    print("launching in %.0f s with %d players: %s" % (max(wait, 0), len(g["players"]), ", ".join(g["players"])))
+                    time.sleep(max(wait, 0)); break
+                print("  lobby: %d players: %s" % (len(g.get("players", [])), ", ".join(g.get("players", []))), end="\r", flush=True)
+                time.sleep(3)
+        except KeyboardInterrupt:
+            lobby_call(a.lobby, "POST", "/api/games/%s/close" % r["id"], {"token": r["token"]}); sys.exit("closed the lobby game")
+    print("\nJOIN CODE (send this to your players):\n\n  %s\n" % code)
+    stop_all(servers_only=a.dedicated)
+    print("starting client, then server (order matters)..." if not a.dedicated else "starting dedicated server...")
+    if a.dedicated:
+        print("dedicated: the host does not play (no client started)")
+    else:
+        c = spawn(game, CLIENT_EXE, client_args("127.0.0.1:%d" % a.port, None), {"NFSTR_CLIENT_NAME": nick})
+        time.sleep(8)
+    s = spawn(game, SERVER_EXE, server_args(profile, a.port))
+    print("server running; players must join within %ds of start. Ctrl+C to stop." % profile["timers"]["preload"])
+    if a.relay and a.lock_room:
+        threading.Thread(target=relay_lock_watcher, daemon=True).start()
+    if not a.no_restart:
+        threading.Thread(target=supervise_server, args=(game, profile, nick, a.port, a.admit), daemon=True).start()
+    try:
+        if a.mode:
+            run_mode_loop(a.mode, a.points, lobby, a.lobby, a.teams, getattr(a, "enforce_elim", False))
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        global STOPPING
+        STOPPING = True
+        stop_all()
+        if agent:
+            agent.terminate()
+
+
+def cmd_join(a):
+    game = find_game_dir(a.game_dir)
+    u = load_user(); nick = a.nick or u.get("nick")
+    if not nick:
+        sys.exit("Choose a nickname first: add  --nick YourName  (it is remembered).")
+    u["nick"] = nick; save_user(u)
+    try:
+        profile = parse_code(a.code)
+    except ValueError as e:
+        sys.exit(str(e))
+    write_ini(game, profile, nick)
+    if not a.multi:
+        stop_all(clients_only=True)   # never kill a server that happens to run on this machine
+    print("joining '%s' at %s, playlist %d/%d" % (profile["name"], profile["address"], profile["playlist_array"], profile["playlist_id"]))
+    p = spawn(game, CLIENT_EXE, client_args(profile["address"], a.client_port), {"NFSTR_CLIENT_NAME": nick})
+    if not a.detach:
+        try:
+            p.wait()
+            # with a busy prefix (e.g. a server on this machine) the launch command returns at once:
+            # wait for the game process itself, otherwise a service/session cleanup would kill it
+            for _ in range(45):                  # up to ~90 s for the game process to show up
+                if game_running(CLIENT_EXE):
+                    break
+                time.sleep(2)
+            while game_running(CLIENT_EXE):
+                time.sleep(2)
+        except KeyboardInterrupt:
+            stop_all(clients_only=True)
+
+
+def server_ctl(cmd, timeout=1.0):
+    """Talk to the plugin's control channel on the host machine."""
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.settimeout(timeout)
+    try:
+        s.sendto(cmd.encode(), ("127.0.0.1", CONTROL_PORT))
+        return s.recvfrom(512)[0].decode()
+    except OSError:
+        return "error server not running"
+    finally:
+        s.close()
+
+
+def cmd_server(a):
+    print(server_ctl(" ".join(a.args)))
+
+
+
+# ------------------------------------------------------------------ lobby (see ../lobby/lobby_server.py)
+def lobby_call(url, method, path, body=None, timeout=5):
+    import urllib.request, urllib.error
+    req = urllib.request.Request(url.rstrip("/") + path, method=method,
+                                 data=json.dumps(body).encode() if body is not None else None,
+                                 headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        try:
+            return json.loads(e.read())
+        except Exception:
+            return {"error": "HTTP %d" % e.code}
+    except Exception as e:
+        return {"error": "lobby unreachable (%s)" % e}
+
+
+def lobby_state_path():
+    return os.path.join(os.path.dirname(user_cfg_path()), "lobby_host.json")
+
+
+def cmd_lobby(a):
+    if a.lobby_cmd == "list":
+        r = lobby_call(a.url, "GET", "/api/games")
+        if "error" in r:
+            sys.exit(r["error"])
+        for g in r["games"]:
+            print("%-8s %-24s %-22s host=%-10s %d/%d %s  %s" % (g["id"], g["name"], g["playlist"], g["host"], len(g["players"]), g["max"], g["state"],
+                                                           ("%s%s race %d" % (g.get("mode", ""), "/" + g["scheme"] if g.get("scheme") else "", g.get("races", 0))) if g.get("mode") else ""))
+            if g.get("board"):
+                print("         standings: " + ", ".join("%s %d" % tuple(r) for r in g["board"]))
+        if not r["games"]:
+            print("no games")
+    elif a.lobby_cmd == "ladder":
+        r = lobby_call(a.url, "GET", "/api/ladder" + ("?season=" + a.season if a.season else ""))
+        if "error" in r:
+            sys.exit(r["error"])
+        print("season %s - %d game(s) counted" % (r["season"], r["games"]))
+        print("%-3s %-16s %5s %5s %6s %6s %7s" % ("#", "player", "games", "gold", "silver", "bronze", "points"))
+        for i, e in enumerate(r["entries"], 1):
+            print("%-3d %-16s %5d %5d %6d %6d %7d" % (i, e["nick"], e["games"], e["gold"], e["silver"], e["bronze"], e["points"]))
+        if not r["entries"]:
+            print("no finished games yet")
+    elif a.lobby_cmd == "launch":          # host side, for a running `host --lobby`
+        st = json.load(open(lobby_state_path()))
+        r = lobby_call(st["url"], "POST", "/api/games/%s/launch" % st["id"], {"token": st["token"], "delay": a.delay})
+        print(r.get("error") or "launching in %ds" % a.delay)
+    elif a.lobby_cmd == "join":
+        join_lobby_game(a.url, a.game_id, a)
+
+
+def join_lobby_game(url, gid, a):
+    game = find_game_dir(a.game_dir)
+    u = load_user(); nick = a.nick or u.get("nick")
+    if not nick:
+        sys.exit("Choose a nickname first: add  --nick YourName")
+    u["nick"] = nick; save_user(u)
+    r = lobby_call(url, "POST", "/api/games/%s/join" % gid, {"nick": nick})
+    if "error" in r:
+        sys.exit(r["error"])
+    pid = r["pid"]
+    print("signed up as %s, waiting for the host to launch..." % nick)
+    try:
+        while True:
+            g = lobby_call(url, "GET", "/api/games/%s" % gid)
+            if "error" in g:
+                sys.exit("game is gone: %s" % g["error"])
+            if g["state"] == "launching":
+                break
+            print("  lobby: %d players: %s" % (len(g["players"]), ", ".join(g["players"])), end="\r", flush=True)
+            time.sleep(2)
+    except KeyboardInterrupt:
+        lobby_call(url, "POST", "/api/games/%s/leave" % gid, {"pid": pid}); sys.exit("left the lobby")
+    wait = g["launch_at"] - g["now"]            # server clock difference cancels out
+    print("\nlaunching in %.0f s" % max(wait, 0))
+    time.sleep(max(wait, 0))
+    profile = parse_code(g["code"])
+    write_ini(game, profile, nick)
+    if not getattr(a, "multi", False):
+        stop_all(clients_only=True)
+    p = spawn(game, CLIENT_EXE, client_args(profile["address"], getattr(a, "client_port", None)), {"NFSTR_CLIENT_NAME": nick})
+    p.wait()
+    for _ in range(45):
+        if game_running(CLIENT_EXE):
+            break
+        time.sleep(2)
+    while game_running(CLIENT_EXE):
+        time.sleep(2)
+
+
+
+def standings_path():
+    return os.path.join(os.path.dirname(user_cfg_path()), "standings.json")
+
+
+def standings_summary():
+    """Top 8 of the current standings as lobby heartbeat fields ({} when no race has finished yet)."""
+    try:
+        import modes
+        st = json.load(open(standings_path()))
+        rows = [[n, p["points"], p["wins"]] for n, p in modes.ranking(st)[:16]]      # players, for the season ladder
+        if st.get("teams") is not None:                 # team mode: the lobby shows the teams, not the players
+            return {"races": st["races"], "rows": rows, "board": [[t, pts] for t, pts, _ in modes.team_ranking(st)[:8]]}
+        return {"races": st["races"], "rows": rows, "board": [[n, p["points"]] for n, p in modes.ranking(st)[:8]]}
+    except (OSError, ValueError, KeyError):
+        return {}
+
+
+def parse_results(text):
+    """'name=seconds;name=seconds' -> [(name, seconds)] (the plugin sorts finishers by time, DNF last)"""
+    out = []
+    for part in text.split(";"):
+        if "=" in part:
+            n, t = part.rsplit("=", 1)
+            try:
+                out.append((n, float(t)))
+            except ValueError:
+                pass
+    return out
+
+
+STOPPING = False            # set when the host quits on purpose
+SERVER_RESTARTS = 0         # how many times the supervisor had to restart the game server
+
+
+def parse_status(text):
+    """'state=6 timer=1.0 ... waiting=1 stuck=0' -> {'state': '6', ...} ({} if the server does not answer)"""
+    try:
+        return dict(x.split("=", 1) for x in text.split() if "=" in x) if text.startswith("state=") else {}
+    except ValueError:
+        return {}
+
+
+def supervise_server(game, profile, nick, port, admit="race"):
+    """The game server sometimes vanishes (observed after a player dropped or joined late; no crash report, see STATUS.md).
+    The players' games keep retrying the connection by themselves, so simply starting a fresh server brings everybody back
+    (verified: a waiting client reconnected and loaded into race 1 of the new session). The standings are kept by this launcher."""
+    global SERVER_RESTARTS
+    time.sleep(25)                                  # let the first start settle
+    last = 0.0
+    why_msg = {"gone": "the game server stopped unexpectedly",
+               "stuck": "a race got stuck because a player could not load (the server would abort itself soon)",
+               "waiting": "players are waiting to join"}
+    while not STOPPING:
+        time.sleep(2)
+        if STOPPING or time.time() - last < 30:
+            continue
+        why = None
+        if not game_running(SERVER_EXE):
+            why = "gone"
+        else:
+            d = parse_status(server_ctl("status", 0.5))
+            if d.get("stuck") == "1":
+                why = "stuck"
+            elif admit != "off" and int(d.get("waiting", "0") or 0) > 0:
+                st = int(d.get("state", "0") or 0)
+                settled = float(d.get("timer", "0") or 0) > 6          # let the results of this race reach the standings first
+                if (admit == "race" and st == 8 and settled) or (admit == "session" and st in (9, 10, 11)):
+                    why = "waiting"                 # the break between two races (or sessions): nobody loses a running race
+        if not why:
+            continue
+        last = time.time(); SERVER_RESTARTS += 1
+        print("\n!! %s: restarting the game server (#%d). Players' games reconnect by themselves; "
+              "the race starts automatically after the join window." % (why_msg[why], SERVER_RESTARTS), flush=True)
+        stop_all(servers_only=True)
+        write_ini(game, profile, nick, hold=0)
+        spawn(game, SERVER_EXE, server_args(profile, port))
+        time.sleep(20)
+
+
+def relay_lock_path():
+    return os.path.join(os.path.dirname(user_cfg_path()), "relay.lock")
+
+
+def relay_lock_watcher():
+    """Late joiners deadlock a running game (see RUNBOOK), so lock the relay room once the server has left the
+    join phase (state 2 = waiting for players). The agent sees the lock file and tells the relay."""
+    while True:
+        s = server_ctl("status", 0.5)
+        if s.startswith("state="):
+            try:
+                state = dict(x.split("=") for x in s.split())["state"]
+            except (ValueError, KeyError):
+                state = "2"
+            if state in ("3", "4", "5", "6", "7", "8"):
+                open(relay_lock_path(), "w").close()
+                print("\nrelay room locked: no new players can join this game", flush=True)
+                return
+        time.sleep(2)
+
+
+def lobby_beat(lobby, url):
+    """Host side: keep the lobby entry alive and publish the standings (best effort)."""
+    if lobby and url:
+        lobby_call(url, "POST", "/api/games/%s/heartbeat" % lobby["id"], dict({"token": lobby["token"]}, **standings_summary()))
+
+
+def run_mode_loop(mode, scheme="field", lobby=None, lobby_url=None, teams_text=None, enforce_elim=False):
+    """Host side: after every race (server state 8) read the results from the plugin, apply the mode, keep standings."""
+    import modes
+    st = modes.new_standings(mode, scheme, teams_text)
+    json.dump(st, open(standings_path(), "w"), indent=1)       # fresh file: never show the previous game's standings
+    seen = None
+    last_beat = 0.0
+    restarts = SERVER_RESTARTS
+    print("mode '%s' (%s points: %s)" % (mode, scheme, modes.SCHEMES[scheme]))
+    while True:
+        if SERVER_RESTARTS != restarts:                 # new server process: its race numbering starts again
+            restarts = SERVER_RESTARTS; seen = None
+        if time.time() - last_beat > 20:
+            last_beat = time.time(); lobby_beat(lobby, lobby_url)
+        s = server_ctl("status", 0.5)
+        if s.startswith("state="):
+            d = dict(x.split("=") for x in s.split())
+            if d["state"] == "8":
+                key = (d["session"], d["race"])
+                if key != seen:
+                    seen = key
+                    time.sleep(1)
+                    res = parse_results(server_ctl("results", 3.0))
+                    if res:
+                        out_before = {n for n, p in st["players"].items() if p.get("eliminated")}
+                        ev = modes.apply(st, res)
+                        if enforce_elim:                      # opt-in: really remove newly eliminated drivers from the session
+                            for n, p in st["players"].items():
+                                if p.get("eliminated") and n not in out_before:
+                                    print("eliminated %s -> %s" % (n, server_ctl("reapname " + n, 2.0)), flush=True)
+                        json.dump(st, open(standings_path(), "w"), indent=1)
+                        lobby_beat(lobby, lobby_url)
+                        print("\n== race %d finished ==\n  %s\n%s" % (st["races"], "\n  ".join(ev), modes.table(st)), flush=True)
+                    else:
+                        print("no results found for this race", flush=True)
+        time.sleep(1)
+
+
+def cmd_standings(a):
+    import modes
+    try:
+        st = json.load(open(standings_path()))
+    except OSError:
+        sys.exit("no standings yet")
+    print("mode:", st["mode"], " races:", st["races"]); print(modes.table(st))
+
+
+def cmd_code(a):
+    print(make_code(build_profile(a)))
+
+
+def cmd_playlists(a):
+    for p in load_catalog():
+        print("--array %d --playlist %d  %s  (%d sessions)" % (p["array"], p["id"], p["name"], len(p["sessions"])))
+        if a.verbose:
+            for i, s in enumerate(p["sessions"]):
+                print("      --session %-2d T%d %s" % (i, s["tier"], s["name"]))
+
+
+def main():
+    sys.stdout.reconfigure(line_buffering=True)
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--game-dir")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    def hostopts(p):
+        p.add_argument("--array", type=int, default=0); p.add_argument("--playlist", type=int, default=4)
+        p.add_argument("--session", type=int, default=None, help="first session index (default: game picks)")
+        p.add_argument("--name"); p.add_argument("--nick"); p.add_argument("--preload", type=float, default=80)
+        p.add_argument("--port", type=int, default=DEFAULT_PORT); p.add_argument("--public-host")
+        p.add_argument("--address", help="override the address players use")
+        p.add_argument("--activity", type=float, help="seconds before a race ends by itself (default 600; use 40 for unattended tests)")
+        p.add_argument("--start", choices=("auto", "manual"), default="auto",
+                       help="auto: race starts when the join window ends; manual: the host starts it ('server start')")
+    h = sub.add_parser("host"); hostopts(h)
+    h.add_argument("--relay"); h.add_argument("--room"); h.add_argument("--secret")
+    h.add_argument("--dedicated", action="store_true", help="only run the server, the host does not play")
+    h.add_argument("--lobby", help="lobby URL: register the game and wait for 'lobby launch' before starting")
+    h.add_argument("--max-players", type=int, default=8)
+    h.add_argument("--admit", choices=("off", "race", "session"), default="race", help="players who connect after the start wait outside; restart the server at the next race break (race), the next session break (session) or never (off) so they can join")
+    h.add_argument("--no-restart", action="store_true", help="do not restart the game server automatically when it stops unexpectedly")
+    h.add_argument("--lock-room", action="store_true", help="relay only: refuse NEW players once the race has started (default: open). The game may deadlock with late joiners, see RUNBOOK")
+    h.add_argument("--points", choices=("field", "top3", "fixed"), default="field", help="cannonball points: field = one point per player (N..1), top3 = 5/3/1, fixed = 10,8,6,4,3,2,1")
+    h.add_argument("--mode", choices=MODE_NAMES, help="scoring mode: standings are kept across the races of the playlist")
+    h.add_argument("--enforce-elim", action="store_true", help="elimination mode: really remove eliminated drivers from the session (plugin reapname) instead of only marking them OUT")
+    h.add_argument("--teams", help="team mode: \"Red=Ana,Bo;Blue=Cy,Di\" (unlisted players join the smaller team)")
+    c = sub.add_parser("code"); hostopts(c)
+    j = sub.add_parser("join"); j.add_argument("code"); j.add_argument("--nick"); j.add_argument("--client-port", type=int)
+    j.add_argument("--detach", action="store_true")
+    j.add_argument("--multi", action="store_true", help="testing: do not stop other running clients")
+    pl = sub.add_parser("playlists"); pl.add_argument("-v", "--verbose", action="store_true")
+    lb = sub.add_parser("lobby", help="lobby: list | join URL GAME_ID | launch"); lsub = lb.add_subparsers(dest="lobby_cmd", required=True)
+    l1 = lsub.add_parser("list"); l1.add_argument("url")
+    l2 = lsub.add_parser("join"); l2.add_argument("url"); l2.add_argument("game_id"); l2.add_argument("--nick"); l2.add_argument("--client-port", type=int); l2.add_argument("--multi", action="store_true")
+    l3 = lsub.add_parser("launch"); l3.add_argument("--delay", type=int, default=8)
+    l4 = lsub.add_parser("ladder"); l4.add_argument("url"); l4.add_argument("--season", help="YYYY-MM or all (default: this month)")
+    sv = sub.add_parser("server", help="control a running host: status | start | hold on|off"); sv.add_argument("args", nargs="+")
+    sub.add_parser("standings", help="print the current standings"); sub.add_parser("stop"); sub.add_parser("gui")
+    a = ap.parse_args()
+    if a.cmd == "host" and a.relay and not (a.room and a.secret):
+        ap.error("--relay needs --room and --secret")
+    if a.cmd == "stop":
+        stop_all()
+    elif a.cmd == "gui":
+        import nfstr_gui; nfstr_gui.run()
+    else:
+        {"host": cmd_host, "join": cmd_join, "code": cmd_code, "playlists": cmd_playlists, "server": cmd_server, "lobby": cmd_lobby, "standings": cmd_standings}[a.cmd](a)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,21 @@
+#!/usr/sbin/nft -f
+# Example firewall for a public NFSTR server (nftables, inet). Adjust IFACE and the admin source, then: sudo nft -f firewall.nft
+# Only the game ports are reachable; TCP is rate/connection limited per source address. Everything else is dropped.
+# Ports: 42127/tcp Blaze, 443/tcp News (redirected to 8081), 17502/tcp+udp QoS, 25200/udp game. SSH (22) from your own address only.
+flush table inet nfstr_fw
+table inet nfstr_fw {
+  chain input {
+    type filter hook input priority 0; policy drop;
+    ct state established,related accept
+    iif lo accept
+    ct state invalid drop
+    icmp type echo-request limit rate 5/second accept
+    ip saddr 203.0.113.10 tcp dport 22 accept            # CHANGE: your admin address (or remove and use a VPN)
+    tcp dport { 42127, 443, 8081, 17502 } ct state new meter tcp_new { ip saddr timeout 1m limit rate over 40/minute } drop
+    tcp dport { 42127, 443, 8081, 17502 } ct count over 16 reject with tcp reset
+    tcp dport { 42127, 443, 8081, 17502 } accept
+    udp dport 17502 limit rate 300/second accept
+    udp dport 25200 limit rate 5000/second accept
+  }
+  chain forward { type filter hook forward priority 0; policy drop; }
+}

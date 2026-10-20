@@ -1,0 +1,906 @@
+[
+ {
+  "array": 0,
+  "id": 0,
+  "name": "Mixed Competition",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 1,
+    "name": "Eat My Dust"
+   },
+   {
+    "index": 1,
+    "tier": 1,
+    "name": "American Eagle"
+   },
+   {
+    "index": 2,
+    "tier": 2,
+    "name": "Dirty Deeds"
+   },
+   {
+    "index": 3,
+    "tier": 3,
+    "name": "Coughin' Up Dirt"
+   },
+   {
+    "index": 4,
+    "tier": 4,
+    "name": "Highway to Hell"
+   },
+   {
+    "index": 5,
+    "tier": 4,
+    "name": "West Coast"
+   },
+   {
+    "index": 6,
+    "tier": 4,
+    "name": "Desert Run"
+   },
+   {
+    "index": 7,
+    "tier": 4,
+    "name": "Valley High"
+   },
+   {
+    "index": 8,
+    "tier": 5,
+    "name": "Leaving San Fran"
+   },
+   {
+    "index": 9,
+    "tier": 5,
+    "name": "Vegas"
+   },
+   {
+    "index": 10,
+    "tier": 5,
+    "name": "Desert At Night"
+   },
+   {
+    "index": 11,
+    "tier": 4,
+    "name": "Colorado Mountains"
+   },
+   {
+    "index": 12,
+    "tier": 5,
+    "name": "Leaving the Windy City"
+   },
+   {
+    "index": 13,
+    "tier": 5,
+    "name": "Burning City"
+   },
+   {
+    "index": 14,
+    "tier": 5,
+    "name": "Frostbite"
+   },
+   {
+    "index": 15,
+    "tier": 5,
+    "name": "Espresso"
+   },
+   {
+    "index": 16,
+    "tier": 5,
+    "name": "Pinch Me"
+   },
+   {
+    "index": 17,
+    "tier": 5,
+    "name": "Hard Shoulder"
+   },
+   {
+    "index": 18,
+    "tier": 6,
+    "name": "Sweet Jumps"
+   },
+   {
+    "index": 19,
+    "tier": 6,
+    "name": "Night Riders"
+   },
+   {
+    "index": 20,
+    "tier": 6,
+    "name": "Fire And Ice"
+   },
+   {
+    "index": 21,
+    "tier": 3,
+    "name": "Panorama"
+   },
+   {
+    "index": 22,
+    "tier": 4,
+    "name": "Eclipse"
+   },
+   {
+    "index": 23,
+    "tier": 6,
+    "name": "Unleashed"
+   },
+   {
+    "index": 24,
+    "tier": 2,
+    "name": "Pacific Racing"
+   },
+   {
+    "index": 25,
+    "tier": 4,
+    "name": "Midwest"
+   },
+   {
+    "index": 26,
+    "tier": 4,
+    "name": "Lakeside"
+   },
+   {
+    "index": 27,
+    "tier": 4,
+    "name": "Ear Popper"
+   }
+  ]
+ },
+ {
+  "array": 0,
+  "id": 1,
+  "name": "Exotic Sprint Racing",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 3,
+    "name": "Whiteout"
+   },
+   {
+    "index": 1,
+    "tier": 3,
+    "name": "Blackout"
+   },
+   {
+    "index": 2,
+    "tier": 3,
+    "name": "Downward Spiral"
+   },
+   {
+    "index": 3,
+    "tier": 4,
+    "name": "Vertical"
+   },
+   {
+    "index": 4,
+    "tier": 4,
+    "name": "Mountain"
+   },
+   {
+    "index": 5,
+    "tier": 4,
+    "name": "Blackjack"
+   },
+   {
+    "index": 6,
+    "tier": 4,
+    "name": "Valley High"
+   },
+   {
+    "index": 7,
+    "tier": 4,
+    "name": "Get Outta Town"
+   },
+   {
+    "index": 8,
+    "tier": 4,
+    "name": "Jackpot"
+   },
+   {
+    "index": 9,
+    "tier": 4,
+    "name": "Running Start"
+   },
+   {
+    "index": 10,
+    "tier": 5,
+    "name": "Leaving San Fran"
+   },
+   {
+    "index": 11,
+    "tier": 5,
+    "name": "Desert At Night"
+   },
+   {
+    "index": 12,
+    "tier": 5,
+    "name": "Burning City"
+   },
+   {
+    "index": 13,
+    "tier": 5,
+    "name": "Espresso"
+   },
+   {
+    "index": 14,
+    "tier": 5,
+    "name": "Hard Shoulder"
+   }
+  ]
+ },
+ {
+  "array": 0,
+  "id": 2,
+  "name": "Muscle Car Battles",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 1,
+    "name": "Eat My Dust"
+   },
+   {
+    "index": 1,
+    "tier": 1,
+    "name": "Captains of Industry"
+   },
+   {
+    "index": 2,
+    "tier": 1,
+    "name": "American Eagle"
+   },
+   {
+    "index": 3,
+    "tier": 1,
+    "name": "Breakfast of Champions"
+   },
+   {
+    "index": 4,
+    "tier": 2,
+    "name": "Dirty Deeds"
+   },
+   {
+    "index": 5,
+    "tier": 2,
+    "name": "Blue Ridge"
+   },
+   {
+    "index": 6,
+    "tier": 3,
+    "name": "Coughin' Up Dirt"
+   },
+   {
+    "index": 7,
+    "tier": 3,
+    "name": "Wild West"
+   },
+   {
+    "index": 8,
+    "tier": 4,
+    "name": "Highway to Hell"
+   },
+   {
+    "index": 9,
+    "tier": 4,
+    "name": "Workin' for the Weekend"
+   },
+   {
+    "index": 10,
+    "tier": 4,
+    "name": "West Coast"
+   },
+   {
+    "index": 11,
+    "tier": 4,
+    "name": "Desert Run"
+   }
+  ]
+ },
+ {
+  "array": 0,
+  "id": 3,
+  "name": "The Underground",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 1,
+    "name": "Import Export"
+   },
+   {
+    "index": 1,
+    "tier": 1,
+    "name": "Troubled Waters"
+   },
+   {
+    "index": 2,
+    "tier": 2,
+    "name": "Rags to Riches"
+   },
+   {
+    "index": 3,
+    "tier": 2,
+    "name": "Unique NY"
+   },
+   {
+    "index": 4,
+    "tier": 2,
+    "name": "Interstatement"
+   },
+   {
+    "index": 5,
+    "tier": 4,
+    "name": "Neon"
+   },
+   {
+    "index": 6,
+    "tier": 4,
+    "name": "Eastside"
+   },
+   {
+    "index": 7,
+    "tier": 4,
+    "name": "Nice Comeback"
+   },
+   {
+    "index": 8,
+    "tier": 4,
+    "name": "Westside"
+   },
+   {
+    "index": 9,
+    "tier": 4,
+    "name": "Urban Legends"
+   },
+   {
+    "index": 10,
+    "tier": 4,
+    "name": "Chicago Underground"
+   }
+  ]
+ },
+ {
+  "array": 0,
+  "id": 4,
+  "name": "NFS Edition Racing",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 5,
+    "name": "Leaving San Fran"
+   },
+   {
+    "index": 1,
+    "tier": 4,
+    "name": "Yosemite to Sierra Pass"
+   },
+   {
+    "index": 2,
+    "tier": 6,
+    "name": "Getting Warmer"
+   },
+   {
+    "index": 3,
+    "tier": 5,
+    "name": "Vegas"
+   },
+   {
+    "index": 4,
+    "tier": 5,
+    "name": "Desert At Night"
+   },
+   {
+    "index": 5,
+    "tier": 4,
+    "name": "Getting Colder"
+   },
+   {
+    "index": 6,
+    "tier": 4,
+    "name": "Colorado Mountains"
+   },
+   {
+    "index": 7,
+    "tier": 6,
+    "name": "South Dakota"
+   },
+   {
+    "index": 8,
+    "tier": 4,
+    "name": "Minnesota to Wisconsin"
+   },
+   {
+    "index": 9,
+    "tier": 4,
+    "name": "Chicago"
+   },
+   {
+    "index": 10,
+    "tier": 5,
+    "name": "Leaving the Windy City"
+   },
+   {
+    "index": 11,
+    "tier": 4,
+    "name": "Kentucky"
+   },
+   {
+    "index": 12,
+    "tier": 4,
+    "name": "End of the Road"
+   }
+  ]
+ },
+ {
+  "array": 0,
+  "id": 5,
+  "name": "Supercar Challenge",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 5,
+    "name": "Burning City"
+   },
+   {
+    "index": 1,
+    "tier": 5,
+    "name": "Frostbite"
+   },
+   {
+    "index": 2,
+    "tier": 5,
+    "name": "Espresso"
+   },
+   {
+    "index": 3,
+    "tier": 5,
+    "name": "Pinch Me"
+   },
+   {
+    "index": 4,
+    "tier": 5,
+    "name": "Hard Shoulder"
+   },
+   {
+    "index": 5,
+    "tier": 6,
+    "name": "Sweet Jumps"
+   },
+   {
+    "index": 6,
+    "tier": 6,
+    "name": "Night Riders"
+   },
+   {
+    "index": 7,
+    "tier": 6,
+    "name": "Sandblaster"
+   },
+   {
+    "index": 8,
+    "tier": 6,
+    "name": "Flat Out"
+   },
+   {
+    "index": 9,
+    "tier": 6,
+    "name": "Fire And Ice"
+   }
+  ]
+ },
+ {
+  "array": 1,
+  "id": 0,
+  "name": "All Races",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 0,
+    "name": "All Races"
+   }
+  ]
+ },
+ {
+  "array": 2,
+  "id": 0,
+  "name": "Smoketest",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 0,
+    "name": "Smoketest"
+   }
+  ]
+ },
+ {
+  "array": 2,
+  "id": 1,
+  "name": "N/A",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 0,
+    "name": "AllTracks"
+   }
+  ]
+ },
+ {
+  "array": 3,
+  "id": 0,
+  "name": "Playtest",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 2,
+    "name": "Playtest (N/A)"
+   }
+  ]
+ },
+ {
+  "array": 3,
+  "id": 1,
+  "name": "Debug 2",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 0,
+    "name": "Old Whiteout"
+   },
+   {
+    "index": 1,
+    "tier": 0,
+    "name": "Old Blackout"
+   }
+  ]
+ },
+ {
+  "array": 3,
+  "id": 2,
+  "name": "Debug Playlist",
+  "sessions": [
+   {
+    "index": 0,
+    "tier": 0,
+    "name": "0100 TOD Primary"
+   },
+   {
+    "index": 1,
+    "tier": 0,
+    "name": "0200 TOD Primary"
+   },
+   {
+    "index": 2,
+    "tier": 0,
+    "name": "0250 TOD Primary"
+   },
+   {
+    "index": 3,
+    "tier": 0,
+    "name": "0300 TOD Primary"
+   },
+   {
+    "index": 4,
+    "tier": 0,
+    "name": "0400 TOD Primary"
+   },
+   {
+    "index": 5,
+    "tier": 0,
+    "name": "0500 TOD Primary"
+   },
+   {
+    "index": 6,
+    "tier": 0,
+    "name": "0600 TOD Primary"
+   },
+   {
+    "index": 7,
+    "tier": 0,
+    "name": "0800 TOD Primary"
+   },
+   {
+    "index": 8,
+    "tier": 0,
+    "name": "1100 TOD Primary"
+   },
+   {
+    "index": 9,
+    "tier": 0,
+    "name": "1300 TOD Primary"
+   },
+   {
+    "index": 10,
+    "tier": 0,
+    "name": "1700 TOD Primary"
+   },
+   {
+    "index": 11,
+    "tier": 0,
+    "name": "2300 TOD Primary"
+   },
+   {
+    "index": 12,
+    "tier": 0,
+    "name": "2400 TOD Primary"
+   },
+   {
+    "index": 13,
+    "tier": 0,
+    "name": "2500 TOD Primary"
+   },
+   {
+    "index": 14,
+    "tier": 0,
+    "name": "2600 TOD Primary"
+   },
+   {
+    "index": 15,
+    "tier": 0,
+    "name": "2800 TOD Primary"
+   },
+   {
+    "index": 16,
+    "tier": 0,
+    "name": "3000 TOD Primary"
+   },
+   {
+    "index": 17,
+    "tier": 0,
+    "name": "3050 TOD Primary"
+   },
+   {
+    "index": 18,
+    "tier": 0,
+    "name": "3100 TOD Primary"
+   },
+   {
+    "index": 19,
+    "tier": 0,
+    "name": "3500 TOD Primary"
+   },
+   {
+    "index": 20,
+    "tier": 0,
+    "name": "4000 TOD Primary"
+   },
+   {
+    "index": 21,
+    "tier": 0,
+    "name": "4050 TOD Primary"
+   },
+   {
+    "index": 22,
+    "tier": 0,
+    "name": "4100 TOD Primary"
+   },
+   {
+    "index": 23,
+    "tier": 0,
+    "name": "0100 TOD Secondary"
+   },
+   {
+    "index": 24,
+    "tier": 0,
+    "name": "0200 TOD Secondary"
+   },
+   {
+    "index": 25,
+    "tier": 0,
+    "name": "0250 TOD Secondary"
+   },
+   {
+    "index": 26,
+    "tier": 0,
+    "name": "0300 TOD Secondary"
+   },
+   {
+    "index": 27,
+    "tier": 0,
+    "name": "0400 TOD Secondary"
+   },
+   {
+    "index": 28,
+    "tier": 0,
+    "name": "0500 TOD Secondary"
+   },
+   {
+    "index": 29,
+    "tier": 0,
+    "name": "0600 TOD Secondary"
+   },
+   {
+    "index": 30,
+    "tier": 0,
+    "name": "0800 TOD Secondary"
+   },
+   {
+    "index": 31,
+    "tier": 0,
+    "name": "1100 TOD Secondary"
+   },
+   {
+    "index": 32,
+    "tier": 0,
+    "name": "1300 TOD Secondary"
+   },
+   {
+    "index": 33,
+    "tier": 0,
+    "name": "1700 TOD Secondary"
+   },
+   {
+    "index": 34,
+    "tier": 0,
+    "name": "2300 TOD Secondary"
+   },
+   {
+    "index": 35,
+    "tier": 0,
+    "name": "2400 TOD Secondary"
+   },
+   {
+    "index": 36,
+    "tier": 0,
+    "name": "2500 TOD Secondary"
+   },
+   {
+    "index": 37,
+    "tier": 0,
+    "name": "2600 TOD Secondary"
+   },
+   {
+    "index": 38,
+    "tier": 0,
+    "name": "2800 TOD Secondary"
+   },
+   {
+    "index": 39,
+    "tier": 0,
+    "name": "3000 TOD Secondary"
+   },
+   {
+    "index": 40,
+    "tier": 0,
+    "name": "3050 TOD Secondary"
+   },
+   {
+    "index": 41,
+    "tier": 0,
+    "name": "3100 TOD Secondary"
+   },
+   {
+    "index": 42,
+    "tier": 0,
+    "name": "3500 TOD Secondary"
+   },
+   {
+    "index": 43,
+    "tier": 0,
+    "name": "4000 TOD Secondary"
+   },
+   {
+    "index": 44,
+    "tier": 0,
+    "name": "4050 TOD Secondary"
+   },
+   {
+    "index": 45,
+    "tier": 0,
+    "name": "4100 TOD Secondary"
+   },
+   {
+    "index": 46,
+    "tier": 0,
+    "name": "0100 TOD Night"
+   },
+   {
+    "index": 47,
+    "tier": 0,
+    "name": "0200 TOD Night"
+   },
+   {
+    "index": 48,
+    "tier": 0,
+    "name": "0250 TOD Night"
+   },
+   {
+    "index": 49,
+    "tier": 0,
+    "name": "0300 TOD Night"
+   },
+   {
+    "index": 50,
+    "tier": 0,
+    "name": "0400 TOD Night"
+   },
+   {
+    "index": 51,
+    "tier": 0,
+    "name": "0500 TOD Night"
+   },
+   {
+    "index": 52,
+    "tier": 0,
+    "name": "0600 TOD Night"
+   },
+   {
+    "index": 53,
+    "tier": 0,
+    "name": "0800 TOD Night"
+   },
+   {
+    "index": 54,
+    "tier": 0,
+    "name": "1100 TOD Night"
+   },
+   {
+    "index": 55,
+    "tier": 0,
+    "name": "1300 TOD Night"
+   },
+   {
+    "index": 56,
+    "tier": 0,
+    "name": "1700 TOD Night"
+   },
+   {
+    "index": 57,
+    "tier": 0,
+    "name": "2300 TOD Night"
+   },
+   {
+    "index": 58,
+    "tier": 0,
+    "name": "2400 TOD Night"
+   },
+   {
+    "index": 59,
+    "tier": 0,
+    "name": "2500 TOD Night"
+   },
+   {
+    "index": 60,
+    "tier": 0,
+    "name": "2600 TOD Night"
+   },
+   {
+    "index": 61,
+    "tier": 0,
+    "name": "2800 TOD Night"
+   },
+   {
+    "index": 62,
+    "tier": 0,
+    "name": "3000 TOD Night"
+   },
+   {
+    "index": 63,
+    "tier": 0,
+    "name": "3050 TOD Night"
+   },
+   {
+    "index": 64,
+    "tier": 0,
+    "name": "3100 TOD Night"
+   },
+   {
+    "index": 65,
+    "tier": 0,
+    "name": "3500 TOD Night"
+   },
+   {
+    "index": 66,
+    "tier": 0,
+    "name": "4000 TOD Night"
+   },
+   {
+    "index": 67,
+    "tier": 0,
+    "name": "4050 TOD Night"
+   },
+   {
+    "index": 68,
+    "tier": 0,
+    "name": "4100 TOD Night"
+   }
+  ]
+ }
+]

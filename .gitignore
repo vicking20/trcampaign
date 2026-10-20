@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.log
+build/
+dist/
+server/key.pem
+server/cert.pem
+server/announcements.json
+recon/runs/
+online_test/
+lan_test*/
+runtime/
+third_party/*.dll
+third_party/*.zip
