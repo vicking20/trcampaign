@@ -69,7 +69,7 @@ def start_windows(game, addr, modes, every, elim, foreground=False):
         def keep_running():                                # exit code 241 = session ended, other non-zero = crash: start again; 0 = closed on purpose: stop
             recent = []
             while not stopping:
-                p = subprocess.Popen([exe] + SERVER_ARGS, cwd=game); d["server"] = p.pid; save(d); rc = p.wait()
+                p = subprocess.Popen([exe] + SERVER_ARGS, cwd=game); dd = pids(); dd["server"] = p.pid; save(dd); rc = p.wait()
                 if stopping: break
                 if rc == 0: print("game server closed on purpose: stopping", flush=True); stopping.append(1); stop(); os._exit(0)
                 recent[:] = [t for t in recent if time.time() - t < 60] + [time.time()]
@@ -79,7 +79,14 @@ def start_windows(game, addr, modes, every, elim, foreground=False):
         if modes == "vanilla": subprocess.call([sys.executable, os.path.join(ROOT, "tools", "gen_news.py"), "--vanilla"])
         else: start_score(modes, every, elim)
         print("server up: advertising %s, modes %s. Close this window or press Ctrl+C to stop; closing the game server window also stops everything.\n" % (addr, modes), flush=True)
-        try: subprocess.call(cmd, env=env, cwd=ROOT)
+        srv = subprocess.Popen(cmd, env=env, cwd=ROOT); dd = pids(); dd["blaze"] = srv.pid; save(dd)          # tracked, so stop() also ends it
+        if WIN:                                            # closing the console window must stop the children too (python is killed without cleanup otherwise)
+            import ctypes
+            handler_t = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)
+            def on_ctrl(evt):                              # CTRL_C 0, CTRL_BREAK 1, CTRL_CLOSE 2, LOGOFF 5, SHUTDOWN 6
+                stopping.append(1); stop(); return 0
+            keep = handler_t(on_ctrl); ctypes.windll.kernel32.SetConsoleCtrlHandler(keep, 1)
+        try: srv.wait()
         except KeyboardInterrupt: pass
         stopping.append(1); stop(); print("stopped"); return
     blaze = subprocess.Popen(cmd, env=env, stdout=open(os.path.join(RUNS, "blaze.log"), "a"), stderr=subprocess.STDOUT, cwd=ROOT)
