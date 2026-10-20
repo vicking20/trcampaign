@@ -64,13 +64,19 @@ def start_windows(game, addr, modes, every, elim, foreground=False):
     d = {}
     cmd = [sys.executable, "-u", os.path.join(ROOT, "server", "trserver.py"), "42127", addr]
     if foreground:                                         # the Blaze server runs in THIS window so the host sees what happens
-        d["server"] = subprocess.Popen([exe] + SERVER_ARGS, cwd=game).pid; save(d)
+        import threading
+        stopping = []
+        def keep_running():                                # the engine exits after each session: start it again until we stop
+            while not stopping:
+                p = subprocess.Popen([exe] + SERVER_ARGS, cwd=game); d["server"] = p.pid; save(d); p.wait()
+                if not stopping: print("game server exited, restarting...", flush=True); time.sleep(3)
+        threading.Thread(target=keep_running, daemon=True).start(); time.sleep(1)
         if modes == "vanilla": subprocess.call([sys.executable, os.path.join(ROOT, "tools", "gen_news.py"), "--vanilla"])
         else: start_score(modes, every, elim)
-        print("server up: advertising %s, modes %s. Close this window or press Ctrl+C to stop.\n" % (addr, modes), flush=True)
+        print("server up: advertising %s, modes %s. Close THIS window or press Ctrl+C to stop (closing only the game server window just restarts it).\n" % (addr, modes), flush=True)
         try: subprocess.call(cmd, env=env, cwd=ROOT)
         except KeyboardInterrupt: pass
-        stop(); print("stopped"); return
+        stopping.append(1); stop(); print("stopped"); return
     blaze = subprocess.Popen(cmd, env=env, stdout=open(os.path.join(RUNS, "blaze.log"), "a"), stderr=subprocess.STDOUT, cwd=ROOT)
     d["blaze"] = blaze.pid; time.sleep(2)
     d["server"] = subprocess.Popen([exe] + SERVER_ARGS, cwd=game).pid

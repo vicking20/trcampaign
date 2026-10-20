@@ -102,9 +102,15 @@ def dump_raw(pid, path):
                 i = h.start(); f.write("%08x %s\n" % (a + i, d[max(0, i - 96):i + 4].hex()))
     print("raw dump ->", path, flush=True)
 
-if args.run:
-    import subprocess
-    child = subprocess.Popen(args.run); print("started dedicated server as child pid", child.pid, flush=True)
+import subprocess
+child = None
+def keep_server_running():
+    """The engine exits when a session ends; start it again (as our child, so its memory stays readable). Called from the main loop."""
+    global child
+    if args.run and (child is None or child.poll() is not None):
+        if child is not None: print("dedicated server exited (%s): restarting" % child.returncode, flush=True); time.sleep(3)
+        child = subprocess.Popen(args.run); print("started dedicated server as child pid", child.pid, flush=True)
+keep_server_running()
 print("scoring %s (%s); rotation every %d races; races so far %d" % (mode, ", ".join(ROTATION), args.every, st["races"]), flush=True)
 export_eliminated(); publish([])
 if os.environ.get("SCORE_NOW"):
@@ -114,6 +120,7 @@ base, seen, pid = frozenset(), None, None
 announced = False
 while True:
     try:
+        keep_server_running()
         if not pid or not rr.procmem.alive(pid): pid = rr.server_pid()
         if not pid: time.sleep(3); continue
         s, ss, rc = rr.state(pid)

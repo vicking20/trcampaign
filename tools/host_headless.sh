@@ -36,7 +36,7 @@ SERVER_CMD=(wine NFSTR_Server.exe -Server.ServerName NFSTR_BlazeServer -GamePort
 export DISPLAY="$DISP"; cd "$GAME" || exit 1
 if [ "$MODES" = vanilla ]; then
   python3 "$ROOT/tools/gen_news.py" --vanilla >/dev/null
-  "${SERVER_CMD[@]}" >> "$RUN/dedicated.log" 2>&1 & echo $! >> "$PIDS"
+  ( while true; do "${SERVER_CMD[@]}" >> "$RUN/dedicated.log" 2>&1; sleep 3; done ) & echo $! >> "$PIDS"      # the engine exits after each session: start it again
 else      # the scoring daemon starts the dedicated server as its child: only a parent may read its memory when kernel.yama.ptrace_scope=1
   python3 -u "$ROOT/tools/online_scoring.py" "$MODES" --every "$EVERY" --elim "$ELIM" --run "${SERVER_CMD[@]}" >> "$RUN/scoring.log" 2>&1 & echo $! >> "$PIDS"
 fi
