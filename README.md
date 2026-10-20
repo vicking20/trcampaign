@@ -4,6 +4,7 @@ Play **Need for Speed: The Run** multiplayer again - with friends on your networ
 You need your own copy of the game (version 1.1.0.0). No game files are included.
 
 ![Main menu](docs/img/main-menu.jpg) ![Competitors](docs/img/competitors.jpg)
+![Race](docs/img/race-standings.jpg) ![Awards](docs/img/awards-xp.jpg)
 
 ## Play with friends (easiest way)
 
