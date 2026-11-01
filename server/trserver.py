@@ -93,9 +93,9 @@ def push_mode():
     # experiment switch, read each time: tools/round.sh push off|a|b|full
     # off = nothing; a = UserAdded + PlayerJoining; b = same with PNET unset; full = a + PlayerJoinCompleted (full crashed the server at 0x0103DF53)
     try:
-        return open("/tmp/nfstr_round/push_mode").read().strip() or "off"
+        return open("/tmp/nfstr_round/push_mode").read().strip() or "a"
     except OSError:
-        return "off"
+        return "a"
 _local = threading.local()
 
 def session():

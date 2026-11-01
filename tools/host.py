@@ -4,7 +4,7 @@
   python tools/host.py run [game-folder]            (Windows: used by StartServer.bat; the folder defaults to the one holding NFSTR_Server/)
   python tools/host.py score <modes> [--every N] [--elim hold|soft]     (change the mode)
   python tools/host.py score-stop | stop | status
-Linux: delegates to tools/host_server.sh (Proton + systemd). Windows (untested): starts trserver.py, the game's own
+Linux: delegates to tools/host_server.sh (Proton + systemd). Windows: starts trserver.py, the game's own
 NFSTR_Server.exe and the scoring daemon as plain processes; News is served on port 443 directly (no redirect needed).
 Windows host needs: Python 3, the game folder (default ./online_test) with dinput8.dll + Scripts/NFSTR_Online.asi/.ini (Host=127.0.0.1)."""
 import json, os, subprocess, sys, time
@@ -17,6 +17,12 @@ SERVER_ARGS = ["-Server.ServerName", "NFSTR_BlazeServer", "-GamePort", "25200",
                "-NfsGame.CareerStateTimeOutTimer", "86400", "-NfsGame.CarSelectTimer", "30.0", "-NfsGame.PreLoadTimer", "80.0",
                "-NfsGame.ActivityTimer", "600.0", "-NfsGame.RewardsTimer", "25.0", "-NfsGame.IntermissionTimer", "15.0",
                "-NfsGame.VotingTimer", "15.0", "-NfsGame.WaitForVotesTimer", "2.0", "-NfsGame.PostVotingTimer", "11.0"]
+
+def quiet_window():
+    """Windows: start the game server minimized and without taking focus, so its restart after a session does not pull your game out of fullscreen."""
+    if not WIN: return {}
+    si = subprocess.STARTUPINFO(); si.dwFlags |= subprocess.STARTF_USESHOWWINDOW; si.wShowWindow = 7     # SW_SHOWMINNOACTIVE
+    return {"startupinfo": si}
 
 def pids(): 
     try: return json.load(open(PIDS))
@@ -66,19 +72,18 @@ def start_windows(game, addr, modes, every, elim, foreground=False):
     if foreground:                                         # the Blaze server runs in THIS window so the host sees what happens
         import threading
         stopping = []
-        def keep_running():                                # exit code 241 = session ended, other non-zero = crash: start again; 0 = closed on purpose: stop
+        def keep_running():                                # the game server exits after a session ends (241) or once the last player drops (0), and on a crash: start it again each time
             recent = []
             while not stopping:
-                p = subprocess.Popen([exe] + SERVER_ARGS, cwd=game); dd = pids(); dd["server"] = p.pid; save(dd); rc = p.wait()
+                p = subprocess.Popen([exe] + SERVER_ARGS, cwd=game, **quiet_window()); dd = pids(); dd["server"] = p.pid; save(dd); rc = p.wait()
                 if stopping: break
-                if rc == 0: print("game server closed on purpose: stopping", flush=True); stopping.append(1); stop(); os._exit(0)
                 recent[:] = [t for t in recent if time.time() - t < 60] + [time.time()]
                 if len(recent) > 5: print("game server keeps crashing (exit code %s): giving up" % rc, flush=True); stopping.append(1); stop(); os._exit(1)
                 print("game server exited (code %s), restarting..." % rc, flush=True); time.sleep(3)
         threading.Thread(target=keep_running, daemon=True).start(); time.sleep(1)
         if modes == "vanilla": subprocess.call([sys.executable, os.path.join(ROOT, "tools", "gen_news.py"), "--vanilla"])
         else: start_score(modes, every, elim)
-        print("server up: advertising %s, modes %s. Close this window or press Ctrl+C to stop; closing the game server window also stops everything.\n" % (addr, modes), flush=True)
+        print("server up: advertising %s, modes %s. Close this window or press Ctrl+C to stop everything (the game server restarts by itself after each session).\n" % (addr, modes), flush=True)
         srv = subprocess.Popen(cmd, env=env, cwd=ROOT); dd = pids(); dd["blaze"] = srv.pid; save(dd)          # tracked, so stop() also ends it
         if WIN:                                            # closing the console window must stop the children too (python is killed without cleanup otherwise)
             import ctypes
@@ -91,7 +96,7 @@ def start_windows(game, addr, modes, every, elim, foreground=False):
         stopping.append(1); stop(); print("stopped"); return
     blaze = subprocess.Popen(cmd, env=env, stdout=open(os.path.join(RUNS, "blaze.log"), "a"), stderr=subprocess.STDOUT, cwd=ROOT)
     d["blaze"] = blaze.pid; time.sleep(2)
-    d["server"] = subprocess.Popen([exe] + SERVER_ARGS, cwd=game).pid
+    d["server"] = subprocess.Popen([exe] + SERVER_ARGS, cwd=game, **quiet_window()).pid
     save(d)
     if modes == "vanilla": subprocess.call([sys.executable, os.path.join(ROOT, "tools", "gen_news.py"), "--vanilla"])
     else: start_score(modes, every, elim)
@@ -126,14 +131,14 @@ def windows_wizard(rest):
     try: cfg = json.load(open(CFG))
     except (OSError, ValueError): cfg = {}
     ini = read_server_ini()
-    print("NFSTR Online server (Windows, experimental)\n")
+    print("NFSTR Online server\n")
     game = (rest[0] if rest else "") or ini.get("gamedir", "") or default_game() or cfg.get("game", "")
     while not os.path.isfile(os.path.join(game, "Need For Speed The Run.exe")):
         game = input("Game folder (the one with 'Need For Speed The Run.exe'): ").strip().strip('"')
     modes = ini.get("modes") or cfg.get("modes", "plague,bounty,streak,cannonball")
     json.dump({"game": game, "modes": modes}, open(CFG, "w"))
     if not os.path.isfile(os.path.join(game, "Scripts", "NFSTR_Online.asi")): print("WARNING: Scripts\\NFSTR_Online.asi is missing - extract the whole zip into the game folder.")
-    print("Friends put one of these in Scripts\\NFSTR_Online.ini as Host=:  %s\n(same network: the first one; a VPN like Tailscale: the VPN address)\n" % ", ".join(local_ips() or ["this PC's address"]))
+    print("Friends enter one of these when the launcher asks for the host's address:  %s\n(same network: the first one; a VPN like Tailscale: the VPN address)\n" % ", ".join(local_ips() or ["this PC's address"]))
     start_windows(game, ini.get("address", "auto"), modes, int(ini.get("every", 3)), ini.get("elim", "hold"), foreground=True)
 
 def main():

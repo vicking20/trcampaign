@@ -8,6 +8,7 @@
 cd "$(dirname "$(readlink -f "$0")")" || exit 1
 EXE="Need For Speed The Run.exe"
 [ -f "$EXE" ] || { echo "run this script from the game folder (no '$EXE' here)"; exit 1; }
+[ -f Scripts/lsx.py ] || { echo "Scripts/lsx.py is missing; repair the NFSTR Online overlay"; exit 1; }
 export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:+$WINEDLLOVERRIDES;}dinput8=n,b"
 export WINEPREFIX="${WINEPREFIX:-$HOME/.local/share/nfstr-online/prefix}"
 export GAMEID="${GAMEID:-umu-default}"
@@ -19,4 +20,10 @@ if command -v umu-run >/dev/null; then RUN=(umu-run)
 elif command -v wine >/dev/null; then RUN=(wine)
 else echo "umu-run or wine is required"; exit 1; fi
 mkdir -p "$WINEPREFIX"
-exec "${GS[@]}" "${RUN[@]}" "./$EXE"
+python3 Scripts/lsx.py --setup || exit 1
+python3 -u Scripts/lsx.py &
+LSX_PID=$!
+cleanup() { kill "$LSX_PID" 2>/dev/null || true; }
+trap cleanup EXIT INT TERM
+sleep 1
+"${GS[@]}" "${RUN[@]}" "./$EXE"

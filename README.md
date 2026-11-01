@@ -6,38 +6,30 @@ You need your own copy of the game (version 1.1.0.0). No game files are included
 ![Main menu](docs/img/main-menu.jpg) ![Competitors](docs/img/competitors.jpg)
 ![Race](docs/img/race-standings.jpg) ![Awards](docs/img/awards-xp.jpg)
 
-## Play with friends (easiest way)
+## How to play
 
-One of you is the **host**. Everyone else just joins.
+One of you is the **host**; everyone else joins. You need [Python 3](https://www.python.org/downloads/) installed (Windows: tick "Add Python to PATH").
 
-**Everyone (host and players), 3 steps:**
-1. Make a backup copy of your game folder.
-2. Download `NFSTR_Online.zip` from the releases and extract it **into the game folder** (next to `Need For Speed The Run.exe`). One zip has everything.
-3. Open `Scripts/NFSTR_Online.ini` in a text editor and set
-   - `Host=` the host's address (see below),
-   - `Name=` your player name (letters and numbers; pick a unique one).
+1. Back up your game folder, then extract `NFSTR_Online.zip` from the releases **into the game folder** (next to `Need For Speed The Run.exe`).
+2. Start it:
 
-**Start the game.** Windows: run the game as usual. Linux: run `./NFSTR_Online_Play.sh` in the game folder.
-At the title screen wait about 20 seconds, press Enter, then choose **Multiplayer > Quick Match**.
+| | Windows | Linux |
+|---|---|---|
+| **Join** a friend | `NFSTR_Online_Play.bat` | `./NFSTR_Online_Play.sh` |
+| **Host** a game (and play) | `NFSTR_Host_And_Play.bat` | `./NFSTR_Host_And_Play.sh` |
 
-**The host's address**
-- Same home network: the host's local IP (for example `<ip>`).
-- Friends far away: install a free VPN such as **Tailscale** or ZeroTier on every PC. The address is the host's VPN IP.
-- A public server: its name or IP.
+   The first time, it asks for the host's address and your player name.
+3. In the game press Enter, then choose **Multiplayer > Quick Match**.
 
-## Host a server
+**The host's address:** on the same network, the host's local IP (the host's window shows it). Over the internet, install a free VPN such as Tailscale or ZeroTier on every PC and use the host's VPN address.
 
-You already have everything: the same zip, extracted in your game folder, includes the server. Hosting needs [Python 3](https://www.python.org/downloads/)
-(Windows: tick "Add Python to PATH").
+Closing the game stops everything the launcher started. The server restarts itself after every race, so Windows may briefly minimize your game when it does. Playing in windowed mode avoids that.
 
-- **Windows (experimental):** double-click **`StartServer.bat`**. It opens a window that shows what the server is doing, asks one thing (the address friends will use),
-  and starts everything. Close the window or press Ctrl+C to stop. `AdminConsole.bat` opens the control panel (players, kick/ban, announcements, game mode).
-- **Linux:** `./StartServer.sh <address> [modes]` in the game folder (uses `umu-run` if you have it, otherwise `wine` + `xvfb`). Stop: `./StartServer.sh stop`.
-- **Stopping:** close the game's server window, or the console window (Ctrl+C), or run `./StartServer.sh stop` on Linux. The server restarts itself after each session or if it crashes, but not when you close it on purpose.
-- **Only Wine, no `umu-run`?** `./StartServer.sh` uses plain `wine` (and your screen, or `xvfb` when there is none).
-- **Different folder?** Run `StartServer.bat "D:\Games\NFS The Run"`, or put a `server.ini` in `NFSTR_Server` with `[Server]` and `GameDir=`, `Address=`, `Modes=`.
+## Hosting without playing
 
-Containers and machines without a screen: see `NFSTR_Server/docs/NOTES.md`.
+Run the server alone: `NFSTR_Server\StartServer.bat` (Windows) or `./NFSTR_Server/StartServer.sh [address] [modes]` (Linux, needs `umu-run` or `wine`; stop with `./NFSTR_Server/StartServer.sh stop`).
+`NFSTR_Server\AdminConsole.bat` opens the control panel (players, kick/ban, announcements, game mode).
+Machines without a screen and containers: see `NFSTR_Server/docs/NOTES.md`.
 
 ## Game modes
 
@@ -47,12 +39,11 @@ Modes add scoring on top of normal races - points, bonuses, teams, knock-outs - 
 
 ## Good to know
 
-- Tested on Arch Linux only. It works with two players; more players and internet play are untested.
-- The plugin only changes the game while it runs; nothing is edited on disk. It points the game at your server, skips the game's
-  certificate check, and answers the game's Origin check itself. Delete the added files to go back to the normal game.
+- Not working? Read `Scripts/NFSTR_Online.log` in the game folder.
+- The mod only changes the game while it runs; nothing on disk is edited. To go back to the normal game, delete the files from the zip.
 - Another `dinput8.dll` in the folder (Special K, ReShade) can clash with ours - use a clean copy of the game.
 - No accounts: a name is just a name. Hosts can ban people from the control panel.
-- Not working? Read `Scripts/NFSTR_Online.log` in the game folder.
+- Tested with a Linux host and Windows and Linux players. Windows hosting and internet play are newer and less tested.
 
 ## More
 

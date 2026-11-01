@@ -129,8 +129,8 @@ static void lx_answer(SOCKET c, const char *tagname, const char *tagtext, const 
         lx_encrypt_hex(key, enc, sizeof enc);
         snprintf(inner, sizeof inner, "<ChallengeAccepted response=\"%s\"/>", enc);
         lx_send(c, "Response", sender, rid, inner, 0);
-        lx_send(c, "Event", "EALS", NULL, "<Login version=\"2\" IsLoggedIn=\"1\"/>", 1);
         lx_send(c, "Event", "EbisuSDK", NULL, "<Login version=\"2\" IsLoggedIn=\"1\"/>", 1);
+        lx_send(c, "Event", "EALS", NULL, "<Login version=\"2\" IsLoggedIn=\"1\"/>", 1);
         return;
     }
     if (!strcmp(tagname, "GetConfig")) snprintf(inner, sizeof inner, "<GetConfigResponse version=\"2\"/>");
@@ -159,12 +159,19 @@ static void lx_message(SOCKET c, char *txt)
     char *req = strstr(txt, "<Request"); if (!req) return;
     char rid[32], rcp[32]; lx_attr(req, "id", rid, sizeof rid); lx_attr(req, "recipient", rcp, sizeof rcp);
     char *p = strchr(req, '>'); if (!p) return;
-    while ((p = strchr(p, '<')) != NULL) {
-        if (p[1] == '/' || p[1] == '?') { if (!strncmp(p, "</Request", 9)) break; p++; continue; }
+    while ((p = strchr(p + 1, '<')) != NULL) {
+        if (!strncmp(p, "</Request", 9)) break;
+        if (p[1] == '/' || p[1] == '?') continue;
         char name[48]; int n = 0; const char *q = p + 1;
         while (*q && *q != ' ' && *q != '/' && *q != '>' && n < 47) name[n++] = *q++;
-        name[n] = 0; if (n) lx_answer(c, name, p, rid, rcp);
-        p++;
+        name[n] = 0;
+        char *open_end = strchr(p, '>'); if (!open_end) return;
+        if (n) lx_answer(c, name, p, rid, rcp);
+        /* Each request has one outer command. Skip its nested fields before looking for another command. */
+        if (open_end > p && open_end[-1] == '/') { p = open_end; continue; }
+        char close_tag[56]; snprintf(close_tag, sizeof close_tag, "</%s", name);
+        char *close = strstr(open_end + 1, close_tag); if (!close) return;
+        p = strchr(close, '>'); if (!p) return;
     }
 }
 
@@ -259,7 +266,7 @@ static void origin_memory_stub(void)
 }
 
 /* name from [Player] Name= (3-16 of A-Z a-z 0-9 _ -), start the server thread, and create the Origin stub the SDK checks for */
-static void lsx_embedded_start(const char *ini)
+static void lsx_embedded_start(const char *ini, int embedded)
 {
     char raw[64] = "", name[24] = ""; int n = 0;
     GetPrivateProfileStringA("Player", "Name", "TRPlayer", raw, sizeof raw, ini);
@@ -269,8 +276,10 @@ static void lsx_embedded_start(const char *ini)
     strcpy(g_lsx_name, name);
     if (!strcmp(name, "TRPlayer")) strcpy(g_lsx_uid, "1000000001");
     else { unsigned sum = 0; for (const char *p = name; *p; ++p) sum += (unsigned char)*p; snprintf(g_lsx_uid, sizeof g_lsx_uid, "%u", 2000000001u + sum % 1000); }
-    lx_aes_init();
-    CreateThread(NULL, 0, lx_server, NULL, 0, NULL);
+    if (embedded) {
+        lx_aes_init();
+        CreateThread(NULL, 0, lx_server, NULL, 0, NULL);
+    }
     char mode[16] = "memory"; GetPrivateProfileStringA("Origin", "Stub", "memory", mode, sizeof mode, ini);
     if (!strcmp(mode, "memory")) origin_memory_stub();                       /* default: no system change */
     else if (!strcmp(mode, "system")) {                                      /* old behaviour: real file + registry value, only if absent */

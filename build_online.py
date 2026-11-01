@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-"""Builds dist/NFSTR_Online-<ver>.zip - ONE zip with everything. Extract it into the game folder (next to the game exe):
-  dinput8.dll, Scripts/ (plugin + ini), NFSTR_Online_Play.sh, StartServer.bat/.sh ...  = what players need
-  NFSTR_Server/   = the server (Python) for hosts          NFSTR_Extras/ = LAN mod, deployment files
-Usage: python build_online.py <version> [default server address for the player ini]"""
+"""Builds dist/NFSTR_Online-<ver>.zip: one zip, extracted into the game folder (next to the game exe).
+  top level: the launchers, dinput8.dll, Scripts/ (plugin + ini), README.txt
+  NFSTR_Server/ = the server (Python, for hosts)      NFSTR_Extras/ = the older LAN mod, licenses
+Usage: python build_online.py <version>"""
 import os, subprocess, sys, zipfile
 R = os.path.dirname(os.path.abspath(__file__)); ver = sys.argv[1] if len(sys.argv) > 1 else "0.1.0"
-HOST = sys.argv[2] if len(sys.argv) > 2 else "127.0.0.1"
 subprocess.check_call([os.path.join(R, "tools", "build_plugin.sh")], stdout=subprocess.DEVNULL)
 out = os.path.join(R, "dist", "NFSTR_Online-%s.zip" % ver); os.makedirs(os.path.dirname(out), exist_ok=True)
-INI = ("[Server]\n; address (IP or domain) of the server you want to play on\nHost=%s\n\n[Player]\n; your name: 3-16 letters, digits, _ or -\nName=Player\n\n"
-       "[Origin]\nEnable=1\nStartDelayMs=20000\n" % HOST)
-README = ("NFSTR Online (no game files included)\n\n"
-          "1. Make a backup of your game folder, then extract this zip into it (next to 'Need For Speed The Run.exe').\n"
-          "2. PLAY: open Scripts/NFSTR_Online.ini, set Host= to the host's address and Name= to your player name.\n"
-          "   Start the game (Linux: ./NFSTR_Online_Play.sh), wait ~20 seconds at the title screen, press Enter, then Multiplayer > Quick Match.\n"
-          "3. HOST: Windows: double-click StartServer.bat (needs Python 3). Linux: ./StartServer.sh   (details: NFSTR_Server/README.md).\n\n"
-          "Problems? Read Scripts/NFSTR_Online.log. Delete the added files to go back to the normal game.\n")
+INI = ("[Server]\n; address of the host (IP or name). Left empty, the launcher asks for it the first time.\nHost=\n\n"
+       "[Player]\n; your name: 3-16 letters, digits, _ or -. Left empty, the launcher asks for it the first time.\nName=\n\n"
+       "[Origin]\nEnable=1\nEmbedded=0\nStartDelayMs=20000\n")
+README = ("NFSTR Online - multiplayer for Need for Speed: The Run (no game files included)\n\n"
+          "1. Extract this zip into your game folder (next to 'Need For Speed The Run.exe'). Python 3 must be installed.\n"
+          "2. JOIN a friend:   Windows: NFSTR_Online_Play.bat    Linux: ./NFSTR_Online_Play.sh\n"
+          "   HOST a game:     Windows: NFSTR_Host_And_Play.bat  Linux: ./NFSTR_Host_And_Play.sh\n"
+          "   The first time it asks for the host's address and your player name.\n"
+          "3. In the game: press Enter, then Multiplayer > Quick Match.\n\n"
+          "Problems? Read Scripts/NFSTR_Online.log. To go back to the normal game, delete the files from this zip.\n")
 LICENSE = "dinput8.dll is the Ultimate ASI Loader v9.7.4 by ThirteenAG (MIT License), https://github.com/ThirteenAG/Ultimate-ASI-Loader\n"
 
 def add_tree(z, src, dst, skip=lambda f: False):
@@ -30,14 +31,18 @@ with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     # --- player files (zip root = game folder)
     z.write(os.path.join(R, "build", "NFSTR_Online.asi"), "Scripts/NFSTR_Online.asi")
     z.writestr("Scripts/NFSTR_Online.ini", INI)
+    z.write(os.path.join(R, "server", "lsx.py"), "Scripts/lsx.py")
+    z.write(os.path.join(R, "client", "NFSTR_Online_Play.bat"), "NFSTR_Online_Play.bat")
+    z.write(os.path.join(R, "client", "NFSTR_Host_And_Play.bat"), "NFSTR_Host_And_Play.bat")
+    z.write(os.path.join(R, "client", "NFSTR_Host_And_Play.sh"), "NFSTR_Host_And_Play.sh")
     z.write(os.path.join(R, "client", "NFSTR_Online_Play.sh"), "NFSTR_Online_Play.sh")
     loader = os.path.join(R, "third_party", "dinput8.dll")
     if os.path.isfile(loader):
-        z.write(loader, "dinput8.dll"); z.writestr("dinput8.LICENSE.txt", LICENSE)
+        z.write(loader, "dinput8.dll"); z.writestr("NFSTR_Extras/dinput8.LICENSE.txt", LICENSE)
     z.writestr("README.txt", README)
-    for f in ("StartServer.bat", "StopServer.bat", "AdminConsole.bat", "StartServer.sh"): z.write(os.path.join(R, f), f)
     # --- server: NFSTR_Server/ is the root the scripts work from
     S = "NFSTR_Server/"
+    for f in ("StartServer.bat", "StopServer.bat", "AdminConsole.bat", "StartServer.sh"): z.write(os.path.join(R, "host", f), S + f)
     add_tree(z, "server", S + "server", skip=lambda f: f.startswith("test_") or f in ("lsx.log", "key.pem", "cert.pem", "announcements.json"))
     for f in ("host_server.sh", "round.sh", "net_setup.sh", "prepare_host.sh", "host_headless.sh", "host.py", "procmem.py", "admin.py",
               "online_scoring.py", "race_results.py", "gen_news.py", "make_server_exe.py", "probe_limits.py"):

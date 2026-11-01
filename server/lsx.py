@@ -5,18 +5,48 @@ NFS The Run's EbisuSDK layer talks NUL-terminated XML to it. If nothing
 answers, the game says you must be signed in to Origin. This pretends you are.
 Runs on each player's own machine (the game connects to localhost).
 """
-import socket, sys, threading, time, re, secrets
+import socket, sys, threading, time, re, secrets, configparser
 import xml.etree.ElementTree as ET
 
 PORT = 3216
 import os, re as _re
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+def setup(default_host=""):
+    """First run (--setup [host]): ask for whatever Host= / Name= the ini still leaves empty. Used by the launchers."""
+    ini = os.path.join(HERE, "NFSTR_Online.ini")
+    if not os.path.isfile(ini): return
+    text = open(ini, encoding="utf-8").read()
+    def value(key):
+        m = re.search(r"^%s=(.*)$" % key, text, re.M | re.I); return m.group(1).strip() if m else None
+    def put(key, val):
+        nonlocal text; text = re.sub(r"^(%s=).*$" % key, lambda m: m.group(1) + val, text, count=1, flags=re.M | re.I)
+    if value("Host") == "":
+        host = default_host
+        while not host: host = input("Address of the host (ask them; for example 192.168.1.20): ").strip()
+        put("Host", host)
+    if value("Name") == "":
+        name = ""
+        while not _re.fullmatch(r"[A-Za-z0-9_-]{3,16}", name): name = input("Your player name (3-16 letters, digits, _ or -): ").strip()
+        put("Name", name)
+    open(ini, "w", encoding="utf-8").write(text)
+
+if __name__ == "__main__" and "--setup" in sys.argv:
+    try: setup(sys.argv[sys.argv.index("--setup") + 1] if len(sys.argv) > sys.argv.index("--setup") + 1 else "")
+    except (EOFError, KeyboardInterrupt): sys.exit(1)
+    sys.exit(0)
 
 def _player_name():
-    """Player name: NFSTR_NAME env, else player_name.txt next to this script, else TRPlayer (1-16 chars of A-Z a-z 0-9 _ -)."""
+    """Player name: NFSTR_NAME, player_name.txt, [Player] Name in the adjacent ini, or TRPlayer."""
     n = os.environ.get("NFSTR_NAME", "")
     f = os.path.join(os.path.dirname(os.path.abspath(__file__)), "player_name.txt")
     if not n and os.path.isfile(f):
         n = open(f, encoding="utf-8").read().strip()
+    if not n:
+        ini = os.path.join(os.path.dirname(os.path.abspath(__file__)), "NFSTR_Online.ini")
+        cfg = configparser.ConfigParser()
+        if cfg.read(ini, encoding="utf-8"):
+            n = cfg.get("Player", "Name", fallback="")
     n = _re.sub(r"[^A-Za-z0-9_-]", "", n)[:16]
     return n or "TRPlayer"
 
@@ -211,9 +241,12 @@ def handle(c, addr):
 
 def main():
     s = socket.socket()
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(("127.0.0.1", PORT)); s.listen(8)
-    log("LSX stub on 127.0.0.1:%d" % PORT)
+    if os.name == "nt": s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)     # SO_REUSEADDR would let a second helper share the port and split the game's connections
+    else: s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    try: s.bind(("127.0.0.1", PORT))
+    except OSError: sys.exit("another sign-in helper is already running on port %d" % PORT)
+    s.listen(8)
+    log("LSX stub on 127.0.0.1:%d as %s" % (PORT, PERSONA))
     while True:
         c, a = s.accept()
         threading.Thread(target=handle, args=(c, a), daemon=True).start()

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Linux: start the NFSTR Online server for the game folder this file is in.   ./StartServer.sh [address] [modes]   (stop: ./StartServer.sh stop)
-cd "$(dirname "$(readlink -f "$0")")" || exit 1
-[ -f "Need For Speed The Run.exe" ] || { echo "Put this file in the game folder (next to 'Need For Speed The Run.exe')."; exit 1; }
+# Linux: start the server for the game folder this NFSTR_Server folder sits in.   ./StartServer.sh [address] [modes]   (stop: ./StartServer.sh stop)
+cd "$(dirname "$(readlink -f "$0")")/.." || exit 1
+[ -f "Need For Speed The Run.exe" ] || { echo "Extract the zip into the game folder (next to 'Need For Speed The Run.exe')."; exit 1; }
 export NFSTR_GAME_DIR="$PWD"
 if command -v umu-run >/dev/null; then HOST=NFSTR_Server/tools/host_server.sh        # Proton via umu-run
 elif command -v wine >/dev/null; then HOST=NFSTR_Server/tools/host_headless.sh     # plain Wine (uses your screen, or xvfb if there is none)

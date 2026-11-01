@@ -8,14 +8,14 @@
 # 4th argument: what happens to a player an elimination mode knocks out - hold (default: removed, cannot match until the
 # season changes) or soft (may rejoin; their results just do not score).  Stop everything: tools/host_server.sh stop
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-if [ "$1" = stop ]; then systemctl --user stop nfstr-menu-score nfstr-menu-blaze nfstr-menu-bsrv 2>&1 | grep -v "not loaded"; echo stopped; exit 0; fi
+if [ "$1" = stop ]; then systemctl --user stop nfstr-menu-score nfstr-menu-blaze nfstr-menu-bsrv nfstr-origin-linux 2>&1 | grep -v "not loaded"; echo stopped; exit 0; fi
 ADDR="${1:-auto}"; MODES="${2:-plague}"; EVERY="${3:-3}"; ELIM="${4:-hold}"
 export NFSTR_ADV_HOST="$ADDR"
 if [ ! -f "$ROOT/server/key.pem" ] || [ ! -f "$ROOT/server/cert.pem" ]; then       # fake-service key + certificate (not a secret; the game's check is patched)
   openssl genrsa -traditional -out "$ROOT/server/key.pem" 1024 2>/dev/null && python3 "$ROOT/server/mkcert.py" >/dev/null && echo "generated server/key.pem and cert.pem"
 fi
 "$ROOT/tools/net_setup.sh" >/dev/null && echo "443 -> 8081 redirects ok"
-systemctl --user stop nfstr-menu-blaze nfstr-menu-bsrv nfstr-menu-score 2>/dev/null
+systemctl --user stop nfstr-menu-blaze nfstr-menu-bsrv nfstr-menu-score nfstr-origin-linux 2>/dev/null
 if [ -n "$NFSTR_MAX_PLAYERS" ]; then        # raise the dedicated server's race player cap (plugin [Patch] MaxPlayers, see README)
   python3 - "${NFSTR_GAME_DIR:-$ROOT/online_test}/Scripts/NFSTR_Online.ini" "$NFSTR_MAX_PLAYERS" <<'PY'
 import re, sys

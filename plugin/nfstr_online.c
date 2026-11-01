@@ -603,7 +603,7 @@ BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID res)
     if (GetPrivateProfileIntA("Server", "SkipCertCheck", 1, path)) patch_ssl_check();
     if (GetPrivateProfileIntA("Patch", "MultiInstance", 1, path)) patch_instance_mutex();
     load_traces(path);
-    if (GetPrivateProfileIntA("Origin", "Embedded", 1, path)) lsx_embedded_start(path);   /* built-in Origin stand-in + stub; set Embedded=0 to use server/lsx.py */
+    lsx_embedded_start(path, GetPrivateProfileIntA("Origin", "Embedded", 0, path));   /* the install lookup is needed with either Origin stand-in */
     { int mp = GetPrivateProfileIntA("Patch", "MaxPlayers", 0, path); if (mp >= 2 && mp <= 64) patch_max_players(mp); }
     g_cfg_ms = GetPrivateProfileIntA("Debug", "DumpCfgMs", 0, path);
     if (g_cfg_ms) CreateThread(NULL, 0, dump_cfg_thread, NULL, 0, NULL);

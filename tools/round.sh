@@ -5,15 +5,26 @@
 #   tools/round.sh status                            which units run
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+. "$ROOT/tools/launch/env.sh"
 WORK=/tmp/nfstr_round; mkdir -p "$WORK/plog"
 U_BLAZE=nfstr-menu-blaze; U_SRV=nfstr-menu-bsrv; U_GAME=nfstr-menu-game
 ENVS=(-E "DISPLAY=${DISPLAY:-:0}" -E "XAUTHORITY=${XAUTHORITY:-}")
 
 start_blaze() { systemctl --user restart $U_BLAZE 2>/dev/null || systemd-run --user --collect --property=NoNewPrivileges=yes --unit=$U_BLAZE python3 -u "$ROOT/server/trserver.py" 42127 "${NFSTR_ADV_HOST:-127.0.0.1}" >/dev/null; }
+start_origin() {
+  if grep -Eiq '^Embedded[[:space:]]*=[[:space:]]*0([[:space:]]|$)' "$GAME/Scripts/NFSTR_Online.ini"; then
+    systemctl --user is-active --quiet nfstr-origin-linux ||
+      { systemctl --user reset-failed nfstr-origin-linux 2>/dev/null;
+        systemd-run --user --collect --property=Restart=always --property=RestartSec=3 --property="WorkingDirectory=$GAME/Scripts" --unit=nfstr-origin-linux python3 -u "$ROOT/server/lsx.py" >/dev/null; }
+  fi
+}
 start_server() { systemctl --user stop $U_SRV 2>/dev/null; sleep 1; mkdir -p "$WORK/slog"; rm -f "$WORK"/slog/*
-  systemd-run --user --collect --property=Restart=on-failure --property=RestartSec=3 --unit=$U_SRV "${ENVS[@]}" -E PROTON_LOG=1 -E "PROTON_LOG_DIR=$WORK/slog" -E "NFSTR_SERVER_EXTRA=${NFSTR_SERVER_EXTRA:-}" "$ROOT/tools/launch/start_server_blaze.sh" >/dev/null; }
-start_game() { systemctl --user stop $U_GAME 2>/dev/null; sleep 2; rm -f "$WORK"/plog/*; : > "$ROOT/online_test/Scripts/NFSTR_Online.log"
-  systemd-run --user --collect --unit=$U_GAME "${ENVS[@]}" -E PROTON_LOG=1 -E "PROTON_LOG_DIR=$WORK/plog" "$ROOT/tools/launch/start.sh" >/dev/null; }
+  start_origin
+  systemctl --user reset-failed $U_SRV 2>/dev/null
+  systemd-run --user --collect --property=Restart=always --property=RestartSec=3 --unit=$U_SRV "${ENVS[@]}" -E PROTON_LOG=1 -E "PROTON_LOG_DIR=$WORK/slog" -E "NFSTR_GAME_DIR=$GAME" -E "NFSTR_SERVER_EXTRA=${NFSTR_SERVER_EXTRA:-}" "$ROOT/tools/launch/start_server_blaze.sh" >/dev/null; }
+start_game() { systemctl --user stop $U_GAME 2>/dev/null; sleep 2; rm -f "$WORK"/plog/*; : > "$GAME/Scripts/NFSTR_Online.log"
+  start_origin
+  systemd-run --user --collect --unit=$U_GAME "${ENVS[@]}" -E PROTON_LOG=1 -E "PROTON_LOG_DIR=$WORK/plog" -E "NFSTR_GAME_DIR=$GAME" "$ROOT/tools/launch/start.sh" >/dev/null; }
 
 start_scoring() { systemctl --user stop nfstr-menu-score 2>/dev/null; systemd-run --user --collect --unit=nfstr-menu-score python3 -u "$ROOT/tools/online_scoring.py" "${@:-plague}" >/dev/null && echo "scoring daemon: ${*:-plague} (log: journalctl --user -u nfstr-menu-score)"; }
 
@@ -52,6 +63,6 @@ case "${1:-report}" in
       grep -a -A8 "Unhandled exception" "$L" | grep -a "exception\|EIP\|EAX\|ESI\|EDI" | head -4 | cut -c1-150
     else echo "none"; fi
     echo "== plugin log (GAMELOG/NETPLAYER)"
-    grep -a "GAMELOG\|NETPLAYER" "$ROOT/online_test/Scripts/NFSTR_Online.log" 2>/dev/null | tail -6 | cut -c1-160 ;;
+    grep -a "GAMELOG\|NETPLAYER" "$GAME/Scripts/NFSTR_Online.log" 2>/dev/null | tail -6 | cut -c1-160 ;;
   *) echo "usage: $0 score <mode> | restart [blaze|server|game|all] | report | status | push off|a|b|full | fast on|off"; exit 1 ;;
 esac
