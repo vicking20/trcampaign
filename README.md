@@ -8,7 +8,7 @@ You need your own copy of the game (version 1.1.0.0). No game files are included
 
 ## How to play
 
-One of you is the **host**; everyone else joins. You need [Python 3](https://www.python.org/downloads/) installed (Windows: tick "Add Python to PATH").
+One of you is the **host**; everyone else joins. You need [Python 3](https://www.python.org/downloads/) installed (Windows: tick "Add Python to PATH"). **Close the EA app / Origin before you start** (also from the system tray).
 
 1. Back up your game folder, then extract `NFSTR_Online.zip` from the releases **into the game folder** (next to `Need For Speed The Run.exe`).
 2. Start it:

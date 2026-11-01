@@ -16,6 +16,7 @@ README = ("NFSTR Online - multiplayer for Need for Speed: The Run (no game files
           "   HOST a game:     Windows: NFSTR_Host_And_Play.bat  Linux: ./NFSTR_Host_And_Play.sh\n"
           "   The first time it asks for the host's address and your player name.\n"
           "3. In the game: press Enter, then Multiplayer > Quick Match.\n\n"
+          "Close the EA app / Origin first (also from the system tray): it uses the same port as our sign-in helper.\n"
           "Problems? Read Scripts/NFSTR_Online.log. To go back to the normal game, delete the files from this zip.\n")
 LICENSE = "dinput8.dll is the Ultimate ASI Loader v9.7.4 by ThirteenAG (MIT License), https://github.com/ThirteenAG/Ultimate-ASI-Loader\n"
 
