@@ -21,16 +21,33 @@ static char g_ini[MAX_PATH];
 static void logf_(const char *fmt, ...)
 {
     if (!g_log) return;
+    static DWORD t0; if (!t0) t0 = GetTickCount();
+    fprintf(g_log, "[%6.1f] ", (GetTickCount() - t0) / 1000.0);
     va_list ap; va_start(ap, fmt);
     vfprintf(g_log, fmt, ap); va_end(ap);
     fputc('\n', g_log); fflush(g_log);
+}
+
+/* [Server] ExtraHosts=a.com,b.net : more domain suffixes sent to our server (some copies of the game are patched to use a community server) */
+static char g_extra[256] = "";
+
+static int suffix_match(const char *n, size_t l, const char *suf, size_t sl)
+{
+    return sl && l > sl && !_strnicmp(n + l - sl, suf, sl) && (n[l - sl - 1] == '.' || suf[0] == '.');
 }
 
 static int is_ea_host(const char *n)
 {
     if (!n) return 0;
     size_t l = strlen(n);
-    return l > 7 && (!_stricmp(n + l - 7, ".ea.com") || !_stricmp(n + l - 4, ".ea."));
+    if (l > 7 && (!_stricmp(n + l - 7, ".ea.com") || !_stricmp(n + l - 4, ".ea."))) return 1;
+    for (const char *p = g_extra; *p; ) {
+        while (*p == ',' || *p == ' ') ++p;
+        const char *e = p; while (*e && *e != ',' && *e != ' ') ++e;
+        if (suffix_match(n, l, p, (size_t)(e - p))) return 1;
+        p = e;
+    }
+    return 0;
 }
 
 typedef struct hostent *(WSAAPI *gethostbyname_t)(const char *);
@@ -533,6 +550,29 @@ static DWORD WINAPI origin_thread(LPVOID unused)
 
 #include "lsx_embedded.h"
 
+/* The game creates Global\{5C009BF0-...}_Instance_Mutex and quits when it already exists, so a client cannot start on a PC where the
+ * server (the same exe) runs. Give this process its own copy of the name by writing its pid over the first 8 characters of the GUID. */
+static void patch_instance_mutex(void)
+{
+    static const char key[] = "Global\\{5C009BF0-B353-4fc3-A37D-CC14511238AC}_Instance_Mutex";
+    BYTE *base = (BYTE *)GetModuleHandleA(NULL);
+    IMAGE_NT_HEADERS *nt = (IMAGE_NT_HEADERS *)(base + ((IMAGE_DOS_HEADER *)base)->e_lfanew);
+    IMAGE_SECTION_HEADER *sec = IMAGE_FIRST_SECTION(nt);
+    for (int i = 0; i < nt->FileHeader.NumberOfSections; ++i, ++sec) {
+        BYTE *p = base + sec->VirtualAddress; DWORD n = sec->Misc.VirtualSize;
+        for (DWORD o = 0; n >= sizeof key && o + sizeof key <= n; ++o) {
+            if (p[o] != 'G' || memcmp(p + o, key, sizeof key - 1)) continue;
+            char id[16]; wsprintfA(id, "%08lX", GetCurrentProcessId());
+            DWORD old; VirtualProtect(p + o + 8, 8, PAGE_READWRITE, &old);
+            memcpy(p + o + 8, id, 8);
+            VirtualProtect(p + o + 8, 8, old, &old);
+            logf_("patched single-instance mutex name (%s)", (char *)(p + o));
+            return;
+        }
+    }
+    logf_("single-instance mutex name not found");
+}
+
 BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID res)
 {
     if (reason != DLL_PROCESS_ATTACH) return TRUE;
@@ -542,11 +582,15 @@ BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID res)
     GetModuleFileNameA(inst, path, MAX_PATH);
     char *dot = strrchr(path, '.');
     if (dot) strcpy(dot, ".log");
+    { char exe[MAX_PATH]; GetModuleFileNameA(NULL, exe, MAX_PATH);   /* the server is a copy of the game exe in the same folder: give it its own log */
+      if (strstr(exe, "NFSTR_Server") && dot) strcpy(dot, "_server.log"); }
     g_log = fopen(path, "w");
+    if (!g_log) { char alt[MAX_PATH + 16]; wsprintfA(alt, "%s.%lu", path, GetCurrentProcessId()); g_log = fopen(alt, "w"); }   /* server and client share the folder */
     if (dot) strcpy(dot, ".ini");
     strcpy(g_ini, path);
     GetPrivateProfileStringA("Server", "Host", "127.0.0.1", g_host, sizeof g_host, path);
-    logf_("NFSTR_Online loaded, server host = %s", g_host);
+    GetPrivateProfileStringA("Server", "ExtraHosts", g_extra, g_extra, sizeof g_extra, path);
+    logf_("NFSTR_Online loaded, server host = %s (extra redirected domains: %s)", g_host, g_extra);
 
     HMODULE ws = LoadLibraryA("ws2_32.dll");
     real_gethostbyname = (gethostbyname_t)GetProcAddress(ws, "gethostbyname");
@@ -557,6 +601,7 @@ BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID res)
     if (real_getaddrinfo) hook_install(&h_gai, real_getaddrinfo, my_getaddrinfo);
     logf_("hooks installed (gethostbyname=%p getaddrinfo=%p)", real_gethostbyname, real_getaddrinfo);
     if (GetPrivateProfileIntA("Server", "SkipCertCheck", 1, path)) patch_ssl_check();
+    if (GetPrivateProfileIntA("Patch", "MultiInstance", 1, path)) patch_instance_mutex();
     load_traces(path);
     if (GetPrivateProfileIntA("Origin", "Embedded", 1, path)) lsx_embedded_start(path);   /* built-in Origin stand-in + stub; set Embedded=0 to use server/lsx.py */
     { int mp = GetPrivateProfileIntA("Patch", "MaxPlayers", 0, path); if (mp >= 2 && mp <= 64) patch_max_players(mp); }

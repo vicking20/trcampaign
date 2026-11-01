@@ -1115,10 +1115,13 @@ def autolog_conn(sock, addr):
     """One Autolog REST request. The client speaks SSLv3 (like Blaze), so sniff: 0x16 = TLS record, else plain HTTP."""
     try:
         sock.settimeout(15)
+        stage = "first byte"
         first = sock.recv(1, socket.MSG_PEEK)
         if first == b"\x16":
-            c = sslv3.Conn(sock, KEY, CERT, log=lambda *a: None)
+            c = sslv3.Conn(sock, KEY, CERT, log=lambda *a: log("  AUTOLOG ssl", addr[1], *a))
+            stage = "handshake"
             c.handshake()
+            stage = "request"
             rd, wr = c.recv, c.send
         else:
             rd, wr = (lambda: sock.recv(65536)), sock.sendall
@@ -1162,7 +1165,7 @@ def autolog_conn(sock, addr):
         wr((f"HTTP/1.1 {status} {'OK' if status == 200 else 'Error'}\r\nContent-Type: {ctype}\r\n"
             f"Content-Length: {len(data)}\r\nConnection: close\r\n\r\n").encode() + data)
     except Exception as e:
-        log("  AUTOLOG connection error:", repr(e))
+        log("  AUTOLOG connection error:", repr(e), "from", addr[0], "while waiting for", locals().get("stage", "?"))
     finally:
         try: sock.close()
         except Exception: pass

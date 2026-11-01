@@ -123,6 +123,7 @@ static void lx_answer(SOCKET c, const char *tagname, const char *tagtext, const 
 {
     char inner[1024], key[128], enc[1024];
     const char *sender = (rcp && *rcp) ? rcp : "EALS";
+    logf_("lsx: request %s", tagname);
     if (!strcmp(tagname, "ChallengeResponse")) {
         lx_attr(tagtext, "key", key, sizeof key);
         lx_encrypt_hex(key, enc, sizeof enc);
@@ -187,6 +188,7 @@ static DWORD WINAPI lx_client(LPVOID arg)
 
 static DWORD WINAPI lx_server(LPVOID unused)
 {
+    WSADATA wd; WSAStartup(MAKEWORD(2, 2), &wd);   /* this thread can run before the game initialises Winsock; without it socket() fails on native Windows */
     SOCKET s = socket(AF_INET, SOCK_STREAM, 0); int one = 1;
     setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char *)&one, sizeof one);
     struct sockaddr_in a; memset(&a, 0, sizeof a); a.sin_family = AF_INET; a.sin_port = htons(3216); a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
