@@ -18,7 +18,7 @@ One of you is the **host**; everyone else joins. You need [Python 3](https://www
 | **Join** a friend | `NFSTR_Online_Play.bat` | `./NFSTR_Online_Play.sh` |
 | **Host** a game (and play) | `NFSTR_Host_And_Play.bat` | `./NFSTR_Host_And_Play.sh` |
 
-   The first time, it asks for the host's address and your player name.
+   The first time, it asks for the host's address and your player name (hosting fills in the address itself). To join a different host later, change `Host=` in `Scripts/NFSTR_Online.ini`.
 3. In the game press Enter, then choose **Multiplayer > Quick Match**.
 
 **The host's address:** on the same network, the host's local IP (the host's window shows it). Over the internet, install a free VPN such as Tailscale or ZeroTier on every PC and use the host's VPN address.
@@ -29,8 +29,9 @@ Closing the game stops everything the launcher started. The server restarts itse
 
 ## Hosting without playing
 
-Run the server alone: `NFSTR_Server\StartServer.bat` (Windows) or `./NFSTR_Server/StartServer.sh [address] [modes]` (Linux, needs `umu-run` or `wine`; stop with `./NFSTR_Server/StartServer.sh stop`).
+The host still needs the game folder with the zip extracted into it. Run the server alone: `NFSTR_Server\StartServer.bat` (Windows) or `./NFSTR_Server/StartServer.sh [address] [modes]` (Linux, needs `umu-run` or `wine`; stop with `./NFSTR_Server/StartServer.sh stop`).
 `NFSTR_Server\AdminConsole.bat` opens the control panel (players, kick/ban, announcements, game mode).
+The window prints the address your friends enter; closing it stops everything.
 Machines without a screen and containers: see `NFSTR_Server/docs/NOTES.md`.
 
 ## Game modes
