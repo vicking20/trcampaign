@@ -23,6 +23,8 @@ One of you is the **host**; everyone else joins. You need [Python 3](https://www
 
 **The host's address:** on the same network, the host's local IP (the host's window shows it). Over the internet, install a free VPN such as Tailscale or ZeroTier on every PC and use the host's VPN address.
 
+If the launcher says port 3216 is taken, close the EA app / Origin (also from the system tray) and start it again; the mod stands in for it.
+
 Closing the game stops everything the launcher started. The server restarts itself after every race, so Windows may briefly minimize your game when it does. Playing in windowed mode avoids that.
 
 ## Hosting without playing

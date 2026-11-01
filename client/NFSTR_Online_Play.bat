@@ -12,6 +12,8 @@ if /i "%~1"=="shared" goto launch
 %PY% Scripts\lsx.py --setup || exit /b 1
 taskkill /f /im "Need For Speed The Run.exe" >nul 2>nul
 powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^pythonw?\.exe$|^py\.exe$' -and $_.CommandLine -like '*lsx.py*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>nul
+timeout /t 1 /nobreak >nul
+netstat -ano | findstr /c:"127.0.0.1:3216" | findstr LISTENING >nul && ( echo Port 3216 is taken by another program, probably the EA app or Origin. Close it - also from the tray - and run this again. & pause & exit /b 1 )
 start "NFSTR Origin helper" /min %PY% -u "%~dp0Scripts\lsx.py"
 timeout /t 1 /nobreak >nul
 
