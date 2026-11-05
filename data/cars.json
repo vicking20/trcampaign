@@ -1,0 +1,1290 @@
+{
+ "1CED3B7A": {
+  "name": "AST VAN V12 10 - Performance pack 1",
+  "id": "AST_VAN_V12_10_PP1V1"
+ },
+ "EDA39098": {
+  "name": "AST VAN V12 10 - Performance pack 2",
+  "id": "AST_VAN_V12_10_PP2V1"
+ },
+ "C6357D10": {
+  "name": "AST VAN V12 10 - Stock (PP)",
+  "id": "AST_VAN_V12_10_PP_STOCK_1"
+ },
+ "13ED27AD": {
+  "name": "AUD UR QUA 91 - Performance pack 1",
+  "id": "AUD_UR_QUA_91_PP1V1"
+ },
+ "48A8BADD": {
+  "name": "AUD UR QUA 91 - Performance pack 2",
+  "id": "AUD_UR_QUA_91_PP2V1"
+ },
+ "1C04CCA2": {
+  "name": "AUD UR QUA 91 - Run Edition",
+  "id": "AUD_UR_QUA_91_PP_RUN"
+ },
+ "5EC49F8D": {
+  "name": "AUD UR QUA 91 - Stock (PP)",
+  "id": "AUD_UR_QUA_91_PP_STOCK_1"
+ },
+ "E13FF2B6": {
+  "name": "Aston Martin One 77 2010 - Performance pack 1",
+  "id": "AST_ONE_77_10_PP1V1"
+ },
+ "13EF529E": {
+  "name": "Aston Martin One 77 2010 - Performance pack 2",
+  "id": "AST_ONE_77_10_PP2V1"
+ },
+ "A24E5527": {
+  "name": "Aston Martin One 77 2010 - Rival",
+  "id": "AST_ONE_77_10_RIVAL_1"
+ },
+ "20C4FFC2": {
+  "name": "Aston Martin One 77 2010 - Stock (PP)",
+  "id": "AST_ONE_77_10_PP_STOCK_1"
+ },
+ "4F13ADB2": {
+  "name": "Audi R8 V10 2010",
+  "id": "AUD_R8_V10_10"
+ },
+ "B6A7D5CE": {
+  "name": "Audi R8 V10 2010 - NFS Edition",
+  "id": "AUD_R8_V10_10_NFS_E"
+ },
+ "B0E8A056": {
+  "name": "Audi R8 V10 2010 - Performance pack 1",
+  "id": "AUD_R8_V10_10_PP1V1"
+ },
+ "5DA08C0F": {
+  "name": "Audi R8 V10 2010 - Performance pack 2",
+  "id": "AUD_R8_V10_10_PP2V1"
+ },
+ "44650D90": {
+  "name": "Audi R8 V10 2010 - Pre-sale",
+  "id": "AUD_R8_V10_10_PRESALE_1"
+ },
+ "4044360D": {
+  "name": "Audi R8 V10 2010 - Run Edition",
+  "id": "AUD_R8_V10_10_PP_RUN"
+ },
+ "604F0482": {
+  "name": "Audi R8 V10 2010 - Stock (PP)",
+  "id": "AUD_R8_V10_10_PP_STOCK_1"
+ },
+ "19C2BD54": {
+  "name": "Audi RS4 2008 - NFS Edition",
+  "id": "AUD_RS4_STK_08_NFS_E"
+ },
+ "48E0DCCC": {
+  "name": "Audi RS4 2008 - Stock (PP)",
+  "id": "AUD_RS4_STK_08_PP_STOCK_1"
+ },
+ "3A0B0D94": {
+  "name": "BMW 1M Coupe 2011 SIGNATURE - NFS Edition",
+  "id": "BMW_1M_COU_11_NFS_E"
+ },
+ "ED3ED8E8": {
+  "name": "BMW 1M Coupe 2011 SIGNATURE - Performance pack 1",
+  "id": "BMW_1M_COU_11_PP1V1"
+ },
+ "21A2D102": {
+  "name": "BMW 1M Coupe 2011 SIGNATURE - Performance pack 2",
+  "id": "BMW_1M_COU_11_PP2V1"
+ },
+ "2F6AB8A3": {
+  "name": "BMW 1M Coupe 2011 SIGNATURE - Performance pack 3",
+  "id": "BMW_1M_COU_11_PP3V1"
+ },
+ "644B2E01": {
+  "name": "BMW 1M Coupe 2011 SIGNATURE - Rare",
+  "id": "BMW_1M_COU_11_RARE_1"
+ },
+ "1BBC74E3": {
+  "name": "BMW 1M Coupe 2011 SIGNATURE - Stock (PP)",
+  "id": "BMW_1M_COU_11_PP_STOCK_1"
+ },
+ "088865F9": {
+  "name": "BMW M3 E30 1990 - NFS Edition",
+  "id": "BMW_M3_E30_90_NFS_E"
+ },
+ "20CDB871": {
+  "name": "BMW M3 E30 1990 - Performance pack 1",
+  "id": "BMW_M3_E30_90_PP1V1"
+ },
+ "C6DF9D53": {
+  "name": "BMW M3 E30 1990 - Performance pack 2",
+  "id": "BMW_M3_E30_90_PP2V1"
+ },
+ "8A4ED0C8": {
+  "name": "BMW M3 E30 1990 - Rare",
+  "id": "BMW_M3_E30_90_RARE_1"
+ },
+ "C4C8DBF5": {
+  "name": "BMW M3 E30 1990 - Stock (PP)",
+  "id": "BMW_M3_E30_90_PP_STOCK_1"
+ },
+ "BF0C395C": {
+  "name": "BMW M3 GTS 10",
+  "id": "BMW_M3_GTS_10_STOCK"
+ },
+ "ED2DBC27": {
+  "name": "BMW M3 GTS 10 - NFS Edition",
+  "id": "BMW_M3_GTS_10_NFS_E"
+ },
+ "56BD5141": {
+  "name": "BMW M3 GTS 10 - Performance pack 1",
+  "id": "BMW_M3_GTS_10_PP1V1"
+ },
+ "3148C614": {
+  "name": "BMW M3 GTS 10 - Performance pack 2",
+  "id": "BMW_M3_GTS_10_PP2V1"
+ },
+ "0D68D26C": {
+  "name": "BMW M3 GTS 10 - Performance pack 3",
+  "id": "BMW_M3_GTS_10_PP3V1"
+ },
+ "1D0CD576": {
+  "name": "BMW M3 GTS 10 - Pre-sale (PP)",
+  "id": "BMW_M3_GTS_10_PP_PRESALE_1"
+ },
+ "457C4CCB": {
+  "name": "BMW M3 GTS 10 - Run Edition",
+  "id": "BMW_M3_GTS_10_PP_RUN"
+ },
+ "6E9C44C5": {
+  "name": "BMW M3 GTS 10 - Stock (PP)",
+  "id": "BMW_M3_GTS_10_PP_STOCK_1"
+ },
+ "D43BC1A9": {
+  "name": "BMW Z4 GT3 2011 - NFS Edition",
+  "id": "BMW_Z4_GT3_11_NFS_E"
+ },
+ "EDA93EF0": {
+  "name": "Bugatti Veyron SuperSport",
+  "id": "BUG_VEY_SS_10"
+ },
+ "47A3D4F2": {
+  "name": "Bugatti Veyron SuperSport - Performance pack 1",
+  "id": "BUG_VEY_SS_10_PP1V1"
+ },
+ "CE0993DD": {
+  "name": "Bugatti Veyron SuperSport - Stock (PP)",
+  "id": "BUG_VEY_SS_10_PP_STOCK_1"
+ },
+ "2D8B87E6": {
+  "name": "Chevrolet Camaro SS 1967 - NFS Edition",
+  "id": "CHE_CAM_SS_67_NFS_E"
+ },
+ "46B9DD66": {
+  "name": "Chevrolet Camaro SS 1967 - Performance pack 1",
+  "id": "CHE_CAM_SS_67_PP1V1"
+ },
+ "12B4351D": {
+  "name": "Chevrolet Camaro SS 1967 - Performance pack 2",
+  "id": "CHE_CAM_SS_67_PP2V1"
+ },
+ "12ACC4B7": {
+  "name": "Chevrolet Camaro SS 1967 - Rare (PP)",
+  "id": "CHE_CAM_SS_67_PP_RARE_1"
+ },
+ "ED99A583": {
+  "name": "Chevrolet Camaro SS 1967 - Stock (PP)",
+  "id": "CHE_CAM_SS_67_PP_STOCK_1"
+ },
+ "EB104462": {
+  "name": "Chevrolet Camaro ZL1 2013 - Performance pack 1",
+  "id": "CHE_CAM_ZL1_13_PP1V1"
+ },
+ "054A44A2": {
+  "name": "Chevrolet Camaro ZL1 2013 - Performance pack 2",
+  "id": "CHE_CAM_ZL1_13_PP2V1"
+ },
+ "3B37460C": {
+  "name": "Chevrolet Camaro ZL1 2013 - Performance pack 3",
+  "id": "CHE_CAM_ZL1_13_PP3V1"
+ },
+ "7636E05F": {
+  "name": "Chevrolet Camaro ZL1 2013 - Rare (PP)",
+  "id": "CHE_CAM_ZL1_13_PP_RARE_1"
+ },
+ "A6A3AAEE": {
+  "name": "Chevrolet Camaro ZL1 2013 - Run Edition",
+  "id": "CHE_CAM_ZL1_13_PP_RUN"
+ },
+ "70A873A0": {
+  "name": "Chevrolet Camaro ZL1 2013 - Stock (PP)",
+  "id": "CHE_CAM_ZL1_13_PP_STOCK_1"
+ },
+ "CCF8EEB6": {
+  "name": "Chevrolet Corvette Carbon 2010 - Ad sales",
+  "id": "CHE_VET_CBN_10_ADSALES_1"
+ },
+ "674879F3": {
+  "name": "Chevrolet Corvette Carbon 2010 - NFS Edition",
+  "id": "CHE_VET_CBN_10_NFS_E"
+ },
+ "344D089B": {
+  "name": "Chevrolet Corvette Carbon 2010 - Performance pack 1",
+  "id": "CHE_VET_CBN_10_PP1V1"
+ },
+ "C8F7002C": {
+  "name": "Chevrolet Corvette Carbon 2010 - Performance pack 2",
+  "id": "CHE_VET_CBN_10_PP2V1"
+ },
+ "5A224CC4": {
+  "name": "Chevrolet Corvette Carbon 2010 - Performance pack 3",
+  "id": "CHE_VET_CBN_10_PP3V1"
+ },
+ "57489E0D": {
+  "name": "Chevrolet Corvette Carbon 2010 - Pre-sale (PP)",
+  "id": "CHE_VET_CBN_10_PP_PRESALE_1"
+ },
+ "4CE08077": {
+  "name": "Chevrolet Corvette Carbon 2010 - Rare",
+  "id": "CHE_VET_CBN_10_RARE"
+ },
+ "442EFF3A": {
+  "name": "Chevrolet Corvette Carbon 2010 - Run Edition",
+  "id": "CHE_VET_CBN_10_PP_RUN"
+ },
+ "F86D66EC": {
+  "name": "Chevrolet Corvette Carbon 2010 - Stock (PP)",
+  "id": "CHE_VET_CBN_10_PP_STOCK_1"
+ },
+ "B32ECEE7": {
+  "name": "Chevrolet El Camino 1970 - NFS Edition",
+  "id": "CHE_EL_CAM_70_NFS_E"
+ },
+ "695423C5": {
+  "name": "Chevrolet El Camino 1970 - Performance pack 1",
+  "id": "CHE_EL_CAM_70_PP1V1"
+ },
+ "694843FF": {
+  "name": "Chevrolet El Camino 1970 - Performance pack 2",
+  "id": "CHE_EL_CAM_70_PP2V1"
+ },
+ "3938BB70": {
+  "name": "Chevrolet El Camino 1970 - Rare (PP)",
+  "id": "CHE_EL_CAM_70_PP_RARE_1"
+ },
+ "6204AE7A": {
+  "name": "Chevrolet El Camino 1970 - Rival (PP)",
+  "id": "CHE_EL_CAM_70_NFS_PP_RIVAL_1"
+ },
+ "EC3C31C4": {
+  "name": "Chevrolet El Camino 1970 - Stock (PP)",
+  "id": "CHE_EL_CAM_70_PP_STOCK_1"
+ },
+ "1FAA2CAD": {
+  "name": "Dodge Charger RT 1971 - NFS Edition",
+  "id": "DOD_CHA_RT_71_NFS_E"
+ },
+ "E79409BE": {
+  "name": "Dodge Charger RT 1971 - Performance pack 1",
+  "id": "DOD_CHA_RT_71_PP1V1"
+ },
+ "B5AE0E43": {
+  "name": "Dodge Charger RT 1971 - Performance pack 2",
+  "id": "DOD_CHA_RT_71_PP2V1"
+ },
+ "C8F3B358": {
+  "name": "Dodge Charger RT 1971 - Stock (PP)",
+  "id": "DOD_CHA_RT_71_PP_STOCK_1"
+ },
+ "0E765240": {
+  "name": "Dodge Charger RT 1971 - Taxi",
+  "id": "TRF_DOD_CHR_07_TAXI"
+ },
+ "286F696E": {
+  "name": "Dodge Charger SRT 2008 - Ad sales",
+  "id": "DOD_CHA_SRT_08_ADSALES_1"
+ },
+ "CC8E8D63": {
+  "name": "Dodge Charger SRT 2008 - NFS Edition",
+  "id": "DOD_CHA_SRT_08_NFS_E"
+ },
+ "38F56EDD": {
+  "name": "Dodge Charger SRT 2008 - Performance pack 1",
+  "id": "DOD_CHA_SRT_08_PP1V1"
+ },
+ "EB10EF7E": {
+  "name": "Dodge Charger SRT 2008 - Performance pack 2",
+  "id": "DOD_CHA_SRT_08_PP2V1"
+ },
+ "8B56FED4": {
+  "name": "Dodge Charger SRT 2008 - Performance pack 3",
+  "id": "DOD_CHA_SRT_08_PP3V1"
+ },
+ "20AAAB50": {
+  "name": "Dodge Charger SRT 2008 - Stock (PP)",
+  "id": "DOD_CHA_SRT_08_PP_STOCK_1"
+ },
+ "DACB7963": {
+  "name": "FOR MUS BOS 12 - Performance pack 1",
+  "id": "FOR_MUS_BOS_12_PP1V1"
+ },
+ "B790CA51": {
+  "name": "FOR MUS BOS 12 - Performance pack 2",
+  "id": "FOR_MUS_BOS_12_PP2V1"
+ },
+ "05B53729": {
+  "name": "FOR MUS BOS 12 - Performance pack 3",
+  "id": "FOR_MUS_BOS_12_PP3V1"
+ },
+ "F54B24C6": {
+  "name": "FOR MUS BOS 12 - Pre-sale",
+  "id": "FOR_MUS_BOS_12_PRESALE_1"
+ },
+ "FB349B44": {
+  "name": "FOR MUS BOS 12 - Rare (PP)",
+  "id": "FOR_MUS_BOS_12_PP_RARE_1"
+ },
+ "E84D6273": {
+  "name": "FOR MUS BOS 12 - Stock (PP)",
+  "id": "FOR_MUS_BOS_12_PP_STOCK_1"
+ },
+ "EB4BA13A": {
+  "name": "FOR POL INT 11",
+  "id": "FOR_POL_INT_11"
+ },
+ "00000000": {
+  "name": "FOR POL INT 11",
+  "id": "FOR_POL_INT_11_AI"
+ },
+ "DFB5909D": {
+  "name": "Ford Cop Car Out of Service",
+  "id": "COP_CAR_INT_11_OOSERVICE"
+ },
+ "DB134CFB": {
+  "name": "Ford Crown Victoria SuperTaxi - Taxi",
+  "id": "TRF_FOR_VIC_05_TAXI"
+ },
+ "0D61DCDD": {
+  "name": "Ford Focus RS 2010 Run Edition - NFS Edition",
+  "id": "FOR_FOC_RS_10_NFS_E"
+ },
+ "57EEA12C": {
+  "name": "Ford Focus RS 2010 Run Edition - Performance pack 1",
+  "id": "FOR_FOC_RS_10_PP1V1"
+ },
+ "57CE1228": {
+  "name": "Ford Focus RS 2010 Run Edition - Performance pack 2",
+  "id": "FOR_FOC_RS_10_PP2V1"
+ },
+ "62535F6D": {
+  "name": "Ford Focus RS 2010 Run Edition - Performance pack 3",
+  "id": "FOR_FOC_RS_10_PP3V1"
+ },
+ "29ACA87D": {
+  "name": "Ford Focus RS 2010 Run Edition - Rare (PP)",
+  "id": "FOR_FOC_RS_10_PP_RARE_1"
+ },
+ "5EE0C885": {
+  "name": "Ford Focus RS 2010 Run Edition - Run Edition",
+  "id": "FOR_FOC_RS_10_PP_RUN"
+ },
+ "64FAADF4": {
+  "name": "Ford Focus RS 2010 Run Edition - Stock (PP)",
+  "id": "FOR_FOC_RS_10_PP_STOCK_1"
+ },
+ "8495259C": {
+  "name": "Ford GT 2006 - Ad sales",
+  "id": "FOR_GT_STK_06_ADSALES_1"
+ },
+ "5EAAFF9D": {
+  "name": "Ford GT 2006 - NFS Edition",
+  "id": "FOR_GT_STK_06_NFS_E"
+ },
+ "C7258A3C": {
+  "name": "Ford GT 2006 - Performance pack 1",
+  "id": "FOR_GT_STK_06_PP1V1"
+ },
+ "80F1CABB": {
+  "name": "Ford GT 2006 - Performance pack 2",
+  "id": "FOR_GT_STK_06_PP2V1"
+ },
+ "561B59E0": {
+  "name": "Ford GT 2006 - Rare (PP)",
+  "id": "FOR_GT_STK_06_PP_RARE_1"
+ },
+ "8C2E35A8": {
+  "name": "Ford GT 2006 - Stock (PP)",
+  "id": "FOR_GT_STK_06_PP_STOCK_1"
+ },
+ "10050B91": {
+  "name": "Ford Mustang 302 1969 - Ad sales",
+  "id": "FOR_MUS_302_69_ADSALES_1"
+ },
+ "ACFFE8A3": {
+  "name": "Ford Mustang 302 1969 - NFS Edition",
+  "id": "FOR_MUS_302_69_NFS_E"
+ },
+ "E85C740A": {
+  "name": "Ford Mustang 302 1969 - Performance pack 1",
+  "id": "FOR_MUS_302_69_PP1V1"
+ },
+ "D9959C4E": {
+  "name": "Ford Mustang 302 1969 - Performance pack 2",
+  "id": "FOR_MUS_302_69_PP2V1"
+ },
+ "DD554293": {
+  "name": "Ford Mustang 302 1969 - Stock (PP)",
+  "id": "FOR_MUS_302_69_PP_STOCK_1"
+ },
+ "C21A7389": {
+  "name": "Ford Mustang RTR 2012 - NFS Edition",
+  "id": "FOR_MUS_RTR_12_NFS_E"
+ },
+ "3FEC8BF9": {
+  "name": "Ford Mustang RTR 2012 - Performance pack 1",
+  "id": "FOR_MUS_RTR_12_PP1V1"
+ },
+ "79D9D519": {
+  "name": "Ford Mustang RTR 2012 - Stock",
+  "id": "FOR_MUS_RTR_12_STOCK_1"
+ },
+ "FFE5360B": {
+  "name": "Ford Mustang RTR-X 1969",
+  "id": "FOR_RTR_X_69"
+ },
+ "9AEBADC9": {
+  "name": "Gumpert Apollo Sports - Performance pack 1",
+  "id": "GUM_APO_S_11_PP1V1"
+ },
+ "45B24CE6": {
+  "name": "Gumpert Apollo Sports - Stock (PP)",
+  "id": "GUM_APO_S_11_PP_STOCK_1"
+ },
+ "57533CA8": {
+  "name": "Hennessey Venom GT",
+  "id": "HEN_VEN_GT_11"
+ },
+ "10F96FED": {
+  "name": "Hennessey Venom GT - Performance pack 1",
+  "id": "HEN_VEN_GT_11_PP1V1"
+ },
+ "8B27CE53": {
+  "name": "Hennessey Venom GT - Stock (PP)",
+  "id": "HEN_VEN_GT_11_PP_STOCK_1"
+ },
+ "1593F9BE": {
+  "name": "Koenigsegg Agera R",
+  "id": "KOE_AGE_R_11"
+ },
+ "44652EAF": {
+  "name": "Koenigsegg Agera R - Performance pack 1",
+  "id": "KOE_AGE_R_11_PP1V1"
+ },
+ "FB3CEBE9": {
+  "name": "Koenigsegg Agera R - Stock (PP)",
+  "id": "KOE_AGE_R_11_PP_STOCK_1"
+ },
+ "BEADEB16": {
+  "name": "LAM MIU SV 71 - Performance pack 1",
+  "id": "LAM_MIU_SV_71_PP1V1"
+ },
+ "9E22C9AB": {
+  "name": "LAM MIU SV 71 - Performance pack 2",
+  "id": "LAM_MIU_SV_71_PP2V1"
+ },
+ "B4F2027C": {
+  "name": "LAM MIU SV 71 - Stock (PP)",
+  "id": "LAM_MIU_SV_71_PP_STOCK_1"
+ },
+ "5D6D9A4D": {
+  "name": "LAM MUR SV 10 - Performance pack 1",
+  "id": "LAM_MUR_SV_10_PP1V1"
+ },
+ "5F3DA608": {
+  "name": "LAM MUR SV 10 - Performance pack 2",
+  "id": "LAM_MUR_SV_10_PP2V1"
+ },
+ "AA1E1BB7": {
+  "name": "LAM MUR SV 10 - Rare (PP)",
+  "id": "LAM_MUR_SV_10_PP_RARE_1"
+ },
+ "BF93D4B5": {
+  "name": "LAM MUR SV 10 - Stock (PP)",
+  "id": "LAM_MUR_SV_10_PP_STOCK_1"
+ },
+ "68CC5632": {
+  "name": "LAM SES ELE 11 - Performance pack 1",
+  "id": "LAM_SES_ELE_11_PP1V1"
+ },
+ "90F20AEC": {
+  "name": "LAM SES ELE 11 - Performance pack 2",
+  "id": "LAM_SES_ELE_11_PP2V1"
+ },
+ "3CDD7591": {
+  "name": "LAM SES ELE 11 - Rare (PP)",
+  "id": "LAM_SES_ELE_11_PP_RARE_1"
+ },
+ "B510963F": {
+  "name": "LAM SES ELE 11 - Stock (PP)",
+  "id": "LAM_SES_ELE_11_PP_STOCK_1"
+ },
+ "FEA49FCF": {
+  "name": "LOT EVO STK 10 - Performance pack 1",
+  "id": "LOT_EVO_STK_10_PP1V1"
+ },
+ "101A56ED": {
+  "name": "LOT EVO STK 10 - Performance pack 2",
+  "id": "LOT_EVO_STK_10_PP2V1"
+ },
+ "9CCA8D47": {
+  "name": "LOT EVO STK 10 - Performance pack 3",
+  "id": "LOT_EVO_STK_10_PP3V1"
+ },
+ "6C91CC7A": {
+  "name": "LOT EVO STK 10 - Rare (PP)",
+  "id": "LOT_EVO_STK_10_PP_RARE_1"
+ },
+ "87A98306": {
+  "name": "LOT EVO STK 10 - Stock (PP)",
+  "id": "LOT_EVO_STK_10_PP_STOCK_1"
+ },
+ "B9A679B3": {
+  "name": "Lamborghini Aventador LP700-4 Run Edition - Performance pack 1",
+  "id": "LAM_AVE_700_12_PP1V1"
+ },
+ "394E972F": {
+  "name": "Lamborghini Aventador LP700-4 Run Edition - Performance pack 2",
+  "id": "LAM_AVE_700_12_PP2V1"
+ },
+ "82E84B22": {
+  "name": "Lamborghini Aventador LP700-4 Run Edition - Run Edition",
+  "id": "LAM_AVE_700_12_PP_RUN"
+ },
+ "C27B06E0": {
+  "name": "Lamborghini Aventador LP700-4 Run Edition - Stock (PP)",
+  "id": "LAM_AVE_700_12_PP_STOCK_1"
+ },
+ "1EE11D6C": {
+  "name": "Lamborghini Countach QV5000",
+  "id": "LAM_COU_QV_85"
+ },
+ "20B8970E": {
+  "name": "Lamborghini Countach QV5000 - Performance pack 1",
+  "id": "LAM_COU_QV_85_PP1V1"
+ },
+ "18F9CC0F": {
+  "name": "Lamborghini Countach QV5000 - Stock (PP)",
+  "id": "LAM_COU_QV_85_PP_STOCK_1"
+ },
+ "B9B69D1C": {
+  "name": "Lamborghini Gallardo VB 2010 - NFS Edition",
+  "id": "LAM_GAL_VB_10_NFS_E"
+ },
+ "57062057": {
+  "name": "Lamborghini Gallardo VB 2010 - Performance pack 1",
+  "id": "LAM_GAL_VB_10_PP1V1"
+ },
+ "D55683A6": {
+  "name": "Lamborghini Gallardo VB 2010 - Performance pack 2",
+  "id": "LAM_GAL_VB_10_PP2V1"
+ },
+ "D4E8DB14": {
+  "name": "Lamborghini Gallardo VB 2010 - Performance pack 3",
+  "id": "LAM_GAL_VB_10_PP3V1"
+ },
+ "4ABECC68": {
+  "name": "Lamborghini Gallardo VB 2010 - Stock (PP)",
+  "id": "LAM_GAL_VB_10_PP_STOCK_1"
+ },
+ "9802D67D": {
+  "name": "Lamborghini Murcielago SV 2010",
+  "id": "LAM_MUR_SV_2010"
+ },
+ "2CCC4093": {
+  "name": "Lexus LF-A - Performance pack 1",
+  "id": "LEX_LFA_STK_10_PP1V1"
+ },
+ "908A69E8": {
+  "name": "Lexus LF-A - Stock (PP)",
+  "id": "LEX_LFA_STK_10_PP_STOCK_1"
+ },
+ "1D457AB4": {
+  "name": "Lotus Exige 260 2010 - NFS Edition",
+  "id": "LOT_EXI_260_10_NFS_E"
+ },
+ "FB3E35AB": {
+  "name": "Lotus Exige 260 2010 - Performance pack 1",
+  "id": "LOT_EXI_260_10_PP1V1"
+ },
+ "25AFBDDB": {
+  "name": "Lotus Exige 260 2010 - Performance pack 2",
+  "id": "LOT_EXI_260_10_PP2V1"
+ },
+ "13FB772F": {
+  "name": "Lotus Exige 260 2010 - Performance pack 3",
+  "id": "LOT_EXI_260_10_PP3V1"
+ },
+ "01D2C461": {
+  "name": "Lotus Exige 260 2010 - Rare",
+  "id": "LOT_EXI_260_10_RARE_1"
+ },
+ "84B0D65B": {
+  "name": "Lotus Exige 260 2010 - Stock (PP)",
+  "id": "LOT_EXI_260_10_PP_STOCK_1"
+ },
+ "F731BAC7": {
+  "name": "MCL F1 STK 94 - Performance pack 1",
+  "id": "MCL_F1_STK_94_PP1V1"
+ },
+ "E8C12693": {
+  "name": "MCL F1 STK 94 - Performance pack 2",
+  "id": "MCL_F1_STK_94_PP2V1"
+ },
+ "82711FDA": {
+  "name": "MCL F1 STK 94 - Stock (PP)",
+  "id": "MCL_F1_STK_94_PP_STOCK_1"
+ },
+ "C1A7FEF6": {
+  "name": "Mazda MX5 RHT 2009 - NFS Edition",
+  "id": "MAZ_MX5_RHT_09_NFS_E"
+ },
+ "79F3BD94": {
+  "name": "Mazda MX5 RHT 2009 - Performance pack 1",
+  "id": "MAZ_MX5_RHT_09_PP1V1"
+ },
+ "A43A2809": {
+  "name": "Mazda MX5 RHT 2009 - Performance pack 2",
+  "id": "MAZ_MX5_RHT_09_PP2V1"
+ },
+ "D8D5275F": {
+  "name": "Mazda MX5 RHT 2009 - Performance pack 3",
+  "id": "MAZ_MX5_RHT_09_PP3V1"
+ },
+ "EBD1DC56": {
+  "name": "Mazda MX5 RHT 2009 - Stock (PP)",
+  "id": "MAZ_MX5_RHT_09_PP_STOCK_1"
+ },
+ "1F91C074": {
+  "name": "Mazda RX7 RZ 1998 - NFS Edition",
+  "id": "MAZ_RX7_RZ_98_NFS_E"
+ },
+ "7DC252D4": {
+  "name": "Mazda RX7 RZ 1998 - Performance pack 1",
+  "id": "MAZ_RX7_RZ_98_PP1V1"
+ },
+ "A38DFE1D": {
+  "name": "Mazda RX7 RZ 1998 - Performance pack 2",
+  "id": "MAZ_RX7_RZ_98_PP2V1"
+ },
+ "1FD129FD": {
+  "name": "Mazda RX7 RZ 1998 - Performance pack 3",
+  "id": "MAZ_RX7_RZ_98_PP3V1"
+ },
+ "A039AFAA": {
+  "name": "Mazda RX7 RZ 1998 - Rare",
+  "id": "MAZ_RX7_RZ_98_RARE_1"
+ },
+ "7E52CFEF": {
+  "name": "Mazda RX7 RZ 1998 - Stock (PP)",
+  "id": "MAZ_RX7_RZ_98_PP_STOCK_1"
+ },
+ "E1994BB4": {
+  "name": "McLaren MP4 12C 2012 - NFS Edition",
+  "id": "MCL_MP4_12C_12_NFS_E"
+ },
+ "F3533CAE": {
+  "name": "McLaren MP4 12C 2012 - Performance pack 1",
+  "id": "MCL_MP4_12C_12_PP1V1"
+ },
+ "5E9AD785": {
+  "name": "McLaren MP4 12C 2012 - Performance pack 2",
+  "id": "MCL_MP4_12C_12_PP2V1"
+ },
+ "81237C23": {
+  "name": "McLaren MP4 12C 2012 - Rare (PP)",
+  "id": "MCL_MP4_12C_12_PP_RARE_1"
+ },
+ "C03AB5E9": {
+  "name": "McLaren MP4 12C 2012 - Stock (PP)",
+  "id": "MCL_MP4_12C_12_PP_STOCK_1"
+ },
+ "639DBB5D": {
+  "name": "Mercedes SLS AMG 2010 - Ad sales",
+  "id": "MER_SLS_AMG_10_ADSALES_1"
+ },
+ "36C369F9": {
+  "name": "Mercedes SLS AMG 2010 - NFS Edition",
+  "id": "MER_SLS_AMG_10_NFS_E"
+ },
+ "C9AC8D72": {
+  "name": "Mercedes SLS AMG 2010 - Performance pack 1",
+  "id": "MER_SLS_AMG_10_PP1V1"
+ },
+ "D6220B52": {
+  "name": "Mercedes SLS AMG 2010 - Performance pack 2",
+  "id": "MER_SLS_AMG_10_PP2V1"
+ },
+ "EDD3B68D": {
+  "name": "Mercedes SLS AMG 2010 - Rare",
+  "id": "MER_SLS_AMG_10_RARE_1"
+ },
+ "C8B98F23": {
+  "name": "Mercedes SLS AMG 2010 - Rival",
+  "id": "MER_SLS_AMG_10_RIVAL"
+ },
+ "C4DF56A6": {
+  "name": "Mercedes SLS AMG 2010 - Stock (PP)",
+  "id": "MER_SLS_AMG_10_PP_STOCK_1"
+ },
+ "889E2B33": {
+  "name": "Mitsubishi Evolution X 2008 - NFS Edition",
+  "id": "MIT_EVO_X_08_NFS_E"
+ },
+ "952C65F2": {
+  "name": "Mitsubishi Evolution X 2008 - Performance pack 1",
+  "id": "MIT_EVO_X_08_PP1V1"
+ },
+ "596CC7FA": {
+  "name": "Mitsubishi Evolution X 2008 - Performance pack 2",
+  "id": "MIT_EVO_X_08_PP2V1"
+ },
+ "452D18A5": {
+  "name": "Mitsubishi Evolution X 2008 - Performance pack 3",
+  "id": "MIT_EVO_X_08_PP3V1"
+ },
+ "F5154AF1": {
+  "name": "Mitsubishi Evolution X 2008 - Stock (PP)",
+  "id": "MIT_EVO_X_08_PP_STOCK_1"
+ },
+ "EB7E3DF0": {
+  "name": "NFSGarageInfo",
+  "id": "NFSGarageInfo"
+ },
+ "B2E3FF38": {
+  "name": "NIS 240 ZG 71",
+  "id": "NIS_240_ZG_71_MARKETING_1"
+ },
+ "F0753FC1": {
+  "name": "NIS 240 ZG 71 - Performance pack 1",
+  "id": "NIS_240_ZG_71_PP1V1"
+ },
+ "AF66D6E4": {
+  "name": "NIS 240 ZG 71 - Performance pack 2",
+  "id": "NIS_240_ZG_71_PP2V1"
+ },
+ "F75EAC6B": {
+  "name": "NIS 240 ZG 71 - Rare (PP)",
+  "id": "NIS_240_ZG_71_PP_RARE_1"
+ },
+ "99E1CA8B": {
+  "name": "NIS 240 ZG 71 - Run Edition",
+  "id": "NIS_240_ZG_71_PP_RUN"
+ },
+ "8CFA19A6": {
+  "name": "NIS 240 ZG 71 - Stock (PP)",
+  "id": "NIS_240_ZG_71_PP_STOCK_1"
+ },
+ "093EEE31": {
+  "name": "NIS GTR R35 08 - Performance pack 1",
+  "id": "NIS_GTR_R35_08_PP1V1"
+ },
+ "9C8829DB": {
+  "name": "NIS GTR R35 08 - Performance pack 2",
+  "id": "NIS_GTR_R35_08_PP2V1"
+ },
+ "E768E082": {
+  "name": "NIS GTR R35 08 - Performance pack 3",
+  "id": "NIS_GTR_R35_08_PP3V1"
+ },
+ "3E374C4E": {
+  "name": "NIS GTR R35 08 - Stock (PP)",
+  "id": "NIS_GTR_R35_08_PP_STOCK_1"
+ },
+ "193C5F8F": {
+  "name": "Nissan 370 Z 2009 - Ad sales",
+  "id": "NIS_370_Z_09_ADSALES_1"
+ },
+ "B02B2BE3": {
+  "name": "Nissan 370 Z 2009 - Performance pack 1",
+  "id": "NIS_370_Z_09_PP1V1"
+ },
+ "F8076AF2": {
+  "name": "Nissan 370 Z 2009 - Performance pack 2",
+  "id": "NIS_370_Z_09_PP2V1"
+ },
+ "434685AB": {
+  "name": "Nissan 370 Z 2009 - Performance pack 3",
+  "id": "NIS_370_Z_09_PP3V1"
+ },
+ "570B184C": {
+  "name": "Nissan 370 Z 2009 - Pre-sale",
+  "id": "NIS_370_Z_09_PRESALE_1"
+ },
+ "2F625E9F": {
+  "name": "Nissan 370 Z 2009 - Rare (PP)",
+  "id": "NIS_370_Z_09_PP_RARE_1"
+ },
+ "FBD5F8B0": {
+  "name": "Nissan 370 Z 2009 - Rival (PP)",
+  "id": "NIS_370_Z_09_PP_RIVAL_1"
+ },
+ "803FFDA7": {
+  "name": "Nissan 370 Z 2009 - Rival (PP)",
+  "id": "NIS_370_Z_09_PP_RIVAL_2"
+ },
+ "1030B308": {
+  "name": "Nissan 370 Z 2009 - Stock (PP)",
+  "id": "NIS_370_Z_09_PP_STOCK_1"
+ },
+ "7A914865": {
+  "name": "Nissan GTR V 2010 - NFS Edition",
+  "id": "NIS_GTR_V_10_NFS_E"
+ },
+ "F91D2FC7": {
+  "name": "Nissan GTR V 2010 - Performance pack 1",
+  "id": "NIS_GTR_V_10_PP1V1"
+ },
+ "5497A87C": {
+  "name": "Nissan GTR V 2010 - Performance pack 2",
+  "id": "NIS_GTR_V_10_PP2V1"
+ },
+ "80650B41": {
+  "name": "Nissan GTR V 2010 - Performance pack 3",
+  "id": "NIS_GTR_V_10_PP3V1"
+ },
+ "1F796376": {
+  "name": "Nissan GTR V 2010 - Rare (PP)",
+  "id": "NIS_GTR_V_10_PP_RARE_1"
+ },
+ "1DE1A781": {
+  "name": "Nissan GTR V 2010 - Run Edition",
+  "id": "NIS_GTR_V_10_PP_RUN"
+ },
+ "517E3F66": {
+  "name": "Nissan GTR V 2010 - Stock (PP)",
+  "id": "NIS_GTR_V_10_PP_STOCK_1"
+ },
+ "7B0C7372": {
+  "name": "Nissan S14 A 1997 - Ad sales",
+  "id": "NIS_S14_A_97_ADSALES_1"
+ },
+ "32D49131": {
+  "name": "Nissan S14 A 1997 - NFS Edition",
+  "id": "NIS_S14_A_97_NFS_E"
+ },
+ "50E08264": {
+  "name": "Nissan S14 A 1997 - Performance pack 1",
+  "id": "NIS_S14_A_97_PP1V1"
+ },
+ "BD814658": {
+  "name": "Nissan S14 A 1997 - Performance pack 2",
+  "id": "NIS_S14_A_97_PP2V1"
+ },
+ "16663EC8": {
+  "name": "Nissan S14 A 1997 - Performance pack 3",
+  "id": "NIS_S14_A_97_PP3V1"
+ },
+ "54050CFE": {
+  "name": "Nissan S14 A 1997 - Rare",
+  "id": "NIS_S14_A_97_NPP_RARE_1"
+ },
+ "C76EA045": {
+  "name": "Nissan S14 A 1997 - Stock (PP)",
+  "id": "NIS_S14_A_97_PP_STOCK_1"
+ },
+ "361E9A57": {
+  "name": "Nissan Skyline 2000 GT-R 1973 - NFS Edition",
+  "id": "NIS_GTR_STK_73_NFS_E"
+ },
+ "1B2E3F47": {
+  "name": "Nissan Skyline 2000 GT-R 1973 - Performance pack 1",
+  "id": "NIS_GTR_STK_73_PP1V1"
+ },
+ "7B3AD47A": {
+  "name": "Nissan Skyline 2000 GT-R 1973 - Performance pack 2",
+  "id": "NIS_GTR_STK_73_PP2V1"
+ },
+ "47BD89FA": {
+  "name": "Nissan Skyline 2000 GT-R 1973 - Rare",
+  "id": "NIS_GTR_STK_73_RARE_1"
+ },
+ "58FBFB54": {
+  "name": "Nissan Skyline 2000 GT-R 1973 - Stock (PP)",
+  "id": "NIS_GTR_STK_73_PP_STOCK_1"
+ },
+ "FF1EF29B": {
+  "name": "Nissan Skyline R32 GT-R 1991 - Performance pack 1",
+  "id": "NIS_GTR_R32_91_PP1V1"
+ },
+ "A64F91C3": {
+  "name": "Nissan Skyline R32 GT-R 1991 - Performance pack 2",
+  "id": "NIS_GTR_R32_91_PP2V1"
+ },
+ "6E57089C": {
+  "name": "Nissan Skyline R32 GT-R 1991 - Pre-sale",
+  "id": "NIS_GTR_R32_91_PRESALE_1"
+ },
+ "4C4976DC": {
+  "name": "Nissan Skyline R32 GT-R 1991 - Rare (PP)",
+  "id": "NIS_GTR_R32_91_PP_RARE_1"
+ },
+ "8F5211C0": {
+  "name": "Nissan Skyline R32 GT-R 1991 - Stock (PP)",
+  "id": "NIS_GTR_R32_91_PP_STOCK_1"
+ },
+ "363A968A": {
+  "name": "POR 993 GT2 E3",
+  "id": "POR_993_GT2_E3"
+ },
+ "B0E26EF6": {
+  "name": "POR GT3 RS 10 - Performance pack 1",
+  "id": "POR_GT3_RS_10_PP1V1"
+ },
+ "8506244B": {
+  "name": "POR GT3 RS 10 - Performance pack 2",
+  "id": "POR_GT3_RS_10_PP2V1"
+ },
+ "A7962F1A": {
+  "name": "POR GT3 RS 10 - Performance pack 3",
+  "id": "POR_GT3_RS_10_PP3V1"
+ },
+ "3AAF67AD": {
+  "name": "POR GT3 RS 10 - Rare (PP)",
+  "id": "POR_GT3_RS_10_PP_RARE_1"
+ },
+ "3B64465C": {
+  "name": "POR GT3 RS 10 - Rare (PP)",
+  "id": "POR_GT3_RS_10_PP_RARE_2"
+ },
+ "8D9934A5": {
+  "name": "POR GT3 RS 10 - Stock (PP)",
+  "id": "POR_GT3_RS_10_PP_STOCK_1"
+ },
+ "518BC85B": {
+  "name": "Pagani Huayra 2011 - Performance pack 1",
+  "id": "PAG_HUA_STK_11_PP1V1"
+ },
+ "34C095B8": {
+  "name": "Pagani Huayra 2011 - Performance pack 2",
+  "id": "PAG_HUA_STK_11_PP2V1"
+ },
+ "8020A8F8": {
+  "name": "Pagani Huayra 2011 - Rare (PP)",
+  "id": "PAG_HUA_STK_11_PP_RARE_1"
+ },
+ "280679F0": {
+  "name": "Pagani Huayra 2011 - Run Edition",
+  "id": "PAG_HUA_STK_11_PP_RUN"
+ },
+ "9948F358": {
+  "name": "Pagani Huayra 2011 - Stock (PP)",
+  "id": "PAG_HUA_STK_11_PP_STOCK_1"
+ },
+ "104656D1": {
+  "name": "Pagani Zonda Cinque 2010 - Performance pack 1",
+  "id": "PAG_ZON_CIN_10_PP1V1"
+ },
+ "328A0AB2": {
+  "name": "Pagani Zonda Cinque 2010 - Performance pack 2",
+  "id": "PAG_ZON_CIN_10_PP2V1"
+ },
+ "6A6BFA7E": {
+  "name": "Pagani Zonda Cinque 2010 - Rare (PP)",
+  "id": "PAG_ZON_CIN_10_PP_RARE_1"
+ },
+ "4C9D8A0B": {
+  "name": "Pagani Zonda Cinque 2010 - Stock (PP)",
+  "id": "PAG_ZON_CIN_10_PP_STOCK_1"
+ },
+ "A9F9E941": {
+  "name": "Pontiac Firebird Formula 1978 - NFS Edition",
+  "id": "PON_FIR_STK_78_NFS_E"
+ },
+ "95E2BA60": {
+  "name": "Pontiac Firebird Formula 1978 - Performance pack 1",
+  "id": "PON_FIR_STK_78_PP1V1"
+ },
+ "7206461E": {
+  "name": "Pontiac Firebird Formula 1978 - Performance pack 2",
+  "id": "PON_FIR_STK_78_PP2V1"
+ },
+ "B575B389": {
+  "name": "Pontiac Firebird Formula 1978 - Rare (PP)",
+  "id": "PON_FIR_STK_78_PP_RARE_1"
+ },
+ "F86692A2": {
+  "name": "Pontiac Firebird Formula 1978 - Stock (PP)",
+  "id": "PON_FIR_STK_78_PP_STOCK_1"
+ },
+ "AA0E8B2A": {
+  "name": "Porsche 911 C4S 2011",
+  "id": "POR_911_C4S_11"
+ },
+ "24CC2EC9": {
+  "name": "Porsche 911 C4S 2011 - Run Edition",
+  "id": "POR_911_C4S_11_PP_RUN"
+ },
+ "FEEFDDCD": {
+  "name": "Porsche 911 GT2 1996",
+  "id": "POR_993_GT2_96_MARKETING_1"
+ },
+ "5ED66007": {
+  "name": "Porsche 911 GT2 1996 - Ad sales",
+  "id": "POR_993_GT2_96_ADSALES_1"
+ },
+ "8108351B": {
+  "name": "Porsche 911 GT2 1996 - Performance pack 1",
+  "id": "POR_993_GT2_96_PP1V1"
+ },
+ "86E4F405": {
+  "name": "Porsche 911 GT2 1996 - Performance pack 2",
+  "id": "POR_993_GT2_96_PP2V1"
+ },
+ "D1EE8855": {
+  "name": "Porsche 911 GT2 1996 - Stock (PP)",
+  "id": "POR_993_GT2_96_PP_STOCK_1"
+ },
+ "CCFAEC54": {
+  "name": "Porsche 918 RSR 2011",
+  "id": "POR_918_RSR_11"
+ },
+ "9A17B310": {
+  "name": "Porsche 918 RSR 2011 - Performance pack 1",
+  "id": "POR_918_RSR_11_PP1V1"
+ },
+ "3B402C9D": {
+  "name": "Porsche 918 RSR 2011 - Performance pack 2",
+  "id": "POR_918_RSR_11_PP2V1"
+ },
+ "8537FAF9": {
+  "name": "Porsche 918 RSR 2011 - Rare (PP)",
+  "id": "POR_918_RSR_11_PP_RARE_1"
+ },
+ "353E1102": {
+  "name": "Porsche 918 RSR 2011 - Run Edition",
+  "id": "POR_918_RSR_11_PP_RUN"
+ },
+ "90D1843E": {
+  "name": "Porsche 918 RSR 2011 - Stock (PP)",
+  "id": "POR_918_RSR_11_PP_STOCK_1"
+ },
+ "5C0C326F": {
+  "name": "Porsche 991 Carrera S 2012",
+  "id": "POR_991_S_12"
+ },
+ "66E3659A": {
+  "name": "Porsche 991 Carrera S 2012 - Demo (PP)",
+  "id": "POR_991_S_12_PP_DEMO"
+ },
+ "BA891FDE": {
+  "name": "Porsche 991 Carrera S 2012 - Performance pack 1",
+  "id": "POR_991_S_12_PP1V1"
+ },
+ "BDAE711B": {
+  "name": "Porsche 991 Carrera S 2012 - Performance pack 2",
+  "id": "POR_991_S_12_PP2V1"
+ },
+ "43332FC9": {
+  "name": "Porsche 991 Carrera S 2012 - Performance pack 3",
+  "id": "POR_991_S_12_PP3V1"
+ },
+ "C37A8BB5": {
+  "name": "Porsche 991 Carrera S 2012 - Rare (PP)",
+  "id": "POR_991_S_12_PP_RARE_1"
+ },
+ "6494C1CA": {
+  "name": "Porsche 991 Carrera S 2012 - Run Edition",
+  "id": "POR_991_S_12_PP_RUN"
+ },
+ "83C01921": {
+  "name": "Porsche 991 Carrera S 2012 - Stock (PP)",
+  "id": "POR_991_S_12_PP_STOCK_1"
+ },
+ "32B94CD9": {
+  "name": "Porsche Carrera GT",
+  "id": "POR_CAR_GT_08"
+ },
+ "420D3228": {
+  "name": "Porsche Carrera GT - Performance pack 1",
+  "id": "POR_CAR_GT_08_PP1V1"
+ },
+ "FF2DBD2E": {
+  "name": "Porsche Carrera GT - Stock (PP)",
+  "id": "POR_CAR_GT_08_PP_STOCK_1"
+ },
+ "DBF2E189": {
+  "name": "Renault Megane RS 2010 - NFS Edition",
+  "id": "REN_MEG_RS_10_NFS_E"
+ },
+ "8EF632D5": {
+  "name": "Renault Megane RS 2010 - Performance pack 1",
+  "id": "REN_MEG_RS_10_PP1V1"
+ },
+ "F587694D": {
+  "name": "Renault Megane RS 2010 - Performance pack 2",
+  "id": "REN_MEG_RS_10_PP2V1"
+ },
+ "550BDA26": {
+  "name": "Renault Megane RS 2010 - Performance pack 3",
+  "id": "REN_MEG_RS_10_PP3V1"
+ },
+ "6EF622C0": {
+  "name": "Renault Megane RS 2010 - Rare (PP)",
+  "id": "REN_MEG_RS_10_PP_RARE_1"
+ },
+ "92E19258": {
+  "name": "Renault Megane RS 2010 - Stock (PP)",
+  "id": "REN_MEG_RS_10_PP_STOCK_1"
+ },
+ "7955B7A1": {
+  "name": "SHE MUS SNK 12 - Performance pack 1",
+  "id": "SHE_MUS_SNK_12_PP1V1"
+ },
+ "862D5567": {
+  "name": "SHE MUS SNK 12 - Performance pack 2",
+  "id": "SHE_MUS_SNK_12_PP2V1"
+ },
+ "CD005952": {
+  "name": "SHE MUS SNK 12 - Performance pack 3",
+  "id": "SHE_MUS_SNK_12_PP3V1"
+ },
+ "B2103B09": {
+  "name": "SHE MUS SNK 12 - Run Edition",
+  "id": "SHE_MUS_SNK_12_PP_RUN"
+ },
+ "D196CD52": {
+  "name": "SHE MUS SNK 12 - Stock (PP)",
+  "id": "SHE_MUS_SNK_12_PP_STOCK_1"
+ },
+ "41476B61": {
+  "name": "Shelby Daytona Coupe 1965 - NFS Edition",
+  "id": "SHE_DAY_COU_65_NFS_E"
+ },
+ "9EF6A485": {
+  "name": "Shelby Daytona Coupe 1965 - Performance pack 1",
+  "id": "SHE_DAY_COU_65_PP1V1"
+ },
+ "D87A4FA7": {
+  "name": "Shelby Daytona Coupe 1965 - Performance pack 2",
+  "id": "SHE_DAY_COU_65_PP2V1"
+ },
+ "EFBB08AE": {
+  "name": "Shelby Daytona Coupe 1965 - Rare (PP)",
+  "id": "SHE_DAY_COU_65_PP_RARE_1"
+ },
+ "D6D3046B": {
+  "name": "Shelby Daytona Coupe 1965 - Run Edition",
+  "id": "SHE_DAY_COU_65_PP_RUN"
+ },
+ "618484E9": {
+  "name": "Shelby Daytona Coupe 1965 - Stock (PP)",
+  "id": "SHE_DAY_COU_65_PP_STOCK_1"
+ },
+ "CB28345E": {
+  "name": "Subaru WRX Sti 2009 - NFS Edition",
+  "id": "SUB_WRX_STI_09_NFS_E"
+ },
+ "70EBE79C": {
+  "name": "Subaru WRX Sti 2009 - Performance pack 1",
+  "id": "SUB_WRX_STI_09_PP1V1"
+ },
+ "185FCABF": {
+  "name": "Subaru WRX Sti 2009 - Performance pack 2",
+  "id": "SUB_WRX_STI_09_PP2V1"
+ },
+ "AC2DBD8C": {
+  "name": "Subaru WRX Sti 2009 - Performance pack 3",
+  "id": "SUB_WRX_STI_09_PP3V1"
+ },
+ "D5FFC0A2": {
+  "name": "Subaru WRX Sti 2009 - Rare (PP)",
+  "id": "SUB_WRX_STI_09_PP_RARE_1"
+ },
+ "5FDD548A": {
+  "name": "Subaru WRX Sti 2009 - Stock (PP)",
+  "id": "SUB_WRX_STI_09_PP_STOCK_1"
+ },
+ "04E245F5": {
+  "name": "TRF POR CAY 08",
+  "id": "TRF_POR_CAY_08"
+ },
+ "4F802197": {
+  "name": "Toyota Corolla GTS 1986 - NFS Edition",
+  "id": "TOY_COR_STK_86_NFS_E"
+ },
+ "9C0A33F6": {
+  "name": "Toyota Corolla GTS 1986 - Performance pack 1",
+  "id": "TOY_COR_STK_86_PP1V1"
+ },
+ "FB780370": {
+  "name": "Toyota Corolla GTS 1986 - Performance pack 2",
+  "id": "TOY_COR_STK_86_PP2V1"
+ },
+ "DE53242C": {
+  "name": "Toyota Corolla GTS 1986 - Stock (PP)",
+  "id": "TOY_COR_STK_86_PP_STOCK_1"
+ },
+ "48E54274": {
+  "name": "Toyota Supra 1998",
+  "id": "TOY_SUP_STK_98_MARKETING_1"
+ },
+ "09403439": {
+  "name": "Toyota Supra 1998 - NFS Edition",
+  "id": "TOY_SUP_STK_98_NFS_E"
+ },
+ "3982D3DC": {
+  "name": "Toyota Supra 1998 - Performance pack 1",
+  "id": "TOY_SUP_STK_98_PP1V1"
+ },
+ "65C724D2": {
+  "name": "Toyota Supra 1998 - Performance pack 2",
+  "id": "TOY_SUP_STK_98_PP2V1"
+ },
+ "732D664C": {
+  "name": "Toyota Supra 1998 - Performance pack 3",
+  "id": "TOY_SUP_STK_98_PP3V1"
+ },
+ "E8415EE5": {
+  "name": "Toyota Supra 1998 - Stock (PP)",
+  "id": "TOY_SUP_STK_98_PP_STOCK_1"
+ },
+ "7159DA8C": {
+  "name": "Volkswagen Golf GTi 1976 - NFS Edition",
+  "id": "VOL_GTI_MK1_76_NFS_E"
+ },
+ "0D53F648": {
+  "name": "Volkswagen Golf GTi 1976 - Performance pack 1",
+  "id": "VOL_GTI_MK1_76_PP1V1"
+ },
+ "A5063C76": {
+  "name": "Volkswagen Golf GTi 1976 - Performance pack 2",
+  "id": "VOL_GTI_MK1_76_PP2V1"
+ },
+ "DDBE0E1A": {
+  "name": "Volkswagen Golf GTi 1976 - Rare (PP)",
+  "id": "VOL_GTI_MK1_76_PP_RARE_1"
+ },
+ "C6FD66F2": {
+  "name": "Volkswagen Golf GTi 1976 - Stock (PP)",
+  "id": "VOL_GTI_MK1_76_PP_STOCK_1"
+ },
+ "4C1CC041": {
+  "name": "Volkswagen Scirocco R 2010 - NFS Edition",
+  "id": "VOL_SCI_R_10_NFS_E"
+ },
+ "9272D763": {
+  "name": "Volkswagen Scirocco R 2010 - Performance pack 1",
+  "id": "VOL_SCI_R_10_PP1V1"
+ },
+ "33D17A5B": {
+  "name": "Volkswagen Scirocco R 2010 - Performance pack 2",
+  "id": "VOL_SCI_R_10_PP2V1"
+ },
+ "2FBD9DA0": {
+  "name": "Volkswagen Scirocco R 2010 - Performance pack 3",
+  "id": "VOL_SCI_R_10_PP3V1"
+ },
+ "934EF5E2": {
+  "name": "Volkswagen Scirocco R 2010 - Rare",
+  "id": "VOL_SCI_R_10_RARE_1"
+ },
+ "035246B0": {
+  "name": "Volkswagen Scirocco R 2010 - Stock (PP)",
+  "id": "VOL_SCI_R_10_PP_STOCK_1"
+ }
+}

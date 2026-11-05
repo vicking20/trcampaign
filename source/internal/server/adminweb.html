@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NFSTR Admin</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--ink:#1b1f24;--mute:#667085;--line:#dfe3e8;--acc:#d1480f;--ok:#1a7f4b;--bad:#c62828}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--card:#1e2126;--ink:#e8eaed;--mute:#9aa3ad;--line:#2d3138;--acc:#ff7a3d;--ok:#4cc38a;--bad:#ff6b6b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0}
+header b{font-size:17px}
+nav{display:flex;gap:4px;padding:8px 16px;overflow-x:auto}
+nav button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;font:inherit}
+nav button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+main{padding:8px 16px 40px;max-width:720px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.mute{color:var(--mute);font-size:14px}
+button.a,button.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:8px;font:inherit}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button.bad{color:var(--bad);border-color:var(--bad)}
+input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+pre{white-space:pre-wrap;word-break:break-word;margin:0;font:13px/1.45 ui-monospace,monospace}
+.out{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:10px}
+.pw{font:600 18px ui-monospace,monospace;color:var(--ok);word-break:break-all}
+h2{font-size:15px;margin:14px 0 4px;color:var(--mute);font-weight:600}
+#login{max-width:340px;margin:18vh auto;padding:0 16px}
+#login .card{display:grid;gap:10px}
+.err{color:var(--bad);font-size:14px;min-height:18px}
+</style>
+</head>
+<body>
+<div id="login" hidden>
+  <div class="card">
+    <b>NFSTR server admin</b>
+    <input id="u" placeholder="user" autocomplete="username" autocapitalize="none">
+    <input id="p" type="password" placeholder="password" autocomplete="current-password">
+    <button class="btn pri" id="go">Sign in</button>
+    <div class="err" id="lerr"></div>
+  </div>
+</div>
+<div id="app" hidden>
+  <header><b>NFSTR admin</b><button class="a" id="out">Sign out</button></header>
+  <nav id="tabs"></nav>
+  <main id="view"></main>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+let state=null, tab='players', note=null, timer=null;
+const TABS=[['players','Players'],['race','Race'],['news','News'],['servers','Servers'],['accounts','Accounts'],['console','Console']];
+const PRESETS=[['Stock',-1,-1],['Calm',0.3,10],['Busy',0.9,25],['Rush hour',1.5,50],['Gridlock',3,50]];
+async function api(path,body){
+  const r=await fetch(path,{method:body?'POST':'GET',headers:{'X-Admin':'1','Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  if(r.status===401){showLogin();throw new Error('login');}
+  return r.json();
+}
+async function cmd(line,confirmed){
+  const res=await api('/api/cmd',{line,confirmed:!!confirmed});
+  if(res.confirm&&!confirmed){ if(confirm(res.confirm)) return cmd(line,true); return {lines:['cancelled']}; }
+  return res;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function q(n){return '"'+String(n).replace(/"/g,'')+'"'}
+function showLogin(){clearInterval(timer);$('#app').hidden=true;$('#login').hidden=false}
+async function refresh(){
+  try{state=await api('/api/state');}catch(e){return}
+  // do not redraw while something is being typed: a redraw would wipe the field
+  const typing=[...document.querySelectorAll('#view input')].some(i=>!['range','checkbox'].includes(i.type)&&i.value!=='')||(document.activeElement&&document.activeElement.tagName==='INPUT');
+  if((tab==='players'||tab==='servers')&&!typing) draw();
+}
+function draw(){
+  $('#tabs').innerHTML=TABS.map(([k,l])=>`<button class="${k===tab?'on':''}" data-t="${k}">${l}</button>`).join('');
+  $('#tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;note=null;draw()});
+  const v=$('#view'); v.dataset.keep='';
+  if(!state){v.innerHTML='<p class="mute">loading…</p>';return}
+  if(tab==='players') v.innerHTML=playersView();
+  if(tab==='servers') v.innerHTML=serversView();
+  if(tab==='race') v.innerHTML=raceView();
+  if(tab==='news') v.innerHTML=newsView();
+  if(tab==='accounts') v.innerHTML=accountsView();
+  if(tab==='console'){v.innerHTML=consoleView();v.dataset.keep='1'}
+  wire(v);
+}
+function noteBox(){return note?`<div class="out"><pre>${esc(note)}</pre></div>`:''}
+function playersView(){
+  const p=state.players;
+  return `<h2>${p.length} online</h2><div class="card">${p.length?p.map(x=>`<div class="row"><div><b>${esc(x.name)}</b><div class="mute">${esc(x.where)} · ${esc(x.addr)}</div></div><div><button class="a" data-c='kick ${esc(q(x.name))}'>Kick</button> <button class="a bad" data-c='ban ${esc(q(x.name))}'>Ban</button></div></div>`).join(''):'<span class="mute">nobody online</span>'}</div>
+  <h2>Say in game</h2><div class="card"><div class="mute">Shows a short text to everyone in a game, in the game's "player left" notice (it reads "&lt;text&gt; HAS LEFT"). 32 characters at most. Only people in a game see it.</div><div style="height:8px"></div><input id="sy" maxlength="32" placeholder="e.g. Rush hour in 5 minutes"><div style="height:8px"></div>
+  <div style="display:flex;gap:8px"><label style="flex:1">Times <input id="sn" type="number" min="1" max="20" value="1"></label><label style="flex:1">Every (s) <input id="se" type="number" min="10" max="600" value="30"></label></div><div style="height:8px"></div>
+  <div style="display:flex;gap:8px"><button class="btn pri" id="sg" style="flex:1">Send</button>${state.says?`<button class="btn bad" id="sx">Stop ${state.says} repeating</button>`:''}</div></div>
+  <h2>Banned</h2><div class="card">${state.bans.length?state.bans.map(n=>`<div class="row"><span>${esc(n)}</span><button class="a" data-c='unban ${esc(q(n))}'>Unban</button></div>`).join(''):'<span class="mute">nobody banned</span>'}</div>${noteBox()}`;
+}
+function serversView(){
+  return `<h2>Race servers</h2><div class="card">${state.servers.map(s=>`<div class="row"><div><b>#${s.n}</b> ${esc(s.state)}<div class="mute">UDP ${s.port}${s.up?' · up '+esc(s.up):''}${s.pid?' · pid '+s.pid:''}</div></div>${(s.state==='running'||s.state==='starting')?`<button class="a bad" data-c="stop ${s.n}" data-ask="Stop race server ${s.n}? Its game ends and players return to the menu.">Stop</button>`:''}</div>`).join('')}</div>
+  <h2>Games</h2><div class="card"><pre>${esc(state.games.join('\n'))}</pre></div>${noteBox()}`;
+}
+function newsView(){
+  return `<h2>Announcement</h2><div class="card"><div class="mute">Shows in the game's news feed (the Autolog news) for everyone, in every language. Players see it when the game loads the feed; it is not a pop-up in a race.</div><div style="height:8px"></div>
+  <input id="ns" placeholder="title" maxlength="60"><div style="height:8px"></div><input id="nt" placeholder="message" maxlength="400"><div style="height:8px"></div><button class="btn pri" id="np">Post</button></div>
+  <h2>Posted</h2><div class="card">${(state.news||[]).length?state.news.map(n=>`<div class="row"><div><b>${esc(n.subject)}</b><div class="mute">#${n.id} · ${esc(n.date)}</div></div><button class="a bad" data-c="news delete ${n.id}" data-ask="Delete this news item?">Delete</button></div>`).join(''):'<span class="mute">nothing posted</span>'}</div>${noteBox()}`;
+}
+function raceView(){
+  const t=state.traffic||{traffic_density:-1,traffic_cars:-1};
+  const on=t.traffic_density>=0||t.traffic_cars>=0;
+  const d=t.traffic_density>=0?t.traffic_density:0.5, c=t.traffic_cars>=0?t.traffic_cars:25;
+  const run=state.servers.filter(s=>s.state==='running'||s.state==='starting').length;
+  const modeCards=(state.modes||[]).map(m=>`<div class="row"><div><b>${esc(m.name)}</b>${m.name===state.mode?' <span style="color:var(--ok)">active</span>':''}<div class="mute">${esc(m.desc)}${m.forced_cars&&m.forced_cars.length?' · '+m.forced_cars.length+' cars':''}</div></div><div><button class="a ${m.name===state.mode?'':'pri'}" data-c='mode ${esc(q(m.name))}'>${m.name===state.mode?'Re-apply':'Use'}</button>${m.builtin?'':` <button class="a bad" data-c='mode delete ${esc(q(m.name))}' data-ask="Delete mode ${esc(m.name)}?">Delete</button>`}</div></div>`).join('');
+  return `<h2>Mode</h2><div class="card">${modeCards}<div style="height:10px"></div><div style="display:flex;gap:6px"><input id="mn" placeholder="save current settings as a mode"><button class="btn" id="ms">Save</button></div><div class="mute" style="margin-top:8px">A mode sets the traffic and the cars below. It applies from the next race server that starts. Changing the sliders or cars by hand makes it custom.</div></div>
+  <h2>Traffic</h2><div class="card">
+  <div class="mute">Now: ${on?'density '+(t.traffic_density>=0?t.traffic_density:'stock')+', cars '+(t.traffic_cars>=0?t.traffic_cars:'stock'):'the game\'s own'}</div>
+  <div style="height:8px"></div>
+  <label>Density <b id="dv">${d}</b> <span class="mute">(1 is the old maximum, above is experimental)</span></label>
+  <input id="dr" type="range" min="0" max="3" step="0.05" value="${d}">
+  <div style="height:8px"></div>
+  <label>Car limit <b id="cv">${c}</b> <span class="mute">(the game itself stops at 25)</span></label>
+  <input id="cr" type="range" min="0" max="50" step="1" value="${c}">
+  <div style="height:10px"></div>
+  <div id="pre">${PRESETS.map(([n,dd,cc])=>`<button class="a" data-d="${dd}" data-c="${cc}">${n}</button>`).join(' ')}</div>
+  <div style="height:10px"></div>
+  <button class="btn pri" id="tsave">Save</button>
+  <div class="mute" style="margin-top:8px">Applies to the next race server that starts.${run?` ${run} race server(s) running now: stop them on the Servers tab to apply it right away (their games end).`:''}</div></div>
+  <h2>Cars</h2><div class="card">
+  <div class="mute">Tick the cars every player is put into (one at random each). Nothing ticked = everyone drives their own. The list fills with the cars players pick in a race; add a hash by hand below.</div>
+  <div id="cars">${(state.cars||[]).map(carRow).join('')||'<div class="mute" style="padding:8px 0">no cars seen yet</div>'}</div>
+  <div style="height:8px"></div>
+  <div style="display:flex;gap:6px"><input id="ah" list="kc" placeholder="search a car or type a hash" autocapitalize="none"><button class="btn" id="aa">Add</button></div>
+  <datalist id="kc">${(state.known||[]).map(k=>`<option value="${esc(k.name)} [${esc(k.id)}]">`).join('')}</datalist>
+  <div style="height:10px"></div><button class="btn pri" id="csave">Save cars</button>
+  <div class="mute" style="margin-top:8px">Applies to the next race server that starts.</div></div>`;
+}
+function carRow(c){return `<div class="row" data-h="${esc(c.hash)}"><label style="display:flex;align-items:center;gap:8px;flex:0 0 auto"><input type="checkbox" class="cf" ${c.forced?'checked':''} style="width:auto"><span class="mute" style="font-family:ui-monospace,monospace">${esc(c.hash)}</span></label><input class="cn" placeholder="name" value="${esc(c.name||'')}" style="max-width:55%"></div>`}
+function accountsView(){
+  return `<h2>New player</h2><div class="card"><input id="nn" placeholder="player name" autocapitalize="none"><div style="height:8px"></div><button class="btn pri" id="mk">Create and show password</button></div>
+  <h2>Reset a password</h2><div class="card"><input id="rn" placeholder="player name" autocapitalize="none"><div style="height:8px"></div><button class="btn" id="rs">Reset password</button></div>
+  <h2>All players</h2><div class="card">${(state.accounts||[]).length?state.accounts.map(a=>`<div class="row"><div><b>${esc(a.name)}</b>${a.online?' <span style="color:var(--ok)">online</span>':''}<div class="mute">last login ${esc(a.last||'never')}</div></div><div><button class="a" id="x" data-pw="${esc(a.name)}">New password</button> <button class="a bad" data-c='delete-player ${esc(q(a.name))}'>Delete</button></div></div>`).join(''):'<span class="mute">no players yet</span>'}</div>${noteBox()}`;
+}
+function consoleView(){
+  return `<h2>Command</h2><div class="card"><input id="cl" placeholder="help" autocapitalize="none"><div style="height:8px"></div><button class="btn pri" id="run">Run</button></div><div class="out"><pre id="co">${esc(note||'type help to see the commands')}</pre></div>`;
+}
+function pwHtml(lines){
+  return lines.map(l=>/^password\s*:/.test(l)?`<div class="pw">${esc(l)}</div>`:`<div>${esc(l)}</div>`).join('');
+}
+function wire(v){
+  v.querySelectorAll('[data-c]').forEach(b=>b.onclick=async()=>{
+    if(b.dataset.ask && !confirm(b.dataset.ask)) return;
+    const r=await cmd(b.dataset.c); note=(r.lines||[]).join('\n'); await refresh(); draw();
+  });
+  v.querySelectorAll('[data-pw]').forEach(b=>b.onclick=async()=>{ if(!confirm('New password for '+b.dataset.pw+'? Their old one stops working.')) return; const r=await cmd('passwd '+q(b.dataset.pw)); v.insertAdjacentHTML('beforeend',`<div class="out">${pwHtml(r.lines)}<div class="mute">Shown once.</div></div>`)});
+  const ms=$('#ms'); if(ms) ms.onclick=async()=>{const n=$('#mn').value.trim(); if(!n) return; const r=await cmd('mode save '+q(n)); note=r.lines.join('\n'); await refresh(); draw()};
+  const dr=$('#dr'); if(dr){ $('#dr').oninput=()=>$('#dv').textContent=$('#dr').value; $('#cr').oninput=()=>$('#cv').textContent=$('#cr').value;
+    v.querySelectorAll('#pre button').forEach(b=>b.onclick=()=>{ if(+b.dataset.d<0){ cmd('traffic off').then(r=>{note=r.lines.join('\n');refresh().then(draw)}); return;} $('#dr').value=b.dataset.d;$('#cr').value=b.dataset.c;$('#dv').textContent=b.dataset.d;$('#cv').textContent=b.dataset.c; });
+    $('#aa').onclick=()=>{let t=$('#ah').value.trim(); let k=(state.known||[]).find(x=>t===x.name+' ['+x.id+']')||(state.known||[]).find(x=>x.hash===t.toUpperCase()); const h=k?k.hash:t.toUpperCase(); if(!/^[0-9A-F]{8}$/.test(h)){alert('Pick a car from the list, or type an 8 digit hash');return} if(!v.querySelector('[data-h="'+h+'"]')){ const box=$('#cars'); if(!box.querySelector('.row')) box.innerHTML=''; box.insertAdjacentHTML('beforeend',carRow({hash:h,name:k?k.name:'',forced:true})) } $('#ah').value=''};
+    $('#csave').onclick=async()=>{ const rows=[...v.querySelectorAll('#cars .row')]; let last=null; const forced=[];
+      for(const r of rows){ const h=r.dataset.h, n=r.querySelector('.cn').value.trim(); await cmd('cars name '+h+(n?' '+n:'')); if(r.querySelector('.cf').checked) forced.push(h) }
+      last=await cmd('cars force '+(forced.length?forced.join(','):'off')); note=last.lines.join('\n'); await refresh(); draw() };
+    $('#tsave').onclick=async()=>{const r=await cmd('traffic '+$('#dr').value+' '+$('#cr').value); note=r.lines.join('\n'); await refresh(); draw()}; }
+  const sg=$('#sg'); if(sg) sg.onclick=async()=>{const t=$('#sy').value.trim(); if(!t) return; const n=Math.max(1,Math.min(20,+$('#sn').value||1)), e=Math.max(10,Math.min(600,+$('#se').value||30)); const r=await cmd('say '+(n>1?'-n '+n+' -every '+e+' ':'')+t); note=r.lines.join('\n'); $('#sy').value=''; await refresh(); draw()};
+  const sx=$('#sx'); if(sx) sx.onclick=async()=>{const r=await cmd('say stop'); note=r.lines.join('\n'); await refresh(); draw()};
+  const np=$('#np'); if(np) np.onclick=async()=>{const t=$('#ns').value.trim(), m=$('#nt').value.trim(); if(!t||!m) return; const r=await cmd('announce '+q(t)+' '+q(m)); note=r.lines.join('\n'); await refresh(); draw()};
+  const mk=$('#mk'); if(mk) mk.onclick=async()=>{const n=$('#nn').value.trim(); if(!n)return; const r=await cmd('adduser '+q(n)); note=null; v.insertAdjacentHTML('beforeend',`<div class="out">${pwHtml(r.lines)}<div class="mute">Shown once: send it to the player now.</div></div>`)};
+  const rs=$('#rs'); if(rs) rs.onclick=async()=>{const n=$('#rn').value.trim(); if(!n)return; const r=await cmd('passwd '+q(n)); note=null; v.insertAdjacentHTML('beforeend',`<div class="out">${pwHtml(r.lines)}<div class="mute">Shown once. Their old sessions ended.</div></div>`)};
+  const run=$('#run'); if(run){const go=async()=>{const l=$('#cl').value.trim(); if(!l)return; const r=await cmd(l); note=(r.lines||[]).join('\n'); $('#co').textContent=note; $('#cl').value=''}; run.onclick=go; $('#cl').onkeydown=e=>{if(e.key==='Enter')go()}}
+}
+async function start(){
+  $('#login').hidden=true;$('#app').hidden=false;
+  await refresh(); draw(); clearInterval(timer); timer=setInterval(refresh,5000);
+}
+$('#go').onclick=async()=>{
+  $('#lerr').textContent='';
+  const r=await fetch('/api/login',{method:'POST',headers:{'X-Admin':'1','Content-Type':'application/json'},body:JSON.stringify({user:$('#u').value,password:$('#p').value})});
+  if(r.ok){$('#p').value='';start()} else {const j=await r.json().catch(()=>({}));$('#lerr').textContent=j.error||'failed'}
+};
+$('#p').onkeydown=e=>{if(e.key==='Enter')$('#go').click()};
+$('#out').onclick=async()=>{await api('/api/logout',{});showLogin()};
+fetch('/api/state',{headers:{'X-Admin':'1'}}).then(r=>r.ok?start():showLogin());
+</script>
+</body>
+</html>

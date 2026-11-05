@@ -1,0 +1,26 @@
+# Quick Match playlist pool: one playlist GUID per line, "#" starts a comment.
+# Quick Match picks one at random for each new race-server game. The server
+# adds every playlist a player picks in the Multiplayer menu; MM_DEFAULT_PLAYLIST
+# (server.env) is always in the pool. Remove a line to take a playlist out.
+#
+# The 6 playlists of the Multiplayer menu:
+F3E31DF0-82C0-4F21-A56E-8C6F614D4C29  # Supercar Playlist          (supercar)
+75286283-5078-420B-8B59-796A01371E2C  # Underground Playlist       (sport)
+40808F8D-99F3-44D6-AE7F-0F06B2D84FD3  # Mixed Playlist             (open: any car)
+6530CB16-7317-4945-AA78-8B1EC2480534  # Exotic Racing              (exotic)
+A2BD2E19-116D-43A6-A338-D47F6D1EA729  # Muscle Car Battle Playlist (muscle)
+C516C96D-3870-4D57-8B06-CACEDF60E187  # The Need For Speed Playlist (NFS cars)
+#
+# In the game data but not in the menu. An experimental patch adds them
+# (DS_EXTRA_PLAYLISTS=true on the server, EXTRA_PLAYLISTS=1 for every player).
+# Only uncomment them (or set MM_QUICK_EXTRA=true) when every player has it:
+# FE8A591E-47BF-4F81-B278-1E7E238624B5  # European Elite
+# 9E6A682E-BBF5-4376-8DE0-F968478B8343  # All American
+# BD970881-06F7-4A6C-96A2-0C2050FF02F3  # Japan
+# 4AB933B4-9F7A-4CB4-9B0E-F789DB5E19EA  # Nissan Showdown
+# 0C339FF1-DA88-4548-B90C-5063ECDA78FA  # Porsche Unleashed
+# AEAC6F79-E98A-44A6-AA69-EFA2614415FB  # Classics
+# 3B46C82B-8F65-476E-8451-9DD5D5905E98  # Insomnia
+# BC4C430F-8990-498E-8F74-CB068183B544  # AWD
+# 4803206B-D393-4556-A361-109198C620D1  # Ford
+# 8BAE3D69-689F-48E8-AD52-0C3B674F31BE  # Lamborghini Untamed

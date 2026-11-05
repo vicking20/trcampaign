@@ -1,0 +1,34 @@
+# NFSTR Online
+
+A community server for **Need for Speed: The Run** (PC, 1.1.0.0). Login, news, playlists and multiplayer races on race servers
+that start on demand. You need your own copy of the game; no game files are included. See [CREDITS.md](CREDITS.md).
+
+## What is here
+
+```text
+source/         Go server (cmd/nfsrun-server), SQLite storage, admin web page, race modes, ban list
+plugin/         game plugin (NFSTR_Online.asi): Origin stand-in, password login, traffic and forced-car patches
+client/         join launchers (.sh / .bat) for players
+helper/         Python Origin stand-in (lsx.py) used by the launchers
+tools-linux/    race-server launcher (Proton) and the SSLv3 gateway
+tools/          build_plugin.sh, exe patch helpers
+legacy_gateway/ C SSLv3 gateway (for hosting on Windows)
+reference/      modes.py: the old scoring modes, kept until they are ported to Go
+docs/           protocol and configuration notes
+```
+
+## Run the server (Linux)
+
+1. Build: `cd source && go build -o ../nfsrun-server ./cmd/nfsrun-server`, and the plugin with `tools/build_plugin.sh` (needs mingw-w64).
+2. Copy `config/server.env.example` settings into `config/server.env` (addresses, `DS_GAME_DIR`, `ADMIN_WEB_*`). Keep this file private.
+3. Start `tools-linux/sslv3_gateway.py`, then `nfsrun-server --config config/server.env`.
+4. Admin page: `http://<server address>:8090` (login from `server.env`): players, bans, race servers, traffic, forced cars, news, in-game messages, race modes, accounts.
+
+## Play
+
+Players put the plugin files in the game folder and run `client/NFSTR_Online_Play.sh` (or `.bat`). Their name and password go in `Scripts/NFSTR_Online.ini`; the host creates the account in the admin page.
+
+## Status
+
+Working: login, playlists, multi-race sessions, results and points, admin page, race modes (traffic and car sets).
+Not done: scoring modes in Go, AI/cops (crash the race server), internet hosting guide, Windows hosting scripts (the old MariaDB-based ones were removed).

@@ -1,0 +1,70 @@
+# Build outputs
+*.exe
+*.dll
+*.lib
+*.obj
+*.o
+*.a
+*.pdb
+*.ilk
+*.exp
+*.pyc
+__pycache__/
+dist/
+
+# Generated Go/test output
+coverage.out
+*.test
+
+# Local configuration and secrets
+nfsrun-launcher.ini
+nfsrun-launcher.key
+nfsrun-launcher*.log
+config/*
+!config/.gitkeep
+certs/*
+!certs/.gitkeep
+
+# Runtime state
+logs/*
+!logs/.gitkeep
+run/*
+!run/.gitkeep
+mariadb/*
+!mariadb/PUT_MARIADB_HERE.txt
+
+# Runtime server data
+data/ds/
+data/web/
+data/news.json
+data/locker/*
+!data/locker/README.txt
+
+# Legacy gateway generated files
+legacy_gateway/obj/
+legacy_gateway/build/*
+!legacy_gateway/build/BUILD_ME.txt
+legacy_gateway/third_party/cache/*
+legacy_gateway/third_party/openssl-*/
+
+# Local patched game/client files
+NFSTR_DedicatedServer.exe
+NFSTR_lsx*.exe
+*.before_origin_patch.bak
+*.before_multi_patch.bak
+*.bak
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# NFSTR project additions
+runtime/
+build/
+config/server.env.bak
+data/cars.json.bak
+nfsrun-server
+!config/server.env.example
