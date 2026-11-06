@@ -7,9 +7,7 @@ package server
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -59,7 +57,6 @@ var CommandHelp = []string{
 	"invites                 pending invite codes;  invites cancel <name>",
 	"rename <old> <new>      new name, same records, photos and launcher key",
 	"delete-player <name>    delete a player and all their data (asks first)",
-	"package                 build the player package (make_client_package)",
 	"help                    this list",
 	"Names with spaces go in quotes: kick \"Ze Silva\"",
 }
@@ -368,8 +365,6 @@ func (s *Server) Command(line string, confirmed bool) (res CommandResult) {
 		s.friendsChanged(false)
 		return say("%q deleted (database rows, %d photo(s), %d file(s) in data\\)", del.Name, len(photos), files)
 
-	case "package":
-		return s.cmdPackage()
 	}
 	return say("unknown command %q; type help", cmd)
 }
@@ -593,27 +588,4 @@ func orDash(s string) string {
 		return "-"
 	}
 	return s
-}
-
-// cmdPackage runs scripts\make_client_package.ps1 (Windows).
-func (s *Server) cmdPackage() CommandResult {
-	script := filepath.Join("scripts", "make_client_package.ps1")
-	if _, err := os.Stat(script); err != nil {
-		return CommandResult{Lines: []string{script + " not found (run the server from its own folder)"}}
-	}
-	if runtime.GOOS != "windows" {
-		return CommandResult{Lines: []string{"package: Windows only (powershell); run " + script + " yourself"}}
-	}
-	cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", script)
-	out, err := cmd.CombinedOutput()
-	var lines []string
-	for _, l := range strings.Split(strings.ReplaceAll(string(out), "\r\n", "\n"), "\n") {
-		if strings.TrimSpace(l) != "" {
-			lines = append(lines, l)
-		}
-	}
-	if err != nil {
-		lines = append(lines, "make_client_package failed: "+err.Error())
-	}
-	return CommandResult{Lines: lines}
 }

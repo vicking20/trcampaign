@@ -29,6 +29,10 @@ def setup(default_host=""):
         name = ""
         while not _re.fullmatch(r"[A-Za-z0-9_-]{3,16}", name): name = input("Your player name (3-16 letters, digits, _ or -): ").strip()
         put("Name", name)
+    if value("Password") == "":
+        pw = ""
+        while not pw: pw = input("Your password (the host gives it to you): ").strip()
+        put("Password", pw)
     open(ini, "w", encoding="utf-8").write(text)
 
 if __name__ == "__main__" and "--setup" in sys.argv:
