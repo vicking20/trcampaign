@@ -16,7 +16,7 @@ with zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(files):
             p = os.path.join(root, f)
             info = zipfile.ZipInfo.from_file(p, os.path.join(prefix, os.path.relpath(p, src)))
-            if f in ("nfsrun-server", "nfstr-origin", "start.sh", "ds_launch.sh", "NFSTR_Online_Play.sh"):
+            if f in ("nfsrun-server", "nfstr-origin", "start.sh", "stop.sh", "ds_launch.sh", "NFSTR_Online_Play.sh"):
                 info.external_attr = 0o755 << 16
             z.writestr(info, open(p, "rb").read(), zipfile.ZIP_DEFLATED)
 PY
@@ -31,11 +31,13 @@ server_common() { # $1 = folder
 S="$OUT/stage/win/NFSTR_Server"; mkdir -p "$S"; B windows nfsrun-server.exe nfsrun-server; mv "$OUT/stage/nfsrun-server.exe" "$S/"
 server_common "$S"; cp tools/open_ds_firewall.bat "$S/"
 printf '@echo off\r\ncd /d "%%~dp0"\r\nnfsrun-server.exe\r\npause\r\n' > "$S/Start_Server.bat"
+printf '@echo off\r\ncd /d "%%~dp0"\r\nif not exist run mkdir run\r\necho stop> run\\stop.request\r\necho Stop requested; the server window closes in a few seconds.\r\n' > "$S/Stop_Server.bat"
 zipdir "$OUT/stage/win" "" "$OUT/NFSTR_Server_Windows.zip"
 # server, Linux
 S="$OUT/stage/lin/NFSTR_Server"; mkdir -p "$S/tools-linux"; B linux nfsrun-server nfsrun-server; mv "$OUT/stage/nfsrun-server" "$S/"
 server_common "$S"; cp tools-linux/ds_launch.sh tools-linux/install_services.sh "$S/tools-linux/"
 printf '#!/usr/bin/env bash\ncd "$(dirname "$(readlink -f "$0")")" && exec ./nfsrun-server\n' > "$S/start.sh"
+printf '#!/usr/bin/env bash\ncd "$(dirname "$(readlink -f "$0")")" && mkdir -p run && echo stop > run/stop.request && echo "Stop requested."\n' > "$S/stop.sh"
 zipdir "$OUT/stage/lin" "" "$OUT/NFSTR_Server_Linux.zip"
 # client
 C="$OUT/stage/client"; mkdir -p "$C/Scripts"

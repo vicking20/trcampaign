@@ -16,8 +16,9 @@ Problems: read `Scripts/NFSTR_Online.log` and `Scripts/lsx.log`. Another `dinput
 1. Install the game on the server machine and extract `NFSTR_Server_Windows.zip` or `NFSTR_Server_Linux.zip` into the game folder. It becomes `<game folder>/NFSTR_Server/`.
 2. Start `Start_Server.bat` (Windows) or `./start.sh` (Linux; race servers run through Proton/umu-run, see `tools-linux/ds_launch.sh`).
 3. The first start creates `config/server.env` and the certificate, and prints the admin address and password once.
-4. Open the admin page (`http://<server address>:8090`), create player accounts under Accounts, and give each player the address, name and password.
-5. Open the ports (below) if players are not on your network.
+4. Stop the server with `Stop_Server.bat` / `./stop.sh`, Ctrl+C, or the stop key in its window.
+5. Open the admin page (`http://<server address>:8090`), create player accounts under Accounts, and give each player the address, name and password.
+6. Open the ports (below) if players are not on your network.
 
 | Ports | Use |
 |---|---|
