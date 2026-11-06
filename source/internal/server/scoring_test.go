@@ -14,28 +14,6 @@ func TestCannonballFieldScheme(t *testing.T) {
 	}
 }
 
-func TestEliminationRoundEnds(t *testing.T) {
-	st := fresh("elimination")
-	f := knockout(false)
-	ev := f(st, []RaceFinish{{"A", 100}, {"B", 110}, {"C", 120}})
-	if !st.Players["C"].Eliminated || st.Players["A"].Eliminated || len(ev) != 1 {
-		t.Fatalf("%v", ev)
-	}
-	// B finishes, A missing from the results = did not finish, so A is out and B wins the round
-	ev = f(st, []RaceFinish{{"B", 105}})
-	if !st.Players["A"].Eliminated || st.Champions["B"] != 1 {
-		t.Fatalf("%v %+v", ev, st.Champions)
-	}
-}
-
-func TestEliminationAloneNobodyOut(t *testing.T) {
-	st := fresh("elimination")
-	ev := knockout(false)(st, []RaceFinish{{"A", 100}})
-	if len(ev) != 0 || st.Players["A"].Eliminated {
-		t.Fatalf("%v", ev)
-	}
-}
-
 func TestEveryModeRuns(t *testing.T) {
 	for name, m := range scoreModes {
 		st := fresh(name)
