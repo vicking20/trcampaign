@@ -1,0 +1,4 @@
+dinput8.dll is the Ultimate ASI Loader v9.7.4 (32-bit, NoPDB) by ThirteenAG, MIT License.
+https://github.com/ThirteenAG/Ultimate-ASI-Loader
+Copyright (c) 2018 ThirteenAG. Permission is granted, free of charge, to use, copy, modify, merge, publish, distribute, sublicense and/or sell copies of
+the software, subject to this notice being included in all copies or substantial portions. The software is provided "as is", without warranty of any kind.

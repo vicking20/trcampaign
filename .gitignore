@@ -67,6 +67,4 @@ data/cars.json.bak
 nfsrun-server
 !config/server.env.example
 
-# Third-party binaries are fetched, not stored
-third_party/*.dll
 dist/
