@@ -61,6 +61,7 @@ func (s *Server) handleResultsHTTP(w http.ResponseWriter, r *http.Request) {
 		_, _ = f.Write(append(line, '\n'))
 		_ = f.Close()
 	}
+	s.scoreRace(in.Results)
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write([]byte("{}"))
 }

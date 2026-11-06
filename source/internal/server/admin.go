@@ -49,6 +49,7 @@ var CommandHelp = []string{
 	"announce \"<title>\" \"<text>\"  post a news item players see in the game's news feed;  news lists them;  news delete <id>",
 	"say [-n <times>] [-every <seconds>] <text>  show a short text to everyone in a game now, optionally repeated;  say stop cancels (the game shows it as \"<text> HAS LEFT\")",
 	"modes  |  mode <name>  |  mode save <name>  |  mode delete <name>  list the race modes, switch to one, keep the current settings as your own",
+	"score  |  score <mode>  |  score off  |  score reset  |  score scheme <field|top3|fixed>   scoring modes: standings from the race results, shown in the News",
 	"stop <n>                stop race server number n (its game ends, players return to the menu)",
 	"adduser <name>          player with a name + generated password (no launcher needed)",
 	"passwd <name>           new password for that player (old sessions end)",
@@ -184,6 +185,9 @@ func (s *Server) Command(line string, confirmed bool) (res CommandResult) {
 
 	case "modes", "mode":
 		return s.cmdMode(cmd, args)
+
+	case "score", "scoring":
+		return s.cmdScore(args)
 
 	case "cars":
 		return s.cmdCars(args)
