@@ -40,10 +40,15 @@ func main() {
 			_ = os.Chdir(filepath.Dir(exe))
 		}
 	}
+	firstRun(*cfgPath)
 	c, e := config.Load(*cfgPath)
 	if e != nil {
 		fmt.Fprintln(os.Stderr, "config:", e)
 		os.Exit(2)
+	}
+	if _, err := os.Stat(c.CertFile); err != nil { // first start: make the Redirector certificate
+		_ = os.MkdirAll(filepath.Dir(c.CertFile), 0o755)
+		runCertCommand(*cfgPath, "", false, true, true, "", "")
 	}
 	_ = os.MkdirAll("logs", 0755)
 	logPath := filepath.Join("logs", "server.log")
