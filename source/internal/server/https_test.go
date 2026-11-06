@@ -81,10 +81,10 @@ func TestLauncherAPIOnlyOverHTTPS(t *testing.T) {
 		b, _ := io.ReadAll(resp.Body)
 		return resp.StatusCode, string(b)
 	}
-	if code, body := get(pinnedClient(pin), "https://"+tlsAddr+"/nfsrun/players?persona=x"); code == http.StatusForbidden || code == http.StatusNotFound {
+	if code, body := get(pinnedClient(pin), "https://"+tlsAddr+"/nfsrun/auth/gamecode"); code == http.StatusForbidden || code == http.StatusNotFound {
 		t.Fatalf("HTTPS launcher API: %d %s", code, body)
 	}
-	if code, body := get(http.DefaultClient, "http://"+plainAddr+"/nfsrun/players?persona=x"); code != http.StatusForbidden || !strings.Contains(body, "https_required") {
+	if code, body := get(http.DefaultClient, "http://"+plainAddr+"/nfsrun/auth/gamecode"); code != http.StatusForbidden || !strings.Contains(body, "https_required") {
 		t.Fatalf("plain launcher API: %d %s", code, body)
 	}
 	if code, _ := get(pinnedClient(pin), "https://"+tlsAddr+"/Persona/1"); code != http.StatusNotFound && code != http.StatusForbidden {
@@ -102,7 +102,7 @@ func TestClientAddrBehindTrustedProxy(t *testing.T) {
 		t.Fatal(err)
 	}
 	mk := func(remote string, h map[string]string) *http.Request {
-		r := httptest.NewRequest("GET", "/nfsrun/players", nil)
+		r := httptest.NewRequest("GET", "/nfsrun/auth/gamecode", nil)
 		r.RemoteAddr = remote
 		for k, v := range h {
 			r.Header.Set(k, v)

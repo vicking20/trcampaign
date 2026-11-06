@@ -119,7 +119,7 @@ func Run(stats func() server.Stats, ring *EventRing, o Options, stop func(reason
 		fmt.Fprintf(&b, "  Racing         : %-3d %s\r\n", len(st.InRace), cut(server.PlayerList(st.InRace, 8), 56))
 		fmt.Fprintf(&b, "  In lobby       : %-3d %s\r\n", len(st.InLobby), cut(server.PlayerList(st.InLobby, 8), 56))
 		fmt.Fprintf(&b, "  Matchmaking    : %-3d %s\r\n", len(st.Matchmaking), cut(server.PlayerList(st.Matchmaking, 8), 56))
-		fmt.Fprintf(&b, "  Groups %d   Live launchers %d   Connections %d\r\n\r\n", st.Groups, st.LiveLaunchers, st.Connections)
+		fmt.Fprintf(&b, "  Groups %d   Connections %d\r\n\r\n", st.Groups, st.Connections)
 		b.WriteString("  RACE SERVERS\r\n")
 		if len(st.RaceServers) == 0 {
 			b.WriteString("    (none managed: DS_ENABLED=false)\r\n")

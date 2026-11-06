@@ -7,14 +7,12 @@ and the accepted values.
 |---|---|---|
 | `config/server.env` | `nfsrun-server` | you (start from `server.env.example`) |
 | `config/nfsrun.db` | `nfsrun-server` | the server (SQLite database) |
-| `nfsrun-launcher.ini` | `nfsrun-launcher.exe` (player PC) | launcher on first start |
-| `nfsrun-launcher.key` | `nfsrun-launcher.exe` (player PC) | launcher on first start |
 | `client_config\<SECTION>.cfg` | `nfsrun-server.exe` | repository |
 | `data\...` | `nfsrun-server.exe` | repository / server at runtime |
 
 Format of the `.env` and `.ini` files: one `KEY=value` per line, `#` or `;`
 starts a comment line, keys are not case sensitive. A missing key keeps its
-default. Restart the server (or launcher) after a change.
+default. Restart the server after a change.
 
 Boolean values: `true`/`1`/`yes`/`on` and `false`/`0`/`no`/`off`.
 
@@ -45,9 +43,8 @@ setup writes a different value, it is listed as "setup".
 | `WEB_AUTOLOG_HOST` | empty | empty, `host:port`, `off` | Web Autolog host sent to the game as `V8ServerName`. Empty = `PUBLIC_HOST:18443`; `off` = not sent, and the gateway's HTTPS front is no longer restored at start. |
 | `LOCKER_BASE_URL` | empty | URL | Base URL for photo uploads/downloads. Empty = `http://<PUBLIC_HOST>:<HTTP_LISTEN port>`. |
 
-### Launcher API (HTTPS)
+### Password login (HTTPS)
 
-See [LAUNCHER_HTTPS.md](LAUNCHER_HTTPS.md) for the direct and Cloudflare setups.
 
 | Key | Default | Values | Description |
 |---|---|---|---|
@@ -61,8 +58,6 @@ See [LAUNCHER_HTTPS.md](LAUNCHER_HTTPS.md) for the direct and Cloudflare setups.
 
 | Key | Default | Values | Description |
 |---|---|---|---|
-| `AUTH_MODE` | `invite` | `invite`, `open` | `invite`: a new player needs a one-time invite code (`invite <name>`). `open`: the first launcher key that uses a free name owns it. In both modes a name with a pending code waits for that code. |
-| `AUTH_SESSION_HOURS` | `8` | 1-72 | Lifetime of a launcher session ticket; the launcher renews it while running. |
 | `FRIENDS_ALL` | `true` | boolean | Every player is everyone's friend. `false`: only friends added in game. |
 | `CLIENT_GUARD` | `true` | boolean | Only the game may use the public ports (protocol checks, login required, HTTP user agent check). |
 | `GUARD_ALLOW_IPS` | empty | comma-separated IPs/CIDRs | Allowlist for the public ports. Empty = everyone. |
@@ -138,64 +133,14 @@ See [LAUNCHER_HTTPS.md](LAUNCHER_HTTPS.md) for the direct and Cloudflare setups.
 
 ---
 
-## `nfsrun-launcher.ini` (player)
+## `Scripts/NFSTR_Online.ini` (player)
 
-Created on the first start with the settings below. The server address is
-built into the launcher by the server owner (`--stamp-launcher`).
-
-| Key | Default | Values | Description |
-|---|---|---|---|
-| `PLAYER_NAME` | empty (`<COMPUTERNAME>.0`) | 1-16 characters | Player name. |
-| `INVITE_CODE` | empty | code from the server owner | One-time invite code for the first login (or after `reset-key`); cleared after use. |
-| `LANGUAGE` | `auto` | see below | Game and launcher language. |
-| `GAME_EXE` | `Need For Speed The Run.exe` | file name or full path | Game executable. |
-| `GAME_ARGS` | empty | arguments | Extra game arguments. `-NfsOnline.EnableProtoTunnel` is removed. |
-| `LSX_LISTEN` | `127.0.0.1:3216` | `ip:port` | Local Origin endpoint the game connects to; the game copy is patched for another port. |
-| `SOLO_ONLINE` | `1` | `0`, `1` | Keep playing a playlist alone. |
-| `INVITES` | `ask` | `ask`, `auto`, `off` | Friends' invites: a Yes/No box (as Origin did; it can minimise a fullscreen game), accept at once, or ignore. |
-| `AUTO_START` | `0` | `0`, `1` | Start the game as soon as the launcher is ready. |
-| `CLOSE_WITH_GAME` | `0` | `0`, `1` | Close the launcher when the game exits. |
-
-Advanced keys (not in the file; add them when needed):
-
-| Key | Default | Values | Description |
-|---|---|---|---|
-| `SERVER_HTTP` | built in | `https://host:8443`, `off` | Another server than the built-in one (its pin and domain are then not used); `off` = offline. |
-| `SERVER_CERT_PIN` | built in | 64 hex characters, `off` | SHA-256 of the server certificate's public key (self-signed servers). `off` = the certificate must be valid for a public CA. |
-| `BASE_DOMAIN` | built in | domain | Redirector domain patched into the game copy. |
-| `NO_ORIGIN_START` | `1` | `0`, `1` | `0` = run the original exe (it must be patched with `tools\patch_client.bat` and `patch_origin_startup.bat`; registers the launcher as Origin in HKLM, which needs administrator rights). |
-| `EXTRA_PLAYLISTS` | `0` | `0`, `1` | Add the 10 unused playlists to the game data (experimental). `0` restores the originals. |
-
-`nfsrun-launcher.key` holds the player's private login key (`CLIENT_KEY`) and
-what they allowed on the first start (`ALLOWED`). Never share it; a lost key
-needs `reset-key <name>` on the server. An `nfsrun-launcher.ini` of an older
-launcher (with `PERSONA`, `CLAIM_CODE`, `LOCALE`, `CLIENT_KEY`) is converted
-on the next start; the old file is kept as `nfsrun-launcher.ini.old`.
-
-`LANGUAGE` values: `en_US`, `fr_FR`, `de_DE`, `es_ES`, `es_MX` (also other
-American Spanish), `it_IT`, `ja_JP`, `ru_RU`, `pl_PL`, `nl_NL`, `cs_CZ`,
-`zh_TW` (`zh_CN` gives the game's Traditional Chinese). `pt_BR`, `pt_PT` and
-`ko_KR` change only the launcher window: the PC game has no Portuguese or
-Korean text and stays in English. `auto` = the Windows language.
-
-The game takes its language only from the registry value `Locale` of
-`SOFTWARE\EA Games\Need for Speed(TM) The Run` (no value = English; the
-language must be installed). The launcher writes it on every start, in HKCU:
-its game copy is patched to read HKCU, so no administrator is needed.
-
-On the first start the launcher lists what it will do on the PC (create the
-game copy `NFSTR_lsx<port>.exe`, set the game language, and with
-`EXTRA_PLAYLISTS=1` change the playlist data) and asks once. It starts no
-other program than the game.
-
-Command line: `nfsrun-launcher.exe [-persona Name] [-invite-code CODE] [-console] [-lsx-only]`
-
-| Option | Description |
+| Key | Description |
 |---|---|
-| `-persona Name` | Use this name instead of `PLAYER_NAME` (second game copy on one PC). |
-| `-invite-code CODE` | One-time invite code for this start. |
-| `-console` | Text window instead of the launcher window; starts the game at once. |
-| `-lsx-only` | Only provide the local Origin endpoint; start the game yourself. |
+| `[Server] Host` | Address of the server. |
+| `[Server] LoginPort` / `Pin` | Password login port (default 8443) and optional SHA-256 pin of the server's launcher certificate (shown at server start). |
+| `[Player] Name` / `Password` | Player name (3-16 letters, digits, `_`, `-`) and the password the host created. |
+| `[Origin] Enable`, `StartDelayMs`, `Embedded` | Keep `Enable=1`, `StartDelayMs=20000`, `Embedded=0`. |
 
 ---
 
@@ -233,12 +178,10 @@ Other keys the game reads in this section: `V8XlspName`, `V8XlspPort`,
 | Option | Description |
 |---|---|
 | `--config <file>` | Settings file (default `config/server.env`). |
-| `--invite <Name>` | Make a one-time invite code for a new player (same as the `invite` command). |
 | `--command "<command>" [--yes]` | Run one server-window command (below) and exit, e.g. `--command "players all"`. `--yes` answers its question. Players online in a running server are not disconnected from here: use the server window for `kick`, `reset-key` and `delete-player` while it runs. |
 | `--exe-domain <game exe>` | Print the domain a patched game exe connects to. |
 | `--make-cert [--domain D] [--game-exe F]` | Write the Redirector certificate (`CERT_FILE`/`KEY_FILE`). Domain from the game exe, else `BASE_DOMAIN`. |
 | `--check-cert [--fix]` | Check that the game would accept the certificate; `--fix` makes a new one if not. Exit code 1 = refused. |
-| `--stamp-launcher <out.exe> [--launcher-exe <in.exe>]` | Write a copy of the launcher (default `launcher\nfsrun-launcher.exe`) with this server built in (launcher address, certificate pin, Redirector domain). `scripts\make_client_package.ps1` uses it. See [LAUNCHER_HTTPS.md](LAUNCHER_HTTPS.md#launcher-preset). |
 
 Server window keys: `C` (or `/`) opens the command line, `Q` then `Y` stops
 everything, `L` toggles the log view, `H` shows help and the commands. Outside
@@ -258,9 +201,6 @@ lines in the window.
 | `players all` | Every player in the database: BlazeId, last login, photos, whether a launcher key owns it. |
 | `games` | Games with state, host, playlist, players and the address advertised to players; race-server processes. |
 | `kick <name>` | Disconnect a player (game connection and launcher live channel). They can log in again. |
-| `invite <name> [hours]` | One-time invite code for a new player (default 12 h, 1-168). The name is reserved until it is used. |
-| `reset-key <name> [hours]` | Lost launcher key: disconnect, revoke the key, print a new invite code. Records, photos and friends stay. |
-| `invites` / `invites cancel <name>` | Pending invite codes (names and expiry; the codes themselves are not stored) / withdraw one. |
 | `rename <old> <new>` | New name; records, photos, friends and the launcher key stay (disconnects the player if online). |
 | `delete-player <name>` | Delete a player and all their data: database rows (records, friends, stats, photos, likes, launcher key), photo files in `data\locker\` and web Autolog files in `data\web\`. Asks first; cannot be undone. |
 | `package` | Build the player package (`make_client_package`). |

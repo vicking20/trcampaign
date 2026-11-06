@@ -14,7 +14,6 @@ type Stats struct {
 	InLobby       []string // in a game that is not racing yet
 	Matchmaking   []string
 	Groups        int
-	LiveLaunchers int
 	Connections   int
 	RaceServers   []RaceServerStat
 	ServerGames   []GameStat
@@ -38,7 +37,7 @@ type GameStat struct {
 }
 
 func (s *Server) Stats() Stats {
-	st := Stats{Uptime: time.Since(s.started), Connections: s.connCount(), LiveLaunchers: s.hub.count()}
+	st := Stats{Uptime: time.Since(s.started), Connections: s.connCount()}
 	for _, c := range s.online.states() {
 		if c.Persona.Name == "" || isDSPersonaName(c.Persona.Name) || isDedicatedServerAccount(c.Email) {
 			continue

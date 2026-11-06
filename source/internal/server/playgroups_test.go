@@ -2,10 +2,7 @@ package server
 
 import (
 	"bytes"
-	"encoding/json"
 	"log"
-	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -115,34 +112,5 @@ func TestPlaygroupJoinUnknownFails(t *testing.T) {
 	jw.TagVar("PGID", 12345)
 	if r := b.call(ComponentPlaygroups, PGJoin, &jw); r.Error == 0 {
 		t.Fatal("join of a missing group must fail")
-	}
-}
-
-func TestOriginInviteRelay(t *testing.T) {
-	s := New(testConfig(), &multiStore{}, log.New(&bytes.Buffer{}, "", 0))
-	post := func(h http.HandlerFunc, body string) int {
-		rec := httptest.NewRecorder()
-		h(rec, httptest.NewRequest("POST", "/", strings.NewReader(body)))
-		return rec.Code
-	}
-	if c := post(s.handlePresenceHTTP, `{"persona":"Player1","presence":"JOINABLE","sessionId":"1000001"}`); c != 200 {
-		t.Fatal(c)
-	}
-	if c := post(s.handleInviteHTTP, `{"persona":"Player1","from":1000001,"to":[1000002],"session":""}`); c != 200 {
-		t.Fatal(c)
-	}
-	inv := s.invites.take(1000002)
-	if len(inv) != 1 || inv[0].Session != "1000001" || inv[0].From != 1000001 {
-		t.Fatalf("invites %+v", inv)
-	}
-	b, _ := json.Marshal(inv)
-	if !strings.Contains(string(b), `"session":"1000001"`) {
-		t.Fatal(string(b))
-	}
-	if p, sess := s.playerPresence("Player1", 1000001, true); p != "JOINABLE" || sess != "1000001" {
-		t.Fatalf("presence %s %s", p, sess)
-	}
-	if p, _ := s.playerPresence("Player1", 1000001, false); p != "OFFLINE" {
-		t.Fatal(p)
 	}
 }

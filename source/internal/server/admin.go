@@ -16,9 +16,6 @@ import (
 	"nfsrun-server/internal/database"
 )
 
-// DefaultClaimHours: validity of an invite code (invite, reset-key).
-const DefaultClaimHours = 12
-
 // CommandResult is what a command prints. Confirm != "": nothing happened yet;
 // ask that question and run the same line again with confirmed=true.
 type CommandResult struct {
@@ -54,9 +51,6 @@ var CommandHelp = []string{
 	"stop <n>                stop race server number n (its game ends, players return to the menu)",
 	"adduser <name>          player with a name + generated password (no launcher needed)",
 	"passwd <name>           new password for that player (old sessions end)",
-	"invite <name> [hours]   one-time invite code for a new player (default 12 h)",
-	"reset-key <name> [hours] lost launcher key: revoke it and make a new invite code",
-	"invites                 pending invite codes;  invites cancel <name>",
 	"rename <old> <new>      new name, same records, photos and launcher key",
 	"delete-player <name>    delete a player and all their data (asks first)",
 	"help                    this list",
@@ -84,7 +78,7 @@ func (s *Server) Command(line string, confirmed bool) (res CommandResult) {
 	args = args[1:]
 	say := func(f string, a ...any) CommandResult { return CommandResult{Lines: []string{fmt.Sprintf(f, a...)}} }
 	db, ok := s.db.(adminStore)
-	needDB := map[string]bool{"adduser": true, "passwd": true, "invite": true, "reset-key": true, "invites": true, "rename": true, "delete-player": true}
+	needDB := map[string]bool{"adduser": true, "passwd": true, "rename": true, "delete-player": true}
 	if needDB[cmd] && !ok {
 		return say("not available: the database does not support it")
 	}
@@ -246,84 +240,6 @@ func (s *Server) Command(line string, confirmed bool) (res CommandResult) {
 		return CommandResult{Lines: []string{fmt.Sprintf("%s %q", verb, name), "name     : " + name, "password : " + pw,
 			"Give both to the player (ini: SERVER, NAME, PASSWORD). The password cannot be shown again."}}
 
-	case "invite":
-		if len(args) < 1 || len(args) > 2 {
-			return say("usage: invite <name> [hours]")
-		}
-		hours, err := claimHours(args[1:])
-		if err != nil {
-			return say("%v", err)
-		}
-		name := strings.TrimSpace(args[0])
-		if err := database.CheckPersonaName(name); err != nil {
-			return say("%v", err)
-		}
-		code, exp, err := db.CreateLauncherClaim(name, time.Duration(hours)*time.Hour)
-		if err != nil {
-			if strings.Contains(err.Error(), "already has launcher ownership") {
-				return say("%q already has a launcher key; for a lost key use: reset-key %s", name, quoteName(name))
-			}
-			return say("%v", err)
-		}
-		return CommandResult{Lines: codeLines(name, code, exp, s.cfg.AuthMode)}
-
-	case "reset-key":
-		if len(args) < 1 || len(args) > 2 {
-			return say("usage: reset-key <name> [hours]")
-		}
-		hours, err := claimHours(args[1:])
-		if err != nil {
-			return say("%v", err)
-		}
-		pi, found, err := db.FindPersona(args[0])
-		if err != nil {
-			return say("%v", err)
-		}
-		if !found {
-			return say("player %q not found", args[0])
-		}
-		if !confirmed {
-			return CommandResult{Confirm: fmt.Sprintf("Revoke the launcher key of %q (records and photos are kept) and make a new %d h code?", pi.Name, hours)}
-		}
-		s.kickPlayer(pi.Name, "launcher key reset")
-		if err := db.ResetLauncherDevice(pi.Name); err != nil {
-			return say("%v", err)
-		}
-		s.launchers.forget(pi.ID)
-		code, exp, err := db.CreateLauncherClaim(pi.Name, time.Duration(hours)*time.Hour)
-		if err != nil {
-			return say("key revoked, but no code: %v", err)
-		}
-		out := []string{fmt.Sprintf("launcher key of %q revoked", pi.Name)}
-		return CommandResult{Lines: append(out, codeLines(pi.Name, code, exp, "invite")...)}
-
-	case "invites":
-		if len(args) >= 1 && strings.EqualFold(args[0], "cancel") {
-			if len(args) != 2 {
-				return say("usage: invites cancel <name>")
-			}
-			found, err := db.CancelLauncherClaim(args[1])
-			if err != nil {
-				return say("%v", err)
-			}
-			if !found {
-				return say("no pending code for %q", args[1])
-			}
-			return say("code of %q cancelled", args[1])
-		}
-		list, err := db.ListLauncherClaims()
-		if err != nil {
-			return say("%v", err)
-		}
-		if len(list) == 0 {
-			return say("no pending invite codes")
-		}
-		lines := []string{fmt.Sprintf("%d pending invite code(s) (the codes themselves are not stored):", len(list))}
-		for _, c := range list {
-			lines = append(lines, fmt.Sprintf("  %-16s expires %s (in %s)", c.Name, c.Expires.Format("2006-01-02 15:04"), time.Until(c.Expires).Round(time.Minute)))
-		}
-		return CommandResult{Lines: lines}
-
 	case "rename":
 		if len(args) != 2 {
 			return say("usage: rename <old name> <new name>")
@@ -350,9 +266,6 @@ func (s *Server) Command(line string, confirmed bool) (res CommandResult) {
 			return say("%v", err)
 		}
 		if !found {
-			if list, _ := db.ListLauncherClaims(); hasClaim(list, args[0]) {
-				return say("%q has not logged in yet (only a pending invite): invites cancel %s", args[0], quoteName(args[0]))
-			}
 			return say("player %q not found", args[0])
 		}
 		if !confirmed {
@@ -374,40 +287,6 @@ func (s *Server) Command(line string, confirmed bool) (res CommandResult) {
 
 	}
 	return say("unknown command %q; type help", cmd)
-}
-
-func claimHours(args []string) (int, error) {
-	if len(args) == 0 {
-		return DefaultClaimHours, nil
-	}
-	h, err := strconv.Atoi(strings.TrimSuffix(strings.ToLower(args[0]), "h"))
-	if err != nil || h < 1 || h > 168 {
-		return 0, fmt.Errorf("hours must be 1..168 (default %d)", DefaultClaimHours)
-	}
-	return h, nil
-}
-
-func codeLines(name, code string, exp time.Time, authMode string) []string {
-	out := []string{
-		fmt.Sprintf("player : %s", name),
-		fmt.Sprintf("code   : %s", code),
-		fmt.Sprintf("valid  : until %s (one use)", exp.Format("2006-01-02 15:04")),
-		"The player sets PLAYER_NAME=" + name + " and INVITE_CODE=<code> in nfsrun-launcher.ini",
-		"(lost key: also delete nfsrun-launcher.key). The name waits for this code.",
-	}
-	if authMode == "open" {
-		out = append(out, "AUTH_MODE=open: new names need no code; this one does until the code is used or expires.")
-	}
-	return out
-}
-
-func hasClaim(list []database.LauncherClaim, name string) bool {
-	for _, c := range list {
-		if strings.EqualFold(c.Name, name) {
-			return true
-		}
-	}
-	return false
 }
 
 func quoteName(n string) string {
@@ -455,7 +334,6 @@ func (s *Server) kickPlayer(name, why string) int {
 		_ = st.conn.Close()
 		n++
 	}
-	s.hub.dropPersona(name)
 	return n
 }
 

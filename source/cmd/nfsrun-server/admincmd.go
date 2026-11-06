@@ -33,10 +33,3 @@ func runAdminCommand(srv *server.Server, line string, yes bool) int {
 	}
 	return 0
 }
-
-func quoteArg(s string) string {
-	if strings.ContainsAny(s, " \t") {
-		return `"` + s + `"`
-	}
-	return s
-}

@@ -64,24 +64,21 @@ type Server struct {
 	log    *log.Logger
 	wg     sync.WaitGroup
 
-	guard          *guard
-	gm             *gameManager
-	online         onlineSet
-	ds             dsManager
-	web            *webStore
-	recent         recentPlayers
-	pg             playgroups
-	invites        inviteBox
-	hub            eventHub
-	launchers      launcherRegistry
-	authChallenges launcherChallengeRegistry
-	gameCodes      gameCodeRegistry
-	pwLimit        pwLimiter
-	bans           banList
-	race           raceStore
-	opts           optionStore
-	adminWeb       adminWeb
-	proxies        []*net.IPNet // TRUSTED_PROXIES
+	guard     *guard
+	gm        *gameManager
+	online    onlineSet
+	ds        dsManager
+	web       *webStore
+	recent    recentPlayers
+	pg        playgroups
+	launchers launcherRegistry
+	gameCodes gameCodeRegistry
+	pwLimit   pwLimiter
+	bans      banList
+	race      raceStore
+	opts      optionStore
+	adminWeb  adminWeb
+	proxies   []*net.IPNet // TRUSTED_PROXIES
 
 	connMu  sync.Mutex
 	conns   map[net.Conn]bool
@@ -257,15 +254,9 @@ func (s *Server) Serve(ctx context.Context) error {
 	mux.HandleFunc("/Persona/", s.handleWebHTTP)
 	mux.HandleFunc("/Autolog/", s.handleWebHTTP)
 	mux.HandleFunc("/locker/", s.handleLockerHTTP)
-	mux.HandleFunc("/nfsrun/players", s.handlePlayersHTTP)
-	mux.HandleFunc("/nfsrun/auth/challenge", s.handleLauncherAuthChallenge)
-	mux.HandleFunc("/nfsrun/auth/session", s.handleLauncherAuthSession)
 	mux.HandleFunc("/nfsrun/auth/gamecode", s.handleGameCodeHTTP)
 	mux.HandleFunc("/nfsrun/auth/password", s.handlePasswordLoginHTTP)
-	mux.HandleFunc("/nfsrun/presence", s.handlePresenceHTTP)
 	mux.HandleFunc("/nfsrun/results", s.handleResultsHTTP)
-	mux.HandleFunc("/nfsrun/invite", s.handleInviteHTTP)
-	mux.HandleFunc("/nfsrun/stream", s.handleStreamHTTP)
 	mux.HandleFunc("/news/", func(w http.ResponseWriter, r *http.Request) {
 		if !s.serveNewsImage(w, r) {
 			s.httpNotFound(w, r)
@@ -375,7 +366,6 @@ func (s *Server) handleConn(c net.Conn, redirect bool) {
 	s.log.Printf("[%s] connect %s", kind, c.RemoteAddr())
 	state := &connState{conn: c, kind: kind, wmu: &sync.Mutex{}, peer: c.RemoteAddr().String()}
 	defer state.close()
-	defer s.hub.kick() // runs last: the launchers see the player go offline
 	defer s.online.drop(state)
 	defer s.announceOffline(state) // runs before drop (LIFO)
 	defer s.ds.release(state)

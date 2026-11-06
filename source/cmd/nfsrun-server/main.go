@@ -21,7 +21,6 @@ import (
 
 func main() {
 	cfgPath := flag.String("config", "config/server.env", "server config")
-	invite := flag.String("invite", "", "make a one-time invite code for a new player and exit (same as --command \"invite <name>\")")
 	adminCmd := flag.String("command", "", "run one server-window command (e.g. \"players all\", \"reset-key Name\") against the database and exit; --yes answers its question")
 	adminYes := flag.Bool("yes", false, "with --command: confirm without asking")
 	exeDomain := flag.String("exe-domain", "", "print the base domain of a patched game exe and exit")
@@ -75,9 +74,6 @@ func main() {
 	db, e := database.Open(c.DatabaseEnv)
 	if e != nil {
 		fail(e)
-	}
-	if name := strings.TrimSpace(*invite); name != "" {
-		*adminCmd = "invite " + quoteArg(name)
 	}
 	if strings.TrimSpace(*adminCmd) != "" {
 		if e := db.Migrate(); e != nil {

@@ -71,20 +71,6 @@ func TestAdminKickPlayersHelp(t *testing.T) {
 	}
 }
 
-func TestClaimHours(t *testing.T) {
-	if h, err := claimHours(nil); err != nil || h != 12 {
-		t.Fatal(h, err)
-	}
-	if h, err := claimHours([]string{"48h"}); err != nil || h != 48 {
-		t.Fatal(h, err)
-	}
-	for _, bad := range []string{"0", "169", "x"} {
-		if _, err := claimHours([]string{bad}); err == nil {
-			t.Fatal(bad)
-		}
-	}
-}
-
 // Full admin flow on a real (temporary) SQLite database.
 func TestLiveAdminCommands(t *testing.T) {
 	db, err := database.Open(filepath.Join(t.TempDir(), "admin.db"))
@@ -100,33 +86,12 @@ func TestLiveAdminCommands(t *testing.T) {
 	s := New(cfg, db, log.New(&logs, "", 0))
 	name := "Cmd" + strconv.FormatInt(time.Now().UnixNano()%1000000, 10)
 
-	r := s.Command("invite "+name, false)
-	if len(r.Lines) < 3 || !strings.Contains(r.Lines[1], "code") {
-		t.Fatalf("create %q", r.Lines)
+	if r := s.Command("adduser "+name, false); len(r.Lines) < 3 || !strings.Contains(r.Lines[2], "password") {
+		t.Fatalf("adduser %q", r.Lines)
 	}
-	code := strings.TrimSpace(strings.TrimPrefix(r.Lines[1], "code   :"))
-	if r := s.Command("invites", false); !strings.Contains(strings.Join(r.Lines, "\n"), name) {
-		t.Fatalf("invites %q", r.Lines)
-	}
-	key := strings.Repeat("ab", 32)
-	per, _, err := db.AuthenticateLauncherPublicKey("eatest."+name+"@ea.com", name, key, code, "open", time.Hour)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if r := s.Command("invite "+name, false); !strings.Contains(r.Lines[0], "reset-key") {
-		t.Fatalf("create on owned name %q", r.Lines)
-	}
-	// reset-key asks first, then revokes and prints a code
-	r = s.Command("reset-key "+name+" 2", false)
-	if r.Confirm == "" || len(r.Lines) != 0 {
-		t.Fatalf("reset no confirm %+v", r)
-	}
-	if ok, _ := db.LauncherPublicKeyKnown(key); !ok {
-		t.Fatal("key revoked before confirmation")
-	}
-	r = s.Command("reset-key "+name+" 2", true)
-	if ok, _ := db.LauncherPublicKeyKnown(key); ok || !strings.Contains(strings.Join(r.Lines, "\n"), "code   :") {
-		t.Fatalf("reset %q", r.Lines)
+	per, found, err := db.FindPersona(name)
+	if err != nil || !found {
+		t.Fatal("player not created", err)
 	}
 	newName := name + "R"
 	if r := s.Command("rename "+name+" "+newName, false); !strings.Contains(r.Lines[0], "is now") {
@@ -143,7 +108,7 @@ func TestLiveAdminCommands(t *testing.T) {
 	webFile := s.web.path(strconv.FormatUint(per.BlazeID, 10))
 	os.MkdirAll(filepath.Dir(webFile), 0755)
 	os.WriteFile(webFile, []byte("{}"), 0644)
-	r = s.Command("delete-player "+newName, false)
+	r := s.Command("delete-player "+newName, false)
 	if !strings.Contains(r.Confirm, "DELETE") {
 		t.Fatalf("delete confirm %+v", r)
 	}

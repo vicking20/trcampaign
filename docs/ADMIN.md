@@ -7,7 +7,7 @@ Do not expose the port to the internet without a tunnel or firewall rules you tr
 | Tab | What it does |
 |---|---|
 | Players | who is online, kick, ban and unban |
-| Race | traffic density and car limit, forced cars, car names, race modes |
+| Race | options (join a running race, remember logins, number of race servers), traffic, forced cars, car names, race modes |
 | News | news items in the game's news feed; in-game messages with repeat |
 | Servers | running race servers and Stop |
 | Accounts | create players with generated passwords, reset passwords |
@@ -27,6 +27,8 @@ cars [force <hash,...|off> | name <hash> <label>]
 announce "<title>" "<text>" | news | news delete <id>
 say [-n <times>] [-every <seconds>] <text> | say stop
 modes | mode <name> | mode save <name> | mode delete <name>
+latejoin [on|off]  logins [on|off]  servers [n]      options (also on the Race tab)
+score | score cannonball | score off | score reset
 ```
 
 Traffic, forced cars and the mode are written to the game's `Scripts/NFSTR_Online.ini` (`[Patch]`) before each race server starts, so they

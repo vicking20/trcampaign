@@ -268,7 +268,6 @@ func (s *Server) handlePlaygroups(p *blaze.Packet, fields []blaze.Field, state *
 		resp := buildJoinPlaygroupResponse(g)
 		notify := buildNotifyJoinPlaygroup(g, state.Persona.BlazeID)
 		pg.mu.Unlock()
-		s.hub.kick() // presence: joinability changed
 		s.log.Printf("[PG] %s: group %d %q created by %q (max %d, join=%d)", name, id, g.name, state.Persona.Name, g.mlim, g.join)
 		state.Pending = append(state.Pending, notifyPacket(ComponentPlaygroups, PGNotifyJoin, notify))
 		return s.response(p, resp)
@@ -324,7 +323,6 @@ func (s *Server) handlePlaygroups(p *blaze.Packet, fields []blaze.Field, state *
 		notify := buildNotifyJoinPlaygroup(g, state.Persona.BlazeID)
 		joined := buildNotifyMemberJoined(g, m)
 		pg.mu.Unlock()
-		s.hub.kick() // presence: joinability changed
 		s.log.Printf("[PG] %s: %q joined group %d (%d/%d)", name, state.Persona.Name, g.id, len(others)+1, g.mlim)
 		for _, st := range others {
 			s.send(st, notifyPacket(ComponentPlaygroups, PGNotifyMemberJoined, joined), true)
@@ -401,7 +399,6 @@ func (s *Server) handlePlaygroups(p *blaze.Packet, fields []blaze.Field, state *
 		var w blaze.Writer
 		w.TagVar("OPEN", open)
 		w.TagVar("PGID", uint64(g.id))
-		s.hub.kick() // presence: joinability changed
 		s.log.Printf("[PG] %s: group %d join controls %d", name, g.id, open)
 		s.notifyMembers(state, sts, PGNotifyJoinControlsChange, w.Bytes())
 		return s.response(p, nil)
@@ -542,7 +539,6 @@ func (s *Server) leavePlaygroup(state *connState, reason uint64) {
 	if len(rest) == 0 {
 		delete(pg.by, g.id)
 		pg.mu.Unlock()
-		s.hub.kick() // presence: joinability changed
 		s.log.Printf("[PG] %q left group %d: group closed", state.Persona.Name, g.id)
 		s.send(state, notifyPacket(ComponentPlaygroups, PGNotifyDestroy, buildNotifyDestroyPlaygroup(g.id, pgReasonDestroyed)), true)
 		return
@@ -558,7 +554,6 @@ func (s *Server) leavePlaygroup(state *connState, reason uint64) {
 	leader := buildNotifyLeaderChange(g)
 	sts := g.memberStates()
 	pg.mu.Unlock()
-	s.hub.kick() // presence: joinability changed
 	s.log.Printf("[PG] %q left group %d (reason %d), %d left", state.Persona.Name, g.id, reason, len(sts))
 	s.send(state, notifyPacket(ComponentPlaygroups, PGNotifyMemberRemoved, removed), true)
 	for _, st := range sts {
@@ -583,7 +578,6 @@ func (s *Server) destroyPlaygroup(g *playgroup, reason uint64) {
 	}
 	g.members = nil
 	pg.mu.Unlock()
-	s.hub.kick() // presence: joinability changed
 	s.log.Printf("[PG] group %d destroyed", g.id)
 	for _, st := range sts {
 		s.send(st, notifyPacket(ComponentPlaygroups, PGNotifyDestroy, buildNotifyDestroyPlaygroup(g.id, reason)), true)
