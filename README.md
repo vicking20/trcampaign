@@ -45,3 +45,7 @@ tools/build_release.sh       the three zips in dist/
 ```
 
 Layout: `source/` Go server and `cmd/nfstr-origin` (the player's Origin stand-in), `plugin/` game plugin, `client/` launchers, `tools-linux/` race-server launcher, `data/` and `client_config/` served files, `docs/` reference.
+
+## Note
+
+This project was heavily assisted by AI (Claude); the code and docs were written and tested with it.

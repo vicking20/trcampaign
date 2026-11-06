@@ -66,3 +66,4 @@ data/results.jsonl
 data/standings.json
 nfsrun-server.next
 nfsrun-server.bak
+!third_party/dinput8.dll
