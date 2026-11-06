@@ -10,9 +10,8 @@ source/         Go server (cmd/nfsrun-server), SQLite storage, admin web page, r
 plugin/         game plugin (NFSTR_Online.asi): Origin stand-in, password login, traffic and forced-car patches
 client/         join launchers (.sh / .bat) for players
 helper/         Python Origin stand-in (lsx.py) used by the launchers
-tools-linux/    race-server launcher (Proton) and the SSLv3 gateway
+tools-linux/    race-server launcher (Proton), service installer
 tools/          build_plugin.sh, exe patch helpers
-legacy_gateway/ C SSLv3 gateway (for hosting on Windows)
 docs/           protocol and configuration notes
 ```
 
@@ -20,7 +19,7 @@ docs/           protocol and configuration notes
 
 1. Build: `cd source && go build -o ../nfsrun-server ./cmd/nfsrun-server`, and the plugin with `tools/build_plugin.sh` (needs mingw-w64).
 2. Copy `config/server.env.example` settings into `config/server.env` (addresses, `DS_GAME_DIR`, `ADMIN_WEB_*`). Keep this file private.
-3. Run `tools-linux/install_services.sh` (starts the gateway and server as user services, also after a reboot), or start `tools-linux/sslv3_gateway.py` and then `nfsrun-server --config config/server.env` by hand.
+3. Run `tools-linux/install_services.sh` (starts the server as a user service, also after a reboot), or run `nfsrun-server --config config/server.env` by hand. The SSLv3 gateway the game needs is built into the server.
 4. Admin page: `http://<server address>:8090` (login from `server.env`): players, bans, race servers, traffic, forced cars, news, in-game messages, race modes, accounts.
 
 ## Releases

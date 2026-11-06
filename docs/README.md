@@ -9,7 +9,6 @@
 | [LAUNCHER_HTTPS.md](LAUNCHER_HTTPS.md) | launcher HTTPS: direct certificate or Cloudflare |
 | [AUTOLOG.md](AUTOLOG.md) | Blaze and web Autolog, records, news, photos, recommendations |
 | [CLIENT_PATCHING.md](CLIENT_PATCHING.md) | supported game build and every exe patch |
-| [LEGACY_PROTOSSL.md](LEGACY_PROTOSSL.md) | SSLv3 gateway and Redirector certificate |
 | [BLAZE_PROTOCOL.md](BLAZE_PROTOCOL.md) | Blaze transport, TDF encoding, components |
 | [BLAZE_API.md](BLAZE_API.md) | generated: every Blaze RPC, notification, error code and type |
 | [ADMIN.md](ADMIN.md) | the admin web page and console commands: players, bans, race modes, traffic, cars, news, in-game messages |

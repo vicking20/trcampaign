@@ -1,13 +1,12 @@
 # Configuration reference
 
-Every setting the server, the gateway and the launcher read, with its default
+Every setting the server reads, with its default
 and the accepted values.
 
 | File | Read by | Created by |
 |---|---|---|
 | `config/server.env` | `nfsrun-server` | you (start from `server.env.example`) |
 | `config/nfsrun.db` | `nfsrun-server` | the server (SQLite database) |
-| `config/gateway.ini` | `nfsrun-ssl-gateway.exe` (Windows gateway only) | you |
 | `nfsrun-launcher.ini` | `nfsrun-launcher.exe` (player PC) | launcher on first start |
 | `nfsrun-launcher.key` | `nfsrun-launcher.exe` (player PC) | launcher on first start |
 | `client_config\<SECTION>.cfg` | `nfsrun-server.exe` | repository |
@@ -34,13 +33,13 @@ setup writes a different value, it is listed as "setup".
 | `PUBLIC_IP` | `127.0.0.1` (setup: asked) | IPv4 | Public IPv4 sent in the Redirector reply; also the race servers' address when `DS_PUBLIC_IP` is empty. |
 | `BASE_DOMAIN` | empty (setup: your domain) | domain, at most 16 characters | Domain of the four Redirector hosts. The launcher patches it into its game copy and the server into the race-server exe (a game exe already patched with another domain keeps its own). Also the certificate's domain. |
 | `BLAZE_PORT` | `10041` | 1-65535 | Blaze port sent to the game in the Redirector reply. |
-| `REDIRECTOR_FRONT_LISTEN` | `:42127` | `[ip]:port` | Public Redirector port; forwarded to the SSL gateway. |
-| `REDIRECTOR_GATEWAY_TARGET` | `127.0.0.1:42129` | `ip:port` | Where the Redirector front forwards to (the gateway's `[redirector]` listener). |
+| `REDIRECTOR_FRONT_LISTEN` | `:42127` | `[ip]:port` | Public Redirector port; forwarded to the built-in SSLv3 gateway. |
+| `REDIRECTOR_GATEWAY_TARGET` | `127.0.0.1:42129` | `ip:port` | Where the Redirector front forwards to (the built-in gateway). |
 | `REDIRECTOR_LISTEN` | `127.0.0.1:42128` | `ip:port` | Redirector backend (behind the gateway). |
 | `BLAZE_FRONT_LISTEN` | `:10041` | `[ip]:port` | Public Blaze port. |
 | `BLAZE_LISTEN` | `127.0.0.1:10042` | `ip:port` | Blaze backend the front forwards to. |
 | `HTTP_LISTEN` | `:18080` | `[ip]:port` | Plain HTTP: web Autolog backend, Locker files, `/health`. The launcher API is refused here. |
-| `CERT_FILE` | `certs/protossl_redirector.crt` | path | Redirector certificate (also used by the gateway). |
+| `CERT_FILE` | `certs/protossl_redirector.crt` | path | Redirector certificate. |
 | `KEY_FILE` | `certs/protossl_redirector.key` | path | Its private key. |
 | `DATABASE_ENV` | `config/nfsrun.db` | path | The SQLite database file (the key name is kept from older configs). |
 | `WEB_AUTOLOG_HOST` | empty | empty, `host:port`, `off` | Web Autolog host sent to the game as `V8ServerName`. Empty = `PUBLIC_HOST:18443`; `off` = not sent, and the gateway's HTTPS front is no longer restored at start. |
@@ -136,29 +135,6 @@ See [LAUNCHER_HTTPS.md](LAUNCHER_HTTPS.md) for the direct and Cloudflare setups.
 | `ADMIN_WEB_PASSWORD` | none | Password of the admin page. Keep `server.env` private. |
 | `BANS_FILE` | `config/bans.txt` | Banned names, one per line (edited from the admin page). |
 | `RACE_SETTINGS_FILE` | `config/race_settings.json` | Traffic, forced cars and mode chosen on the admin page; written into the game's `Scripts/NFSTR_Online.ini` before each race server starts. |
-
----
-
-## `config\gateway.ini`
-
-The SSLv3 gateway (`legacy_gateway`). Sections `[redirector]` and `[blaze]`
-are two listeners with the same keys.
-
-| Section / key | Setup value | Description |
-|---|---|---|
-| `[gateway] cert_file` | `certs\protossl_redirector.crt` | Certificate presented to the game. |
-| `[gateway] key_file` | `certs\protossl_redirector.key` | Its key. |
-| `[gateway] cipher_list` | `RC4-SHA:RC4-MD5:AES128-SHA:AES256-SHA:DES-CBC3-SHA` | OpenSSL cipher list. |
-| `[gateway] log_file` | `logs\gateway.log` | Log file. |
-| `enabled` | `1` | `1` = listener on, `0` = off. |
-| `name` | `REDIRECTOR` / `WEBAUTOLOG` | Name in the log. |
-| `listen_host` | `127.0.0.1` / `0.0.0.0` | Listen address. |
-| `listen_port` | `42129` / `18443` | Listen port. |
-| `backend_host` | `127.0.0.1` | Plaintext backend. |
-| `backend_port` | `42128` / `18080` | Backend port. |
-
-`[blaze]` is the HTTPS front of the web Autolog (18443 -> 18080).
-The Windows gateway needs this listener; the Linux gateway (`tools-linux/sslv3_gateway.py`) starts both.
 
 ---
 

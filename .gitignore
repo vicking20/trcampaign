@@ -38,12 +38,6 @@ data/news.json
 data/locker/*
 !data/locker/README.txt
 
-# Legacy gateway generated files
-legacy_gateway/obj/
-legacy_gateway/build/*
-!legacy_gateway/build/BUILD_ME.txt
-legacy_gateway/third_party/cache/*
-legacy_gateway/third_party/openssl-*/
 
 # Local patched game/client files
 NFSTR_DedicatedServer.exe
