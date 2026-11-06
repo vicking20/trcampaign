@@ -657,6 +657,70 @@ static void patch_instance_mutex(void)
     logf_("single-instance mutex name not found");
 }
 
+
+/* ---- race results (race server only) ----------------------------------------------------------------------------------------
+ * The race server never reports results over Blaze or HTTP, so the plugin reads them from its own memory: the state dword at
+ * 0x27A3300+0x1070 is 7/8 on the results screen, and the pool 0x2700000-0x3000000 holds one record per player: a NUL-terminated
+ * name, then at name+0x18 [u32 n][u32 n][float seconds]. Verified on a two-player race. Each finished race is POSTed once to
+ * https://<Host>:<LoginPort>/nfsrun/results (the emulator only accepts that from the same machine). */
+static DWORD WINAPI results_thread(LPVOID unused)
+{
+    char cmd[1024], inst[96] = "", port[16] = "", body[4096];
+    int posted = 0;
+    (void)unused;
+    lstrcpynA(cmd, GetCommandLineA(), sizeof cmd);
+    { char *q = strstr(cmd, "-instanceName "); if (q) { q += 14; size_t i = 0; while (*q && *q != ' ' && i + 1 < sizeof inst) inst[i++] = *q++; inst[i] = 0; } }
+    { char *q = strstr(cmd, "-GamePort "); if (q) { q += 10; size_t i = 0; while (*q >= '0' && *q <= '9' && i + 1 < sizeof port) port[i++] = *q++; port[i] = 0; } }
+    for (;;) {
+        Sleep(500);
+        DWORD st = IsBadReadPtr((void *)0x27A4370, 4) ? 0 : *(volatile DWORD *)0x27A4370;
+        if (st < 7) { posted = 0; continue; }
+        if (posted || st > 8) continue;
+        Sleep(1000);                                   /* let every client's record settle */
+        logf_("results: state %lu, scanning", st);
+        posted = 1;
+        int n = snprintf(body, sizeof body, "{\"instance\":\"%s\",\"port\":\"%s\",\"results\":[", inst, port), cnt = 0;
+        char seen[32][32]; int ns = 0;
+        static char buf[0x10000 + 0x40];
+        for (DWORD base = 0x2700000; base < 0x3000000; base += 0x10000) {
+            SIZE_T got = 0;
+            if (!ReadProcessMemory(GetCurrentProcess(), (LPCVOID)(DWORD_PTR)base, buf, sizeof buf, &got) || got < 0x100) continue;   /* a failed read just skips the block */
+            for (DWORD o = 0; o + 0x40 <= got && o < 0x10000; o += 4) {
+                const char *nm = buf + o;
+                if (nm[0] < 0x21 || nm[0] > 0x7e) continue;
+                int len = 0; while (len < 24 && nm[len] >= 0x21 && nm[len] <= 0x7e) ++len;
+                if (len < 3 || len > 20 || nm[len] != 0) continue;
+                DWORD w1 = *(const DWORD *)(nm + 0x18), w2 = *(const DWORD *)(nm + 0x1c); float t = *(const float *)(nm + 0x20);
+                if (w1 != w2 || w1 == 0 || w1 > 64 || !(t > 20.0f && t < 3600.0f)) continue;
+                int skip = 0; for (int i = 0; i < ns; ++i) if (!strcmp(seen[i], nm)) skip = 1;
+                for (const char *c = nm; *c; ++c) if (*c == '"' || *c == '\\') skip = 1;
+                if (skip || ns >= 32 || n > (int)sizeof body - 120) continue;
+                strcpy(seen[ns++], nm);
+                n += snprintf(body + n, sizeof body - n, "%s{\"name\":\"%s\",\"time\":%.3f}", cnt++ ? "," : "", nm, t);
+            }
+        }
+        snprintf(body + n, sizeof body - n, "]}");
+        logf_("results: state %lu, %d records: %s", st, cnt, body);
+        if (cnt) {
+            wchar_t whost[128]; DWORD status = 0, sz = sizeof status;
+            MultiByteToWideChar(CP_UTF8, 0, g_host, -1, whost, 128);
+            HINTERNET ses = WinHttpOpen(L"nfsrun-launcher/ds-1", WINHTTP_ACCESS_TYPE_NO_PROXY, NULL, NULL, 0), con = NULL, rq = NULL;
+            if (ses) { WinHttpSetTimeouts(ses, 10000, 10000, 10000, 10000); con = WinHttpConnect(ses, whost, (INTERNET_PORT)g_lsx_loginport, 0); }
+            if (con) rq = WinHttpOpenRequest(con, L"POST", L"/nfsrun/results", NULL, NULL, NULL, WINHTTP_FLAG_SECURE);
+            if (rq) {
+                DWORD fl = SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_CERT_DATE_INVALID | SECURITY_FLAG_IGNORE_CERT_CN_INVALID | SECURITY_FLAG_IGNORE_CERT_WRONG_USAGE;
+                WinHttpSetOption(rq, WINHTTP_OPTION_SECURITY_FLAGS, &fl, sizeof fl);
+                if (WinHttpSendRequest(rq, L"Content-Type: application/json\r\n", (DWORD)-1, body, (DWORD)strlen(body), (DWORD)strlen(body), 0) && WinHttpReceiveResponse(rq, NULL)) {
+                    WinHttpQueryHeaders(rq, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, NULL, &status, &sz, NULL);
+                    logf_("results: server answered %lu", status);
+                } else logf_("results: no answer from %s:%d (error %lu)", g_host, g_lsx_loginport, GetLastError());
+            }
+            if (rq) WinHttpCloseHandle(rq); if (con) WinHttpCloseHandle(con); if (ses) WinHttpCloseHandle(ses);
+        }
+    }
+    return 0;
+}
+
 BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID res)
 {
     if (reason != DLL_PROCESS_ATTACH) return TRUE;
@@ -699,6 +763,7 @@ BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID res)
             strcpy(g_seen_path, path); { char *sl = strrchr(g_seen_path, '\\'); if (!sl) sl = strrchr(g_seen_path, '/'); if (sl) strcpy(sl + 1, "car_hashes.txt"); else strcpy(g_seen_path, "car_hashes.txt"); }
             patch_force_cars(fc);
         }
+        if (strstr(exe, "dedicatedserver") && GetPrivateProfileIntA("Patch", "ReportResults", 1, path)) CreateThread(NULL, 0, results_thread, NULL, 0, NULL);
     }
     g_cfg_ms = GetPrivateProfileIntA("Debug", "DumpCfgMs", 0, path);
     if (g_cfg_ms) CreateThread(NULL, 0, dump_cfg_thread, NULL, 0, NULL);

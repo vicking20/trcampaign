@@ -259,6 +259,7 @@ func (s *Server) Serve(ctx context.Context) error {
 	mux.HandleFunc("/nfsrun/auth/gamecode", s.handleGameCodeHTTP)
 	mux.HandleFunc("/nfsrun/auth/password", s.handlePasswordLoginHTTP)
 	mux.HandleFunc("/nfsrun/presence", s.handlePresenceHTTP)
+	mux.HandleFunc("/nfsrun/results", s.handleResultsHTTP)
 	mux.HandleFunc("/nfsrun/invite", s.handleInviteHTTP)
 	mux.HandleFunc("/nfsrun/stream", s.handleStreamHTTP)
 	mux.HandleFunc("/news/", func(w http.ResponseWriter, r *http.Request) {
