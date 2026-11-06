@@ -61,7 +61,45 @@ func (s *Server) handleResultsHTTP(w http.ResponseWriter, r *http.Request) {
 		_, _ = f.Write(append(line, '\n'))
 		_ = f.Close()
 	}
+	in.Results = s.withNonFinishers(in.Results)
 	s.scoreRace(in.Results)
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write([]byte("{}"))
+}
+
+// withNonFinishers adds the players that were in the same game as the finishers but have no result (they did not finish,
+// or quit): they count as non-finishers (time 0). The race server only reports records of players that finished.
+func (s *Server) withNonFinishers(rs []RaceFinish) []RaceFinish {
+	have := map[string]bool{}
+	for _, r := range rs {
+		have[r.Name] = true
+	}
+	s.gm.mu.Lock()
+	defer s.gm.mu.Unlock()
+	for _, g := range s.gm.games {
+		if !g.dedicated() {
+			continue
+		}
+		var names []string
+		match := false
+		for _, gp := range g.players {
+			if gp.state == nil || gp.state.Persona.Name == "" || isDSPersonaName(gp.state.Persona.Name) {
+				continue
+			}
+			names = append(names, gp.state.Persona.Name)
+			if have[gp.state.Persona.Name] {
+				match = true
+			}
+		}
+		if match {
+			for _, n := range names {
+				if !have[n] {
+					rs = append(rs, RaceFinish{Name: n})
+					have[n] = true
+				}
+			}
+			break
+		}
+	}
+	return rs
 }
