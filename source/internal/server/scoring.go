@@ -845,3 +845,19 @@ func (s *Server) cmdScore(args []string) CommandResult {
 	s.saveStandings(st)
 	return say("scoring: %s; standings cleared, every finished race now scores (%s)", args[0], time.Now().Format("15:04"))
 }
+
+// scoringState: what the admin page's Game modes tab shows.
+func (s *Server) scoringState() map[string]any {
+	scoreMu.Lock()
+	defer scoreMu.Unlock()
+	st := s.loadStandings()
+	type row struct {
+		Name string `json:"name"`
+		Desc string `json:"desc"`
+	}
+	var modes []row
+	for _, n := range scoreModeNames() {
+		modes = append(modes, row{n, scoreModes[n].desc})
+	}
+	return map[string]any{"mode": st.Mode, "scheme": st.Scheme, "modes": modes, "round": st.Round + 1, "races": st.Races, "table": standingsText(st)}
+}

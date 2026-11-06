@@ -50,7 +50,7 @@ h2{font-size:15px;margin:14px 0 4px;color:var(--mute);font-weight:600}
 <script>
 const $=s=>document.querySelector(s);
 let state=null, tab='players', note=null, timer=null;
-const TABS=[['players','Players'],['race','Race'],['news','News'],['servers','Servers'],['accounts','Accounts'],['console','Console']];
+const TABS=[['players','Players'],['race','Race'],['scoring','Game modes'],['news','News'],['servers','Servers'],['accounts','Accounts'],['console','Console']];
 const PRESETS=[['Stock',-1,-1],['Calm',0.3,10],['Busy',0.9,25],['Rush hour',1.5,50],['Gridlock',3,50]];
 async function api(path,body){
   const r=await fetch(path,{method:body?'POST':'GET',headers:{'X-Admin':'1','Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
@@ -69,7 +69,7 @@ async function refresh(){
   try{state=await api('/api/state');}catch(e){return}
   // do not redraw while something is being typed: a redraw would wipe the field
   const typing=[...document.querySelectorAll('#view input')].some(i=>!['range','checkbox'].includes(i.type)&&i.value!=='')||(document.activeElement&&document.activeElement.tagName==='INPUT');
-  if((tab==='players'||tab==='servers')&&!typing) draw();
+  if((tab==='players'||tab==='servers'||tab==='scoring')&&!typing) draw();
 }
 function draw(){
   $('#tabs').innerHTML=TABS.map(([k,l])=>`<button class="${k===tab?'on':''}" data-t="${k}">${l}</button>`).join('');
@@ -79,6 +79,7 @@ function draw(){
   if(tab==='players') v.innerHTML=playersView();
   if(tab==='servers') v.innerHTML=serversView();
   if(tab==='race') v.innerHTML=raceView();
+  if(tab==='scoring') v.innerHTML=scoringView();
   if(tab==='news') v.innerHTML=newsView();
   if(tab==='accounts') v.innerHTML=accountsView();
   if(tab==='console'){v.innerHTML=consoleView();v.dataset.keep='1'}
@@ -132,6 +133,15 @@ function raceView(){
   <div class="mute" style="margin-top:8px">Applies to the next race server that starts.</div></div>`;
 }
 function carRow(c){return `<div class="row" data-h="${esc(c.hash)}"><label style="display:flex;align-items:center;gap:8px;flex:0 0 auto"><input type="checkbox" class="cf" ${c.forced?'checked':''} style="width:auto"><span class="mute" style="font-family:ui-monospace,monospace">${esc(c.hash)}</span></label><input class="cn" placeholder="name" value="${esc(c.name||'')}" style="max-width:55%"></div>`}
+function scoringView(){
+  const sc=state.scoring||{modes:[],mode:'',scheme:'field'};
+  const cards=sc.modes.map(m=>`<div class="row"><div><b>${esc(m.name)}</b>${m.name===sc.mode?' <span style="color:var(--ok)">active</span>':''}<div class="mute">${esc(m.desc)}</div></div>${m.name===sc.mode?'':`<button class="a" data-c="score ${esc(m.name)}" data-ask="Switch to ${esc(m.name)}? The standings start from zero.">Use</button>`}</div>`).join('');
+  const sch=[['field','one point per player in the race (1st gets N)'],['top3','5 / 3 / 1 for the first three'],['fixed','10, 8, 6, 4, 3, 2, 1']];
+  return `<h2>Game mode</h2><div class="card"><div class="mute">Every finished race is scored by the mode you pick, and the table is shown in the game's News. ${sc.mode?'Now: <b>'+esc(sc.mode)+'</b>, round '+sc.round+', '+sc.races+' races.':'Scoring is off.'}</div></div>
+  <div class="card">${cards}${sc.mode?`<div style="height:10px"></div><div style="display:flex;gap:8px"><button class="btn" data-c="score reset" data-ask="Clear the standings?">Clear standings</button><button class="btn bad" data-c="score off" data-ask="Turn scoring off and remove the News table?">Turn off</button></div>`:''}</div>
+  <h2>Points per place</h2><div class="card">${sch.map(([k,l])=>`<div class="row"><div><b>${k}</b>${k===sc.scheme?' <span style="color:var(--ok)">active</span>':''}<div class="mute">${l}</div></div>${k===sc.scheme?'':`<button class="a" data-c="score scheme ${k}">Use</button>`}</div>`).join('')}<div class="mute" style="margin-top:8px">Used by the point modes (not time attack or stage race).</div></div>
+  ${sc.table?`<h2>Standings</h2><div class="out"><pre>${esc(sc.table)}</pre></div>`:''}${noteBox()}`;
+}
 function accountsView(){
   return `<h2>New player</h2><div class="card"><input id="nn" placeholder="player name" autocapitalize="none"><div style="height:8px"></div><button class="btn pri" id="mk">Create and show password</button></div>
   <h2>Reset a password</h2><div class="card"><input id="rn" placeholder="player name" autocapitalize="none"><div style="height:8px"></div><button class="btn" id="rs">Reset password</button></div>
