@@ -68,3 +68,7 @@ nfsrun-server
 !config/server.env.example
 
 dist/
+data/results.jsonl
+data/standings.json
+nfsrun-server.next
+nfsrun-server.bak
