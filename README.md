@@ -21,7 +21,7 @@ docs/           protocol and configuration notes
 
 1. Build: `cd source && go build -o ../nfsrun-server ./cmd/nfsrun-server`, and the plugin with `tools/build_plugin.sh` (needs mingw-w64).
 2. Copy `config/server.env.example` settings into `config/server.env` (addresses, `DS_GAME_DIR`, `ADMIN_WEB_*`). Keep this file private.
-3. Start `tools-linux/sslv3_gateway.py`, then `nfsrun-server --config config/server.env`.
+3. Run `tools-linux/install_services.sh` (starts the gateway and server as user services, also after a reboot), or start `tools-linux/sslv3_gateway.py` and then `nfsrun-server --config config/server.env` by hand.
 4. Admin page: `http://<server address>:8090` (login from `server.env`): players, bans, race servers, traffic, forced cars, news, in-game messages, race modes, accounts.
 
 ## Releases
