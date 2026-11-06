@@ -280,7 +280,6 @@ func (s *Server) adminState() map[string]any {
 		"known":    func() []knownCar { l, _ := s.knownCars(); return l }(),
 		"news":     s.newsList(),
 		"says":     saysPending(),
-		"scoring":  s.scoringState(),
 		"modes":    s.allModes(),
 		"mode":     s.raceSettings().Mode,
 	}

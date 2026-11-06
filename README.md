@@ -13,7 +13,6 @@ helper/         Python Origin stand-in (lsx.py) used by the launchers
 tools-linux/    race-server launcher (Proton) and the SSLv3 gateway
 tools/          build_plugin.sh, exe patch helpers
 legacy_gateway/ C SSLv3 gateway (for hosting on Windows)
-reference/      modes.py: the old scoring modes, kept until they are ported to Go
 docs/           protocol and configuration notes
 ```
 
@@ -38,5 +37,5 @@ Players put the plugin files in the game folder and run `client/NFSTR_Online_Pla
 
 ## Status
 
-Working: login, playlists, multi-race sessions, results and points, admin page, race modes (traffic and car sets).
-Not done: scoring modes in Go, AI/cops (crash the race server), internet hosting guide, Windows hosting scripts (the old MariaDB-based ones were removed).
+Working: login, playlists, multi-race sessions, results and points, admin page, race modes (traffic and car sets), cannonball scoring (`score` command).
+Not done: AI/cops (crash the race server), internet hosting guide, Windows hosting scripts (the old MariaDB-based ones were removed).
