@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"nfsrun-server/internal/sslv3"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -238,6 +239,7 @@ func (s *Server) Serve(ctx context.Context) error {
 	s.log.Printf("Blaze backend listening on %s", s.cfg.BlazeListen)
 	s.log.Printf("Redirector PUBLIC front listening on %s -> legacy SSL gateway %s", s.cfg.RedirectorFrontListen, s.cfg.RedirectorGatewayTarget)
 	s.log.Printf("Blaze PUBLIC front listening on %s -> plaintext backend %s", s.cfg.BlazeFrontListen, s.cfg.BlazeListen)
+	s.startSSLGateways()
 	go s.startDedicatedServers(ctx)
 	s.wg.Add(4)
 	go s.acceptLoop(red, true)
@@ -1027,4 +1029,32 @@ func (s *Server) handleAuth(p *blaze.Packet, fields []blaze.Field, state *connSt
 		s.unimplemented(p, "Authentication")
 		return s.unimplementedReply(p)
 	}
+}
+
+// startSSLGateways: the built-in SSLv3 gateways (internal/sslv3) replace the
+// separate C / Python gateway. A port that is already taken means an external
+// gateway is running there, which keeps working.
+func (s *Server) startSSLGateways() {
+	creds, err := sslv3.LoadCreds(s.cfg.CertFile, s.cfg.KeyFile)
+	if err != nil {
+		s.log.Printf("[SSLV3] built-in gateway off (%v); an external gateway must serve the Redirector and the web Autolog", err)
+		return
+	}
+	for _, g := range []struct{ name, listen, backend string }{
+		{"Redirector", s.cfg.RedirectorGatewayTarget, s.cfg.RedirectorListen},
+		{"web Autolog", ":18443", "127.0.0.1" + portOf(s.cfg.HTTPListen)},
+	} {
+		if _, err := sslv3.Gateway(creds, g.listen, g.backend, s.log.Printf); err != nil {
+			s.log.Printf("[SSLV3] %s gateway not started on %s (%v); assuming an external gateway", g.name, g.listen, err)
+			continue
+		}
+		s.log.Printf("[SSLV3] %s gateway %s -> %s", g.name, g.listen, g.backend)
+	}
+}
+
+func portOf(addr string) string {
+	if i := strings.LastIndex(addr, ":"); i >= 0 {
+		return addr[i:]
+	}
+	return ":" + addr
 }

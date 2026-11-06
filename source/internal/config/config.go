@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -334,6 +335,15 @@ func Load(path string) (Config, error) {
 	}
 	set("DS_GAME_DIR", &c.DSGameDir)
 	set("DS_SOURCE_EXE", &c.DSSourceExe)
+	// Installed as <game folder>\NFSTR_Server: the game is one folder up.
+	if c.DSGameDir == "" {
+		if _, err := os.Stat(filepath.Join("..", c.DSSourceExe)); err == nil {
+			c.DSGameDir = ".."
+			if _, set := vals["DS_ENABLED"]; !set {
+				c.DSEnabled = true
+			}
+		}
+	}
 	set("DS_EXE", &c.DSExe)
 	set("DS_LISTEN_IP", &c.DSListenIP)
 	set("DS_PUBLIC_IP", &c.DSPublicIP)

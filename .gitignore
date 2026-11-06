@@ -64,7 +64,7 @@ runtime/
 build/
 config/server.env.bak
 data/cars.json.bak
-nfsrun-server
+/nfsrun-server
 !config/server.env.example
 
 dist/
