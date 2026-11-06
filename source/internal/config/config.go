@@ -349,6 +349,12 @@ func Load(path string) (Config, error) {
 	set("DS_PUBLIC_IP", &c.DSPublicIP)
 	set("DS_EXTRA_ARGS", &c.DSExtraArgs)
 	set("DS_LAUNCHER", &c.DSLauncher)
+	if c.DSLauncher != "" && !filepath.IsAbs(c.DSLauncher) && strings.ContainsAny(c.DSLauncher, `/\`) {
+		// race servers start in the game folder: keep the path valid from there
+		if a, err := filepath.Abs(c.DSLauncher); err == nil {
+			c.DSLauncher = a
+		}
+	}
 	set("DS_INSTANCE_DIR", &c.DSInstanceDir)
 	intVal("DS_COUNT", &c.DSCount, 0, 64)
 	intVal("DS_PORT_BASE", &c.DSPortBase, 1024, 65000)

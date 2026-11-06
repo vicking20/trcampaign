@@ -42,6 +42,7 @@ func TestPasswordLoginFlow(t *testing.T) {
 		_ = json.Unmarshal(w.Body.Bytes(), &out)
 		return w.Code, out
 	}
+	_ = s.saveOptions(serverOptions{ForgetLogins: true}) // one-time codes
 	code, out := post("racer", pw)
 	if code != 200 || !isGameCode(out["code"].(string)) {
 		t.Fatalf("login: %d %v", code, out)
@@ -60,5 +61,44 @@ func TestPasswordLoginFlow(t *testing.T) {
 	}
 	if c, _ := post("Racer", pw); c != 429 {
 		t.Fatalf("after %d failures the address must be refused, got %d", pwFailMax, c)
+	}
+}
+
+// With "remember logins" (the default) a code works again and survives a restart.
+func TestRememberedGameCode(t *testing.T) {
+	db, err := database.Open(filepath.Join(t.TempDir(), "t.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	_ = db.Migrate()
+	c := testConfig()
+	c.RaceSettingsFile = filepath.Join(t.TempDir(), "race_settings.json")
+	s := New(c, db, log.New(&syncBuf{}, "", 0))
+	pw := ""
+	for _, l := range s.Command("adduser Racer", false).Lines {
+		if v, ok := strings.CutPrefix(l, "password : "); ok {
+			pw = v
+		}
+	}
+	body, _ := json.Marshal(map[string]string{"name": "Racer", "password": pw})
+	req := httptest.NewRequest(http.MethodPost, "/nfsrun/auth/password", strings.NewReader(string(body)))
+	req.RemoteAddr = "203.0.113.9:5555"
+	w := httptest.NewRecorder()
+	s.handlePasswordLoginHTTP(w, req)
+	var out map[string]any
+	_ = json.Unmarshal(w.Body.Bytes(), &out)
+	code, _ := out["code"].(string)
+	if !isGameCode(code) {
+		t.Fatalf("no code: %v", out)
+	}
+	for i := 0; i < 2; i++ {
+		if _, err := s.loginWithGameCode(&connState{}, code, "test"); err != nil {
+			t.Fatalf("use %d: %v", i+1, err)
+		}
+	}
+	s2 := New(c, db, log.New(&syncBuf{}, "", 0)) // a restart
+	if _, err := s2.loginWithGameCode(&connState{}, code, "test"); err != nil {
+		t.Fatalf("after a restart: %v", err)
 	}
 }

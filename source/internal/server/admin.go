@@ -44,6 +44,7 @@ var CommandHelp = []string{
 	"games                   games and race servers, with the advertised address",
 	"kick <name>             disconnect a player (they can come back)",
 	"ban <name>              refuse that player's logins and disconnect them;  unban <name>;  bans lists them",
+	"latejoin [on|off]       let players join a race that has started (default on);  logins [on|off]  remember game login codes (default on);  servers [n]  race servers at the same time (0 = DS_COUNT)",
 	"traffic [off | <density 0-3> [<cars 0-50>]]  show or set the race servers' traffic (next race server start)",
 	"cars [force <hash,...|off> | name <hash> <label>]  cars players used; force every player into chosen cars",
 	"announce \"<title>\" \"<text>\"  post a news item players see in the game's news feed;  news lists them;  news delete <id>",
@@ -194,6 +195,8 @@ func (s *Server) Command(line string, confirmed bool) (res CommandResult) {
 
 	case "traffic":
 		return s.cmdTraffic(args)
+	case "latejoin", "logins", "servers":
+		return s.cmdOption(strings.ToLower(cmd), args)
 
 	case "stop":
 		if len(args) != 1 {

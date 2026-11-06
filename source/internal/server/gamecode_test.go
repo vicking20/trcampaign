@@ -64,6 +64,7 @@ func TestGameCodeLoginIsSingleUse(t *testing.T) {
 	cfg.FriendsAll = false
 	st := &v3AuthTestStore{}
 	s := New(cfg, st, log.New(io.Discard, "", 0))
+	_ = s.saveOptions(serverOptions{ForgetLogins: true}) // one-time codes
 	ticket := launcherSessionForTest(t, s, "RacerOne")
 
 	if _, status := gameCodeForTest(s, ""); status != http.StatusUnauthorized {
@@ -99,7 +100,7 @@ func TestGameCodeRegistryLimits(t *testing.T) {
 	var g gameCodeRegistry
 	var codes []string
 	for i := 0; i < gameCodePerPersonaMax+3; i++ {
-		c, err := g.issue("k", 7)
+		c, err := g.issue("k", 7, false)
 		if err != nil {
 			t.Fatal(err)
 		}

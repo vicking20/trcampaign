@@ -18,6 +18,7 @@ func testConfig() config.Config {
 	// package folder; a playlists.txt left there made the Quick Match default
 	// playlist random in TestDedicatedServerFlow.
 	c.LockerDir = filepath.Join(testDataRoot(), "locker")
+	c.RaceSettingsFile = filepath.Join(testDataRoot(), "config", "race_settings.json")
 	c.LauncherHTTPSListen = "127.0.0.1:0"
 	c.LauncherTLSCert = filepath.Join(testDataRoot(), "certs", "launcher.crt")
 	c.LauncherTLSKey = filepath.Join(testDataRoot(), "certs", "launcher.key")

@@ -1109,6 +1109,9 @@ func (s *Server) findOpenDSGameLocked(r mmRequest, need int) *game {
 		case gameStateResetable, gameStatePostGame, 5, 6:
 			continue
 		}
+		if g.gstate == gameStateInGame && s.options().NoLateJoin {
+			continue // the owner turned off joining a race that has started
+		}
 		if g.req.GSet != 0 && g.req.GSet&gameSettingOpenToMatchmaking == 0 {
 			continue
 		}

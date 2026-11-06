@@ -15,6 +15,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -30,15 +32,60 @@ const (
 )
 
 type gameCodeEntry struct {
-	launcherKey string
-	personaID   uint64
-	expires     time.Time
+	LauncherKey string    `json:"k"`
+	PersonaID   uint64    `json:"p"`
+	Expires     time.Time `json:"e"`
+	Kept        bool      `json:"r,omitempty"` // issued while "remember logins" was on: usable again, kept across restarts
 }
+
+// gameCodeKeepTTL: how long a remembered code stays valid. A game that lost its
+// connection logs in again with the code it got at start.
+const gameCodeKeepTTL = 14 * 24 * time.Hour
 
 // gameCodeRegistry keeps outstanding codes by their SHA-256, never in clear.
 type gameCodeRegistry struct {
-	mu sync.Mutex
-	by map[string]gameCodeEntry
+	mu   sync.Mutex
+	by   map[string]gameCodeEntry
+	path string // remembered codes are kept here ("" = not persisted)
+	read bool
+}
+
+func (g *gameCodeRegistry) loadLocked() {
+	if g.read {
+		return
+	}
+	g.read = true
+	if g.by == nil {
+		g.by = map[string]gameCodeEntry{}
+	}
+	if g.path == "" {
+		return
+	}
+	if b, err := os.ReadFile(g.path); err == nil {
+		var m map[string]gameCodeEntry
+		if json.Unmarshal(b, &m) == nil {
+			for k, e := range m {
+				if time.Now().Before(e.Expires) {
+					g.by[k] = e
+				}
+			}
+		}
+	}
+}
+
+func (g *gameCodeRegistry) saveLocked() {
+	if g.path == "" {
+		return
+	}
+	keep := map[string]gameCodeEntry{}
+	for k, e := range g.by {
+		if e.Kept && time.Now().Before(e.Expires) {
+			keep[k] = e
+		}
+	}
+	b, _ := json.Marshal(keep)
+	_ = os.MkdirAll(filepath.Dir(g.path), 0o755)
+	_ = os.WriteFile(g.path, b, 0o600)
 }
 
 func gameCodeHash(code string) string {
@@ -46,7 +93,7 @@ func gameCodeHash(code string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func (g *gameCodeRegistry) issue(launcherKey string, personaID uint64) (string, error) {
+func (g *gameCodeRegistry) issue(launcherKey string, personaID uint64, keep bool) (string, error) {
 	random, err := authRandomHex(16)
 	if err != nil {
 		return "", err
@@ -55,19 +102,17 @@ func (g *gameCodeRegistry) issue(launcherKey string, personaID uint64) (string, 
 	now := time.Now()
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	if g.by == nil {
-		g.by = map[string]gameCodeEntry{}
-	}
+	g.loadLocked()
 	var oldest string
 	n := 0
 	for k, e := range g.by {
-		if now.After(e.expires) {
+		if now.After(e.Expires) {
 			delete(g.by, k)
 			continue
 		}
-		if e.personaID == personaID {
+		if e.PersonaID == personaID {
 			n++
-			if oldest == "" || e.expires.Before(g.by[oldest].expires) {
+			if oldest == "" || e.Expires.Before(g.by[oldest].Expires) {
 				oldest = k
 			}
 		}
@@ -78,7 +123,12 @@ func (g *gameCodeRegistry) issue(launcherKey string, personaID uint64) (string, 
 	if len(g.by) >= gameCodeMax {
 		return "", fmt.Errorf("too many outstanding game codes")
 	}
-	g.by[gameCodeHash(code)] = gameCodeEntry{launcherKey: launcherKey, personaID: personaID, expires: now.Add(gameCodeTTL)}
+	ttl := gameCodeTTL
+	if keep {
+		ttl = gameCodeKeepTTL
+	}
+	g.by[gameCodeHash(code)] = gameCodeEntry{LauncherKey: launcherKey, PersonaID: personaID, Expires: now.Add(ttl), Kept: keep}
+	g.saveLocked()
 	return code, nil
 }
 
@@ -87,11 +137,12 @@ func (g *gameCodeRegistry) consume(code string) (gameCodeEntry, bool) {
 	h := gameCodeHash(strings.TrimSpace(code))
 	g.mu.Lock()
 	defer g.mu.Unlock()
+	g.loadLocked()
 	e, ok := g.by[h]
-	if ok {
+	if ok && !e.Kept {
 		delete(g.by, h)
 	}
-	if !ok || time.Now().After(e.expires) {
+	if !ok || time.Now().After(e.Expires) {
 		return gameCodeEntry{}, false
 	}
 	return e, true
@@ -122,7 +173,7 @@ func (s *Server) handleGameCodeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.launchers.remember(per, r.RemoteAddr)
-	code, err := s.gameCodes.issue(key, per.ID)
+	code, err := s.issueGameCode(key, per.ID)
 	if err != nil {
 		s.log.Printf("[AUTH] game code for %q refused: %v", per.Name, err)
 		http.Error(w, `{"error":"server"}`, http.StatusServiceUnavailable)
@@ -140,7 +191,7 @@ func (s *Server) loginWithGameCode(state *connState, code, source string) (datab
 	if !ok {
 		return database.Persona{}, fmt.Errorf("unknown, used or expired game code")
 	}
-	per, err := s.authenticateLauncherSession(state, e.launcherKey, source+" game code")
+	per, err := s.authenticateLauncherSession(state, e.LauncherKey, source+" game code")
 	if err != nil {
 		return database.Persona{}, err
 	}
@@ -169,4 +220,10 @@ func (s *Server) withGameSession(state *connState, per database.Persona) (databa
 	per.SessionKey = key
 	state.Persona.SessionKey = key
 	return per, nil
+}
+
+// issueGameCode: remembered codes (the default) can be used again and survive a
+// server restart; with "logins off" they are one-time, 5 minutes.
+func (s *Server) issueGameCode(launcherKey string, personaID uint64) (string, error) {
+	return s.gameCodes.issue(launcherKey, personaID, !s.options().ForgetLogins)
 }

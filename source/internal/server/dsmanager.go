@@ -274,8 +274,13 @@ func (s *Server) ensureRaceServer(why string) {
 			return // on its way
 		}
 	}
+	limit := s.dsLimit()
+	for len(s.ds.insts) < limit { // the owner raised the number of race servers
+		n := len(s.ds.insts) + 1
+		s.ds.insts = append(s.ds.insts, &dsInstance{n: n, port: s.cfg.DSPortBase + n - 1, state: "stopped"})
+	}
 	for _, i := range s.ds.insts {
-		if i.state != "stopped" {
+		if i.state != "stopped" || i.n > limit {
 			continue
 		}
 		if wait := time.Until(i.notBefore); wait > 0 {
@@ -288,7 +293,7 @@ func (s *Server) ensureRaceServer(why string) {
 		s.startInstanceLocked(i, why)
 		return
 	}
-	s.log.Printf("[DSMGR] all %d race server(s) are busy (DS_COUNT); %s waits for one to free up", len(s.ds.insts), why)
+	s.log.Printf("[DSMGR] all %d race server(s) are busy (servers setting); %s waits for one to free up", limit, why)
 }
 
 // dsJanitor stops on-demand race servers that had no players for

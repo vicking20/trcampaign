@@ -133,7 +133,7 @@ func (s *Server) handlePasswordLoginHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	s.launchers.remember(per, r.RemoteAddr)
-	code, err := s.gameCodes.issue(per.SessionKey, per.ID)
+	code, err := s.issueGameCode(per.SessionKey, per.ID)
 	if err != nil {
 		reply(http.StatusServiceUnavailable, map[string]string{"error": "server"})
 		return

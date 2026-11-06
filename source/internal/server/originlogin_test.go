@@ -80,7 +80,7 @@ func TestAuthenticatedPersonaIgnoresLaterLoginPersonaName(t *testing.T) {
 	s := New(testConfig(), &fakeStore{per: per}, log.New(&logs, "", 0))
 	cs := &connState{peer: "203.0.113.55:50000"}
 
-	code, err := s.gameCodes.issue(key, per.ID)
+	code, err := s.gameCodes.issue(key, per.ID, false)
 	if err != nil {
 		t.Fatal(err)
 	}

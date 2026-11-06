@@ -281,6 +281,7 @@ func (s *Server) adminState() map[string]any {
 		"news":     s.newsList(),
 		"says":     saysPending(),
 		"modes":    s.allModes(),
+		"options":  map[string]any{"late_join": !s.options().NoLateJoin, "remember_logins": !s.options().ForgetLogins, "servers": s.dsLimit(), "ds_count": s.cfg.DSCount},
 		"mode":     s.raceSettings().Mode,
 	}
 }

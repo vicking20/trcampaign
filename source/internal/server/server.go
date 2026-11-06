@@ -79,6 +79,7 @@ type Server struct {
 	pwLimit        pwLimiter
 	bans           banList
 	race           raceStore
+	opts           optionStore
 	adminWeb       adminWeb
 	proxies        []*net.IPNet // TRUSTED_PROXIES
 
@@ -119,7 +120,8 @@ func New(c config.Config, d Store, l *log.Logger) *Server {
 		l.Printf("[CONFIG] %v; no proxy is trusted", err)
 	}
 	return &Server{cfg: c, db: d, log: l, done: make(chan struct{}), started: time.Now(), guard: newGuard(c.ClientGuard, c.GuardAllowIPs, c.GuardMaxConnPerIP), gm: newGameManager(),
-		web: &webStore{dir: filepath.Join(filepath.Dir(c.LockerDir), "web")}, proxies: proxies}
+		web: &webStore{dir: filepath.Join(filepath.Dir(c.LockerDir), "web")}, proxies: proxies,
+		gameCodes: gameCodeRegistry{path: filepath.Join(filepath.Dir(c.RaceSettingsFile), "game_codes.json")}}
 }
 
 // listener: the backends are plaintext (the SSLv3 gateway decrypts in front).
