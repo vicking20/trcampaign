@@ -12,6 +12,7 @@
 | [LEGACY_PROTOSSL.md](LEGACY_PROTOSSL.md) | SSLv3 gateway and Redirector certificate |
 | [BLAZE_PROTOCOL.md](BLAZE_PROTOCOL.md) | Blaze transport, TDF encoding, components |
 | [BLAZE_API.md](BLAZE_API.md) | generated: every Blaze RPC, notification, error code and type |
+| [ADMIN.md](ADMIN.md) | the admin web page and console commands: players, bans, race modes, traffic, cars, news, in-game messages |
 | [TOOLS.md](TOOLS.md) | scripts in `tools\` and their arguments |
 
 The documents describe the current implementation; the code is the final

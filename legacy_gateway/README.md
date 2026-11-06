@@ -30,8 +30,7 @@ builds it statically with SSLv3 enabled.
 nfsrun-ssl-gateway.exe [config file]
 ```
 
-Default config file: `config\gateway.ini` (written by first-run setup;
-`start_server.bat` starts the gateway).
+Default config file: `config\gateway.ini` (write it by hand; start the gateway next to `nfsrun-server`).
 
 ## `gateway.ini`
 
@@ -73,8 +72,7 @@ backend_port=18080
 | `backend_port` | `42128` / `18080` | Backend port. |
 
 `[redirector]` sits behind the Go front on 42127. `[blaze]` is the public
-HTTPS front of the web Autolog; `run_server.ps1` restores it on every start
-unless `WEB_AUTOLOG_HOST=off`.
+HTTPS front of the web Autolog.
 
 ## Security
 

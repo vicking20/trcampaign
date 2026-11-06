@@ -60,8 +60,7 @@ nfsrun-server.exe --check-cert [--fix]                                     check
 ```
 
 First-run setup asks the game folder first and takes the domain from the exe;
-`start_server.bat` runs `--check-cert --fix` before starting the gateway, and
-the server logs `[CERT] ...` at startup. A replaced certificate is kept as
+run `nfsrun-server --check-cert --fix` before starting the gateway; the server logs `[CERT] ...` at startup. A replaced certificate is kept as
 `*.old-<date>`. A hand-made certificate that passes the check is left alone.
 
 No EA private key is required or distributed.

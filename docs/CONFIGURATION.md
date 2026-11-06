@@ -5,9 +5,9 @@ and the accepted values.
 
 | File | Read by | Created by |
 |---|---|---|
-| `config\server.env` | `nfsrun-server.exe` | first-run setup |
-| `config\database.env` | `nfsrun-server.exe`, scripts | first-run setup |
-| `config\gateway.ini` | `nfsrun-ssl-gateway.exe` | first-run setup |
+| `config/server.env` | `nfsrun-server` | you (start from `server.env.example`) |
+| `config/nfsrun.db` | `nfsrun-server` | the server (SQLite database) |
+| `config/gateway.ini` | `nfsrun-ssl-gateway.exe` (Windows gateway only) | you |
 | `nfsrun-launcher.ini` | `nfsrun-launcher.exe` (player PC) | launcher on first start |
 | `nfsrun-launcher.key` | `nfsrun-launcher.exe` (player PC) | launcher on first start |
 | `client_config\<SECTION>.cfg` | `nfsrun-server.exe` | repository |
@@ -42,7 +42,7 @@ setup writes a different value, it is listed as "setup".
 | `HTTP_LISTEN` | `:18080` | `[ip]:port` | Plain HTTP: web Autolog backend, Locker files, `/health`. The launcher API is refused here. |
 | `CERT_FILE` | `certs/protossl_redirector.crt` | path | Redirector certificate (also used by the gateway). |
 | `KEY_FILE` | `certs/protossl_redirector.key` | path | Its private key. |
-| `DATABASE_ENV` | `config/database.env` | path | Database settings file. |
+| `DATABASE_ENV` | `config/nfsrun.db` | path | The SQLite database file (the key name is kept from older configs). |
 | `WEB_AUTOLOG_HOST` | empty | empty, `host:port`, `off` | Web Autolog host sent to the game as `V8ServerName`. Empty = `PUBLIC_HOST:18443`; `off` = not sent, and the gateway's HTTPS front is no longer restored at start. |
 | `LOCKER_BASE_URL` | empty | URL | Base URL for photo uploads/downloads. Empty = `http://<PUBLIC_HOST>:<HTTP_LISTEN port>`. |
 
@@ -127,17 +127,15 @@ See [LAUNCHER_HTTPS.md](LAUNCHER_HTTPS.md) for the direct and Cloudflare setups.
 
 ---
 
-## `config\database.env`
+## Admin web page, bans and race settings
 
-| Key | Setup value | Description |
+| Key | Default | Description |
 |---|---|---|
-| `DB_HOST` | `127.0.0.1` | MariaDB host. |
-| `DB_PORT` | asked (default `1979`) | MariaDB port (the portable MariaDB is started on it). |
-| `DB_USER` | asked (default `NFSRunServer`) | Database user. |
-| `DB_PASSWORD` | generated | Its password. |
-| `DB_NAME` | asked (default `NFSRun`) | Database name. |
-
-`config\mariadb-root.key` holds the generated MariaDB root password.
+| `ADMIN_WEB_LISTEN` | off | Address and port of the admin page, e.g. `0.0.0.0:8090`. |
+| `ADMIN_WEB_USER` | `admin` | Login name of the admin page. |
+| `ADMIN_WEB_PASSWORD` | none | Password of the admin page. Keep `server.env` private. |
+| `BANS_FILE` | `config/bans.txt` | Banned names, one per line (edited from the admin page). |
+| `RACE_SETTINGS_FILE` | `config/race_settings.json` | Traffic, forced cars and mode chosen on the admin page; written into the game's `Scripts/NFSTR_Online.ini` before each race server starts. |
 
 ---
 
@@ -160,7 +158,7 @@ are two listeners with the same keys.
 | `backend_port` | `42128` / `18080` | Backend port. |
 
 `[blaze]` is the HTTPS front of the web Autolog (18443 -> 18080).
-`run_server.ps1` restores it on every start unless `WEB_AUTOLOG_HOST=off`.
+The Windows gateway needs this listener; the Linux gateway (`tools-linux/sslv3_gateway.py`) starts both.
 
 ---
 
@@ -302,5 +300,4 @@ Names with spaces go in quotes: `kick "Ze Silva"`. Names are not case-sensitive.
 |---|---|
 | `NFSTR_EXE` | Path of a game exe for the exe patch tests. |
 | `NFSTR_GAME_DIR` | Game folder for the playlist patch tests. |
-| `NFSRUN_TEST_MARIADB`, `NFSRUN_TEST_MARIADB_CLIENT` | Run the database tests against a real MariaDB. |
 | `SCHEMA_REPORT=1` | Print the schema coverage report. |

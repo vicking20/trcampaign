@@ -41,7 +41,7 @@ values it builds in.
 
 Keep `certs\launcher.key`. A new key changes the pin, and every player needs
 a new package (`package` in the server window) or `SERVER_CERT_PIN=<new pin>`
-in their `nfsrun-launcher.ini`. `reset_setup.bat` keeps it.
+in their `nfsrun-launcher.ini`.
 
 A certificate from a public CA (for example Let's Encrypt) works too: put it
 in `LAUNCHER_TLS_CERT` / `LAUNCHER_TLS_KEY`. Player packages then get no pin

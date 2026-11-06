@@ -1,5 +1,7 @@
 # Launcher login
 
+> This project's default login is simpler: the game plugin reads `Name` and `Password` from `Scripts/NFSTR_Online.ini` and signs in with them (`AUTH_MODE=open` lets any name in; accounts are made with `adduser` in the admin page). The launcher-key model below is the emulator's original design and is not used by our player files.
+
 Players are identified by a key their launcher keeps, not by their name.
 
 ## Model

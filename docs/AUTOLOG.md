@@ -24,14 +24,12 @@ Race results arrive through GameReporting (`0x001C`), including:
 
 Observed result data includes game type (`run_single`, `race_single`), event hash, time in milliseconds, vehicle hash and mode flags/counters.
 
-MariaDB storage separates:
+SQLite storage separates:
 
 - `game_reports`: deduplicated raw/parsed report history;
 - `leaderboards`: best result per board/event/persona plus metadata.
 
 For the time-based modes currently observed, lower time is better.
-
-`show_records.bat` prints stored personal bests in a readable time format.
 
 ## Recommends
 

@@ -132,7 +132,7 @@ That channel can deliver:
 
 Polling remains a fallback if the stream is interrupted.
 
-The server persists friend relationships in MariaDB. Depending on configuration, it can also expose all server users as friends for small private communities.
+The server persists friend relationships in the database. Depending on configuration, it can also expose all server users as friends for small private communities.
 
 ## Groups and invites
 

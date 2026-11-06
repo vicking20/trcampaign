@@ -30,7 +30,7 @@ addresses.
 ## Running a server
 
 - Expose only the ports listed in the README; keep the backends on 127.0.0.1.
-- Never publish `config\`, `certs\`, `mariadb\data\`, `logs\`, patched game
+- Never publish `config/` (including `nfsrun.db` and `server.env`), `certs/`, `logs/`, patched game
   executables or a player's `nfsrun-launcher.key`. They contain passwords,
   keys, addresses or player data.
 - If a secret is committed by accident, removing the file is not enough:

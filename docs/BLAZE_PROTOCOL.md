@@ -86,7 +86,7 @@ SessionInfo.UID       -> UserId
 PersonaDetails.PID    -> PersonaId
 ```
 
-The local MariaDB identity layer persists those values and the session key.
+The local SQLite identity layer persists those values and the session key.
 
 ### Recovered authentication field layouts
 

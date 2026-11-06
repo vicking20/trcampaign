@@ -188,7 +188,7 @@ if errorlevel 1 (
  echo Output: build\nfsrun-ssl-gateway.exe
 echo OpenSSL CLI: build\openssl-1.0.2u.exe
  echo.
- echo Integrated package: start_server.bat manages this gateway automatically.
+ echo Start this gateway next to nfsrun-server.
  echo.
 exit /b 0
 

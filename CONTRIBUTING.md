@@ -20,6 +20,6 @@ gofmt -w <changed .go files>
 go test ./...
 ```
 
-For Python tools, make sure they parse under Python 3. For Windows build/runtime changes, also exercise `Build_All.bat` and first-run setup when possible.
+For Python tools, make sure they parse under Python 3.
 
 When changing behavior, update the matching document in `docs\`.

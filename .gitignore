@@ -30,8 +30,6 @@ logs/*
 !logs/.gitkeep
 run/*
 !run/.gitkeep
-mariadb/*
-!mariadb/PUT_MARIADB_HERE.txt
 
 # Runtime server data
 data/ds/
