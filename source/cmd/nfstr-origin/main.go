@@ -324,7 +324,59 @@ func handle(c net.Conn) {
 	}
 }
 
+// setup (--setup [host]): ask for whatever Host= / Name= / Password= the ini leaves empty.
+func setup(defaultHost string) error {
+	exe, _ := os.Executable()
+	path := filepath.Join(filepath.Dir(exe), "NFSTR_Online.ini")
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	text := string(b)
+	in := bufio.NewReader(os.Stdin)
+	ask := func(key, prompt string, ok func(string) bool, def string) error {
+		re := regexp.MustCompile(`(?im)^(` + key + `=)(.*)$`)
+		m := re.FindStringSubmatch(text)
+		if m == nil || strings.TrimSpace(m[2]) != "" {
+			return nil
+		}
+		v := def
+		for !ok(v) {
+			fmt.Print(prompt)
+			line, err := in.ReadString('\n')
+			if err != nil && line == "" {
+				return err
+			}
+			v = strings.TrimSpace(line)
+		}
+		text = re.ReplaceAllString(text, "${1}"+strings.ReplaceAll(v, "$", "$$"))
+		return nil
+	}
+	nonEmpty := func(v string) bool { return v != "" }
+	nameOK := regexp.MustCompile(`^[A-Za-z0-9_-]{3,16}$`).MatchString
+	if err := ask("Host", "Address of the host (ask them; for example 192.168.1.20): ", nonEmpty, defaultHost); err != nil {
+		return err
+	}
+	if err := ask("Name", "Your player name (3-16 letters, digits, _ or -): ", nameOK, ""); err != nil {
+		return err
+	}
+	if err := ask("Password", "Your password (the host gives it to you): ", nonEmpty, ""); err != nil {
+		return err
+	}
+	return os.WriteFile(path, []byte(text), 0o644)
+}
+
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "--setup" {
+		host := ""
+		if len(os.Args) > 2 {
+			host = os.Args[2]
+		}
+		if err := setup(host); err != nil {
+			os.Exit(1)
+		}
+		return
+	}
 	exe, _ := os.Executable()
 	dir := filepath.Dir(exe)
 	ini = readINI(filepath.Join(dir, "NFSTR_Online.ini"), "NFSTR_Online.ini", filepath.Join("Scripts", "NFSTR_Online.ini"))

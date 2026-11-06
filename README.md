@@ -7,9 +7,9 @@ that start on demand. You need your own copy of the game; no game files are incl
 
 ```text
 source/         Go server (cmd/nfsrun-server), SQLite storage, admin web page, race modes, ban list
+source/cmd/nfstr-origin  Origin stand-in for players (Go, replaces the Python helper)
 plugin/         game plugin (NFSTR_Online.asi): Origin stand-in, password login, traffic and forced-car patches
 client/         join launchers (.sh / .bat) for players
-helper/         Python Origin stand-in (lsx.py) used by the launchers
 tools-linux/    race-server launcher (Proton), service installer
 tools/          build_plugin.sh, exe patch helpers
 docs/           protocol and configuration notes
@@ -26,7 +26,7 @@ docs/           protocol and configuration notes
 
 Two packages are planned for GitHub Releases:
 - **Server zip**: `nfsrun-server`, `tools-linux/`, `data/`, `config/server.env.example`, the plugin, and the NetFix cop guard (needs the game folder; Linux hosting with Proton).
-- **Client zip**: extract into the game folder: `dinput8.dll`, `Scripts/NFSTR_Online.asi`, `Scripts/lsx.py`, `Scripts/NFSTR_Online.ini`, and the join launchers.
+- **Client zip**: extract into the game folder: `dinput8.dll`, `Scripts/NFSTR_Online.asi`, `Scripts/nfstr-origin(.exe)`, `Scripts/NFSTR_Online.ini`, and the join launchers.
 
 Neither is built yet (`tools/` will get a build script). Hosts hand each player their address, name and password.
 
