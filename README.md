@@ -24,6 +24,14 @@ docs/           protocol and configuration notes
 3. Start `tools-linux/sslv3_gateway.py`, then `nfsrun-server --config config/server.env`.
 4. Admin page: `http://<server address>:8090` (login from `server.env`): players, bans, race servers, traffic, forced cars, news, in-game messages, race modes, accounts.
 
+## Releases
+
+Two packages are planned for GitHub Releases:
+- **Server zip**: `nfsrun-server`, `tools-linux/`, `data/`, `config/server.env.example`, the plugin, and the NetFix cop guard (needs the game folder; Linux hosting with Proton).
+- **Client zip**: extract into the game folder: `dinput8.dll`, `Scripts/NFSTR_Online.asi`, `Scripts/lsx.py`, `Scripts/NFSTR_Online.ini`, and the join launchers.
+
+Neither is built yet (`tools/` will get a build script). Hosts hand each player their address, name and password.
+
 ## Play
 
 Players put the plugin files in the game folder and run `client/NFSTR_Online_Play.sh` (or `.bat`). Their name and password go in `Scripts/NFSTR_Online.ini`; the host creates the account in the admin page.

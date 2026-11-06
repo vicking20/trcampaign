@@ -15,5 +15,7 @@
 | [ADMIN.md](ADMIN.md) | the admin web page and console commands: players, bans, race modes, traffic, cars, news, in-game messages |
 | [TOOLS.md](TOOLS.md) | scripts in `tools\` and their arguments |
 
+Note: LOGIN.md, LAUNCHER_HTTPS.md, CLIENT_PATCHING.md and parts of ORIGIN_LSX.md describe the original emulator's launcher flow. NFSTR Online players use the plugin and Origin helper instead (main README); those pages stay as reference.
+
 The documents describe the current implementation; the code is the final
 authority when they disagree.

@@ -1,3 +1,4 @@
 dinput8.dll = Ultimate ASI Loader v9.7.4 (32-bit, NoPDB), MIT license.
 Source: https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases/tag/v9.7.4
 sha256 ec2f4824eca58dd40f425756a4a7cec77b8e381f21d11d7c846ec4b339b617ab
+The dll is not stored in git (see .gitignore): download it from the release above, or copy it from a game folder that already has it, into this folder before building a bundle.
